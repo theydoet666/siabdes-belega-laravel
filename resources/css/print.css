@@ -1,0 +1,135 @@
+/* ==========================================================================
+   Print Stylesheet for SIABDES Belega
+   Sesuai Spesifikasi PRD §5.5 & §9
+   - Ukuran: A4 Portrait
+   - Margin: 20mm (2cm)
+   - thead berulang pada tiap halaman cetak
+   - page-break-inside: avoid pada baris tabel & blok tanda tangan
+   ========================================================================== */
+
+@page {
+    size: A4 portrait;
+    margin: 20mm;
+}
+
+@media print {
+    *,
+    *::before,
+    *::after {
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-family: 'Times New Roman', Times, 'Nimbus Roman No9 L', serif, sans-serif !important;
+        font-size: 11pt !important;
+        line-height: 1.3 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .no-print,
+    .no-print * {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    .lembar-a4 {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    /* Tabel & Pengulangan Header */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto;
+    }
+
+    thead {
+        display: table-header-group !important;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+
+    tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    th, td {
+        border: 1px solid #000000 !important;
+        padding: 5px 6px !important;
+    }
+
+    /* Blok Pengesahan & Tanda Tangan */
+    .blok-pengesahan {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        margin-top: 20px !important;
+    }
+
+    .page-break-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .page-break-before {
+        break-before: page !important;
+        page-break-before: always !important;
+    }
+
+    .page-break-after {
+        break-after: page !important;
+        page-break-after: always !important;
+    }
+
+    a[href]::after {
+        content: none !important;
+    }
+}
+
+/* Tampilan Preview Layar (Screen Preview Sebelum Cetak) */
+@media screen {
+    body.preview-cetak-body {
+        background-color: #525659;
+        margin: 0;
+        padding: 24px 0 60px 0;
+        min-height: 100vh;
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    .lembar-a4 {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm;
+        margin: 0 auto 30px auto;
+        background-color: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        box-sizing: border-box;
+        color: #111827;
+        font-size: 11pt;
+        line-height: 1.35;
+    }
+
+    .print-only {
+        display: none;
+    }
+}
