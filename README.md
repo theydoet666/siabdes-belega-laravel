@@ -8,16 +8,12 @@ Sistem Absensi Digital Rapat Kantor Desa Belega (Kec. Blahbatuh, Kab. Gianyar, B
 - **Frontend**: Blade + Livewire + Alpine.js + Tailwind CSS
 - **Ekspor & Utilitas**: Maatwebsite Excel, SimpleSoftwareIO QRCode, Dexie.js (Offline queue)
 
-## Akun Pengujian Development (Seeder)
+## Inisialisasi Basis Data
 
-Setelah menjalankan `php artisan migrate:fresh --seed`, akun administrator default yang dibuat adalah:
-
-| Parameter | Nilai Default |
-|---|---|
-| **Email** | `admin@belega.desa.id` |
-| **Password** | `admin123` |
-| **Nama** | Administrator Desa Belega |
-| **Peran** | `admin` |
+Untuk inisialisasi basis data awal dan data master, jalankan migrasi serta seeder:
+```bash
+php artisan migrate --seed
+```
 
 ## Perintah Dasar
 
