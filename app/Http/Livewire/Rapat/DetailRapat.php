@@ -70,6 +70,12 @@ class DetailRapat extends Component
     public function segarkanData(): void
     {
         $this->rapat->loadCount(['undangan', 'kehadiran']);
+        $this->dispatch('undangan-diperbarui-tabel');
+        $this->dispatch('swal:alert', [
+            'title' => 'Data Rapat Disegarkan',
+            'text' => "Statistik kehadiran ({$this->rapat->kehadiran_count}/{$this->rapat->undangan_count}) dan daftar undangan berhasil diperbarui.",
+            'icon' => 'success',
+        ]);
     }
 
     public function mount(string $id): void
@@ -183,6 +189,11 @@ class DetailRapat extends Component
         ]);
 
         $this->pesanSukses = "Status rapat berhasil diubah menjadi: " . strtoupper($statusEnum->value) . ".";
+        $this->dispatch('swal:alert', [
+            'title' => 'Status Rapat Diperbarui',
+            'text' => "Status agenda rapat berhasil diubah menjadi " . strtoupper($statusEnum->value) . ".",
+            'icon' => 'success',
+        ]);
     }
 
     public function simpanPerubahan(): void
@@ -238,6 +249,11 @@ class DetailRapat extends Component
         ]);
 
         $this->pesanSukses = 'Perubahan konfigurasi rapat berhasil disimpan.';
+        $this->dispatch('swal:alert', [
+            'title' => 'Konfigurasi Tersimpan',
+            'text' => 'Seluruh perubahan informasi dan pejabat pengesah rapat telah berhasil disimpan.',
+            'icon' => 'success',
+        ]);
     }
 
     public function konfirmasiHapus(): void

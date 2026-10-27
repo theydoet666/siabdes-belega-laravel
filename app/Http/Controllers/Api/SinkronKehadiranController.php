@@ -40,29 +40,37 @@ class SinkronKehadiranController extends Controller
         $errors = [];
 
         foreach ($items as $item) {
+            $itemId = $item['id'] ?? null;
             try {
                 if (empty($item['rapat_id']) || (empty($item['undangan_id']) && empty($item['undangan_baru'])) || empty($item['ttd'])) {
+                    $errors[] = [
+                        'id' => $itemId,
+                        'error' => 'Data tidak lengkap (rapat_id, undangan_id/undangan_baru, atau ttd kosong).',
+                    ];
                     continue;
                 }
 
                 $kehadiran = $this->checkinService->prosesCheckin($item);
-                $suksesIds[] = $kehadiran->id;
+                $suksesIds[] = $itemId ?: $kehadiran->id;
             } catch (\Exception $e) {
                 Log::error('[SIABDES Sinkron API] Gagal memproses item absensi:', [
-                    'item_id' => $item['id'] ?? null,
+                    'item_id' => $itemId,
                     'error' => $e->getMessage(),
                 ]);
                 $errors[] = [
-                    'id' => $item['id'] ?? null,
+                    'id' => $itemId,
                     'error' => $e->getMessage(),
                 ];
             }
         }
 
+        $gagalIds = array_values(array_filter(array_column($errors, 'id')));
+
         return response()->json([
             'sukses' => true,
             'jumlah_sukses' => count($suksesIds),
             'sukses_ids' => $suksesIds,
+            'gagal_ids' => $gagalIds,
             'errors' => $errors,
         ]);
     }

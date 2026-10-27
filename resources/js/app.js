@@ -2,12 +2,15 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import html2canvas from 'html2canvas';
 
 import tandaTanganPad from './alpine/tandaTanganPad';
 import kameraWajah from './alpine/kameraWajah';
 import kioskApp from './alpine/kioskApp';
 import db from './offline/db';
 import antrean from './offline/antrean';
+
+window.html2canvas = html2canvas;
 
 // Konfigurasi SweetAlert2 bertema SIABDES Belega
 const SiabdesAlert = Swal.mixin({
@@ -25,9 +28,9 @@ const SiabdesAlert = Swal.mixin({
 window.Swal = Swal;
 window.SiabdesAlert = SiabdesAlert;
 
-// Interceptor Global untuk Konfirmasi (wire:confirm & data-confirm) dengan SweetAlert2
+// Interceptor Global untuk Konfirmasi dengan SweetAlert2 (data-confirm & data-confirm-danger)
 document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('[wire\\:confirm], [data-confirm]');
+    const trigger = e.target.closest('[data-confirm]');
     if (!trigger) return;
 
     if (trigger._swalConfirmed) {
@@ -38,7 +41,7 @@ document.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    const message = trigger.getAttribute('wire:confirm') || trigger.getAttribute('data-confirm');
+    const message = trigger.getAttribute('data-confirm');
     const isDanger = trigger.hasAttribute('data-confirm-danger') || 
                      trigger.classList.contains('text-rose-600') || 
                      trigger.classList.contains('text-rose-700') || 

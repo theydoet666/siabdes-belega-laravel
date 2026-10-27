@@ -152,7 +152,7 @@
                                 <div class="inline-flex items-center gap-1.5 justify-end">
                                     <!-- Toggle Peran -->
                                     <button wire:click="gantiPeran('{{ $op->id }}')" 
-                                            wire:confirm="Yakin ingin mengubah peran '{{ $op->nama }}' menjadi {{ $op->peran === \App\Enums\PeranPengguna::ADMIN ? 'Operator' : 'Administrator' }}?"
+                                            data-confirm="Yakin ingin mengubah peran '{{ $op->nama }}' menjadi {{ $op->peran === \App\Enums\PeranPengguna::ADMIN ? 'Operator' : 'Administrator' }}?"
                                             wire:loading.attr="disabled"
                                             @if ($isSelf) disabled @endif
                                             class="px-2.5 py-1.5 rounded-lg text-xs font-medium border transition {{ $isSelf ? 'opacity-40 cursor-not-allowed border-garis text-tinta/40' : 'border-garis hover:border-daun hover:text-daun text-tinta/80 bg-white hover:bg-kertas/50 cursor-pointer' }}"
@@ -162,7 +162,8 @@
 
                                     <!-- Toggle Status Aktif/Nonaktif -->
                                     <button wire:click="toggleStatus('{{ $op->id }}')" 
-                                            wire:confirm="Yakin ingin {{ $op->aktif ? 'menonaktifkan' : 'mengaktifkan' }} akun operator '{{ $op->nama }}'?"
+                                            data-confirm="Yakin ingin {{ $op->aktif ? 'menonaktifkan' : 'mengaktifkan' }} akun operator '{{ $op->nama }}'?"
+                                            data-confirm-danger
                                             wire:loading.attr="disabled"
                                             @if ($isSelf) disabled @endif
                                             class="px-2.5 py-1.5 rounded-lg text-xs font-medium border transition {{ $isSelf ? 'opacity-40 cursor-not-allowed border-garis text-tinta/40' : ($op->aktif ? 'border-rose-200 text-rose-700 hover:bg-rose-50' : 'border-emerald-200 text-daun hover:bg-emerald-50') }} cursor-pointer"

@@ -11,7 +11,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold leading-tight">Tambah Undangan Manual</h3>
+                            <h3 class="text-base font-bold leading-tight">{{ $isEdit ? 'Ubah Data Undangan' : 'Tambah Undangan Manual' }}</h3>
                             <p class="text-xs text-emerald-200/80 mt-0.5">Rapat: <span class="font-semibold text-white">{{ $rapat->judul }}</span></p>
                         </div>
                     </div>
@@ -20,7 +20,7 @@
                     </button>
                 </div>
 
-                <!-- Form Tambah Undangan -->
+                <!-- Form Tambah/Ubah Undangan -->
                 <form wire:submit="simpan" class="p-6 space-y-4">
                     <!-- Nama -->
                     <div>
@@ -99,7 +99,7 @@
                         <button type="submit" 
                                 wire:loading.attr="disabled"
                                 class="px-5 py-2.5 rounded-xl bg-daun hover:bg-daun-tua text-white text-xs font-semibold shadow-sm shadow-daun/20 focus:outline-none focus:ring-2 focus:ring-daun focus:ring-offset-2 transition cursor-pointer disabled:opacity-50">
-                            <span wire:loading.remove>Simpan Undangan</span>
+                            <span wire:loading.remove>{{ $isEdit ? 'Simpan Perubahan' : 'Simpan Undangan' }}</span>
                             <span wire:loading>Menyimpan...</span>
                         </button>
                     </div>

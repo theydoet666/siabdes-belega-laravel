@@ -99,7 +99,8 @@
                             @if ($logo_url)
                                 <div>
                                     <button wire:click="hapusLogo" 
-                                            wire:confirm="Yakin ingin menghapus logo kustom dan mereset ke logo default desa?"
+                                            data-confirm="Yakin ingin menghapus logo kustom dan mereset ke logo default desa?"
+                                            data-confirm-danger
                                             type="button" 
                                             class="text-[11px] text-rose-600 hover:underline cursor-pointer">
                                         Hapus Logo (Reset ke Default)
@@ -137,7 +138,8 @@
                             @if ($favicon_url)
                                 <div>
                                     <button wire:click="hapusFavicon" 
-                                            wire:confirm="Yakin ingin menghapus favicon kustom dan mereset ke default?"
+                                            data-confirm="Yakin ingin menghapus favicon kustom dan mereset ke default?"
+                                            data-confirm-danger
                                             type="button" 
                                             class="text-[11px] text-rose-600 hover:underline cursor-pointer">
                                         Hapus Favicon (Reset)

@@ -99,6 +99,11 @@ class ModalPilihRiwayatUndangan extends Component
         ]);
 
         $this->dispatch('undangan-diperbarui', pesan: "Berhasil menambahkan {$disalin} undangan dari Bank Riwayat.");
+        $this->dispatch('swal:alert', [
+            'title' => 'Riwayat Disalin',
+            'text' => "Sebanyak {$disalin} undangan dari Bank Riwayat telah berhasil ditambahkan ke rapat.",
+            'icon' => 'success',
+        ]);
         $this->tutup();
     }
 

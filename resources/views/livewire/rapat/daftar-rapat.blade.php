@@ -31,7 +31,19 @@
             <p class="text-sm text-tinta/60 mt-1">Kelola agenda rapat kantor desa, registrasi peserta meja kiosk, dan cetak lembar hadir resmi</p>
         </div>
 
-        <div>
+        <div class="flex items-center gap-2.5">
+            <button wire:click="segarkanData" 
+                    wire:loading.attr="disabled"
+                    type="button" 
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-kertas border border-garis text-tinta text-sm font-semibold shadow-xs transition cursor-pointer disabled:opacity-50"
+                    title="Segarkan Data Daftar Rapat">
+                <svg class="w-4 h-4 text-emerald-600" wire:loading.class="animate-spin" wire:target="segarkanData" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span wire:loading.remove wire:target="segarkanData">Refresh Data</span>
+                <span wire:loading wire:target="segarkanData">Memperbarui...</span>
+            </button>
+
             <a href="{{ route('rapat.baru') }}" 
                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-daun hover:bg-daun-tua text-white text-sm font-semibold shadow-md shadow-daun/20 focus:outline-none focus:ring-2 focus:ring-daun focus:ring-offset-2 transition cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,13 +81,15 @@
                 </select>
 
                 <button wire:click="segarkanData" 
+                        wire:loading.attr="disabled"
                         type="button" 
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-garis hover:border-daun hover:text-daun bg-white text-xs font-semibold text-tinta/70 transition cursor-pointer"
-                        title="Segarkan Data">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-garis hover:border-daun hover:text-daun bg-white text-xs font-semibold text-tinta/70 transition cursor-pointer disabled:opacity-50"
+                        title="Segarkan / Refresh Data Rapat">
+                    <svg class="w-4 h-4 text-emerald-600" wire:loading.class="animate-spin" wire:target="segarkanData" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    <span class="hidden sm:inline">Segarkan</span>
+                    <span wire:loading.remove wire:target="segarkanData">Refresh</span>
+                    <span wire:loading wire:target="segarkanData">...</span>
                 </button>
             </div>
         </div>

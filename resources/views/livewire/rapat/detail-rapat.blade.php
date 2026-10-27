@@ -138,6 +138,19 @@
                 <span>Ekspor Excel</span>
             </a>
 
+            <!-- Refresh Data -->
+            <button wire:click="segarkanData" 
+                    wire:loading.attr="disabled"
+                    type="button" 
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-kertas border border-garis text-xs sm:text-sm font-semibold text-tinta transition cursor-pointer disabled:opacity-50"
+                    title="Perbarui Data Undangan & Kehadiran">
+                <svg class="w-4 h-4 text-emerald-600" wire:loading.class="animate-spin" wire:target="segarkanData" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span wire:loading.remove wire:target="segarkanData">Refresh Data</span>
+                <span wire:loading wire:target="segarkanData">Memperbarui...</span>
+            </button>
+
             <!-- Duplikasi Rapat -->
             <button wire:click="$dispatch('buka-modal-duplikasi', { rapatId: '{{ $rapat->id }}' })" 
                     type="button" 

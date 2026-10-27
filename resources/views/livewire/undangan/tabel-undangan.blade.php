@@ -51,6 +51,19 @@
                     </svg>
                     <span>Salin Riwayat</span>
                 </button>
+
+                <!-- Refresh / Segarkan -->
+                <button wire:click="segarkanData" 
+                        wire:loading.attr="disabled"
+                        type="button" 
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-kertas border border-garis text-xs font-semibold text-tinta transition cursor-pointer disabled:opacity-50"
+                        title="Segarkan Daftar Undangan">
+                    <svg class="w-3.5 h-3.5 text-emerald-600" wire:loading.class="animate-spin" wire:target="segarkanData" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span wire:loading.remove wire:target="segarkanData">Refresh</span>
+                    <span wire:loading wire:target="segarkanData">...</span>
+                </button>
             </div>
         </div>
 
@@ -144,10 +157,19 @@
                             <!-- Status Kehadiran -->
                             <td class="py-3.5 px-4">
                                 @if ($sudahHadir)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                    @php
+                                        $kehadiranItem = $item->kehadiran->first();
+                                    @endphp
+                                    <a href="{{ route('kehadiran.bukti', $kehadiranItem->id) }}" 
+                                       target="_blank"
+                                       class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 transition cursor-pointer shadow-xs"
+                                       title="Klik untuk melihat / mengunduh Kartu Bukti Hadir Digital">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                                        Hadir
-                                    </span>
+                                        <span>Hadir</span>
+                                        <svg class="w-2.5 h-2.5 text-emerald-700 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600">
                                         Belum
@@ -157,15 +179,44 @@
 
                             <!-- Aksi -->
                             <td class="py-3.5 px-4 sm:px-6 text-right">
-                                <button wire:click="hapusUndangan('{{ $item->id }}')" 
-                                        wire:confirm="Yakin ingin menghapus nama '{{ $item->nama }}' dari daftar undangan rapat ini?"
-                                        type="button" 
-                                        class="p-1 rounded-lg text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                                        title="Hapus Undangan">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                                <div class="inline-flex items-center gap-1.5 justify-end">
+                                    @if ($sudahHadir)
+                                        @php
+                                            $kehadiranItem = $item->kehadiran->first();
+                                        @endphp
+                                        <!-- Unduh / Lihat Kartu Bukti Hadir -->
+                                        <a href="{{ route('kehadiran.bukti', $kehadiranItem->id) }}" 
+                                           target="_blank"
+                                           class="p-1.5 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition cursor-pointer shadow-xs"
+                                           title="Unduh / Lihat Kartu Bukti Kehadiran Digital ({{ $item->nama }})">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </a>
+                                    @endif
+
+                                    <!-- Edit Undangan -->
+                                    <button wire:click="$dispatch('buka-modal-edit-undangan', { id: '{{ $item->id }}' })" 
+                                            type="button" 
+                                            class="p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                                            title="Ubah / Edit Data Undangan">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+
+                                    <!-- Hapus Undangan -->
+                                    <button wire:click="hapusUndangan('{{ $item->id }}')" 
+                                            data-confirm="Yakin ingin menghapus nama '{{ $item->nama }}' dari daftar undangan rapat ini?"
+                                            data-confirm-danger
+                                            type="button" 
+                                            class="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                                            title="Hapus Undangan">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty

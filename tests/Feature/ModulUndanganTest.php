@@ -227,4 +227,31 @@ class ModulUndanganTest extends TestCase
 
         $this->assertDatabaseMissing('undangan', ['id' => $u1->id]);
     }
+
+    public function test_tabel_undangan_menampilkan_tombol_unduh_kartu_hadir_jika_sudah_absen(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        $undangan = Undangan::create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'rapat_id' => $this->rapat->id,
+            'nama' => 'I Made Hadir',
+            'jabatan' => 'Kader',
+            'urutan' => 1,
+        ]);
+
+        $kehadiran = \App\Models\Kehadiran::create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'rapat_id' => $this->rapat->id,
+            'undangan_id' => $undangan->id,
+            'ttd_path' => 'ttd/test.png',
+            'jalur' => \App\Enums\JalurCheckin::KIOSK,
+            'waktu_perangkat' => now(),
+            'dibatalkan' => false,
+        ]);
+
+        Livewire::test(TabelUndangan::class, ['rapatId' => $this->rapat->id])
+            ->assertSee('I Made Hadir')
+            ->assertSee(route('kehadiran.bukti', $kehadiran->id));
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kehadiran;
 use App\Models\Rapat;
 use App\Models\Undangan;
 use App\Services\CheckinService;
@@ -24,13 +25,28 @@ class RegistrasiMandiriController extends Controller
     {
         $rapat = Rapat::where('kode', $kode)->firstOrFail();
         $undanganAwal = Undangan::where('rapat_id', $rapat->id)
-            ->select(['id', 'rapat_id', 'nama', 'jabatan', 'instansi', 'sumber'])
+            ->select('undangan.*')
+            ->selectSub(
+                Kehadiran::select('id')
+                    ->whereColumn('undangan_id', 'undangan.id')
+                    ->where('dibatalkan', false)
+                    ->limit(1),
+                'kehadiran_id'
+            )
+            ->withExists(['kehadiran as sudah_hadir' => function ($query) {
+                $query->where('dibatalkan', false);
+            }])
             ->orderBy('nama', 'asc')
             ->get();
+
+        $urlRegistrasi = url('/r/' . $rapat->kode);
+        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(240)->margin(1)->generate($urlRegistrasi);
 
         return view('kiosk.index', [
             'rapat' => $rapat,
             'undanganAwal' => $undanganAwal,
+            'urlRegistrasi' => $urlRegistrasi,
+            'qrSvg' => $qrSvg,
         ]);
     }
 

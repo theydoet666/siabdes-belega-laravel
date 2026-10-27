@@ -80,9 +80,23 @@
             </div>
         </div>
 
-        <!-- Footer Pengesahan Kiosk -->
-        <div class="pt-2 text-center text-[10px] text-tinta/40 font-mono">
-            ID: <span x-text="dataBuktiHadir?.id"></span>
+        <!-- Footer Pengesahan Kiosk & Opsi Salinan Pribadi -->
+        <div class="pt-3 border-t border-garis/60 space-y-3">
+            <div class="flex items-center justify-between text-[10px] text-tinta/60 font-mono">
+                <span>Kode: <strong class="text-tinta" x-text="dataBuktiHadir?.rapat_kode || rapat.kode"></strong></span>
+                <span>ID: <span x-text="dataBuktiHadir?.id ? dataBuktiHadir.id.substring(0, 8) + '...' : '-'"></span></span>
+            </div>
+
+            <!-- Tombol Buka / Salin Kartu Digital Pribadi -->
+            <a :href="'/bukti/' + (dataBuktiHadir?.id || '')" 
+               target="_blank"
+               class="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-daun font-bold text-xs flex items-center justify-center gap-2 transition shadow-xs">
+                <svg class="w-4 h-4 text-daun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Unduh / Buka Kartu Bukti Hadir Digital Pribadi</span>
+                <span>↗</span>
+            </a>
         </div>
     </div>
 </div>

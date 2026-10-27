@@ -57,6 +57,17 @@ class CheckinService
             // Pastikan undangan valid
             $undangan = Undangan::findOrFail($undanganId);
 
+            // Cek apakah undangan ini sudah pernah check-in di rapat ini (hindari duplikasi)
+            $kehadiranEksisting = Kehadiran::with(['undangan', 'rapat'])
+                ->where('rapat_id', $rapatId)
+                ->where('undangan_id', $undangan->id)
+                ->where('dibatalkan', false)
+                ->first();
+
+            if ($kehadiranEksisting) {
+                return $kehadiranEksisting;
+            }
+
             // 2. Simpan file tanda tangan ke Laravel Storage (disk public)
             $ttdPath = "ttd/{$rapatId}/{$checkinId}.png";
             $this->simpanBase64KeStorage($data['ttd'] ?? '', $ttdPath);

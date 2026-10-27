@@ -54,6 +54,11 @@ class DaftarRapat extends Component
         $this->reset(['cari', 'filterStatus']);
         $this->resetPage();
         $this->pesanSukses = 'Data daftar rapat berhasil disegarkan.';
+        $this->dispatch('swal:alert', [
+            'title' => 'Daftar Rapat Disegarkan',
+            'text' => 'Data agenda rapat dan statistik kehadiran berhasil diperbarui.',
+            'icon' => 'success',
+        ]);
     }
 
     public function konfirmasiHapus(string $rapatId): void
@@ -89,6 +94,11 @@ class DaftarRapat extends Component
 
         $this->batalHapus();
         $this->pesanSukses = "Rapat '{$judul}' berhasil dihapus secara permanen.";
+        $this->dispatch('swal:alert', [
+            'title' => 'Rapat Dihapus',
+            'text' => "Agenda rapat '{$judul}' beserta data absensinya telah dihapus permanen.",
+            'icon' => 'success',
+        ]);
     }
 
     public function render()

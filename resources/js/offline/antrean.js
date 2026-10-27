@@ -1,4 +1,5 @@
 import db from './db';
+import { generateUUID } from '../lib/uuid';
 
 /**
  * Service pengelola antrean kehadiran lokal & sinkronisasi otomatis ke server Laravel.
@@ -45,7 +46,7 @@ class PengelolaAntrean {
      * @returns {Promise<string>} ID kehadiran (UUID)
      */
     async simpanKehadiranLokal(itemKehadiran) {
-        const id = itemKehadiran.id || crypto.randomUUID();
+        const id = itemKehadiran.id || generateUUID();
         const rekaman = {
             id: id,
             rapat_id: itemKehadiran.rapat_id,
@@ -132,18 +133,53 @@ class PengelolaAntrean {
 
             if (response.ok) {
                 const hasil = await response.json();
-                const suksesIds = hasil.sukses_ids || pendingItems.map(i => i.id);
+                const suksesIds = Array.isArray(hasil.sukses_ids) ? hasil.sukses_ids : [];
+                const gagalIds = Array.isArray(hasil.gagal_ids) ? hasil.gagal_ids : [];
 
-                // Tandai seluruh id yang sukses
+                // 1. Tandai seluruh ID yang sukses tersimpan di server
                 for (const id of suksesIds) {
                     await db.antrean_kehadiran.update(id, {
                         status_sinkron: 'sukses',
                         disinkron_pada: new Date().toISOString(),
                     });
                 }
+
+                // 2. Tandai item yang ditolak atau error dari server agar tidak berulang selamanya
+                for (const id of gagalIds) {
+                    if (id) {
+                        const rec = await db.antrean_kehadiran.get(id);
+                        const statusCoba = (rec?.status_coba || 0) + 1;
+                        await db.antrean_kehadiran.update(id, {
+                            status_sinkron: statusCoba >= 2 ? 'gagal' : 'pending',
+                            status_coba: statusCoba,
+                            error_terakhir: 'Ditolak server / data tidak valid',
+                        });
+                    }
+                }
+
+                // 3. Tangani item pending yang tidak masuk daftar sukses
+                for (const item of pendingItems) {
+                    if (!suksesIds.includes(item.id) && !gagalIds.includes(item.id)) {
+                        const statusCoba = (item.status_coba || 0) + 1;
+                        await db.antrean_kehadiran.update(item.id, {
+                            status_sinkron: statusCoba >= 2 ? 'gagal' : 'pending',
+                            status_coba: statusCoba,
+                            error_terakhir: 'Tidak ada respons konfirmasi dari server',
+                        });
+                    }
+                }
+
                 console.log(`[SIABDES Kiosk] ${suksesIds.length} data absensi berhasil tersinkronkan ke server.`);
             } else {
                 console.warn('[SIABDES Kiosk] Server mengembalikan status:', response.status);
+                for (const item of pendingItems) {
+                    const statusCoba = (item.status_coba || 0) + 1;
+                    await db.antrean_kehadiran.update(item.id, {
+                        status_coba: statusCoba,
+                        status_sinkron: statusCoba >= 5 ? 'gagal' : 'pending',
+                        error_terakhir: `HTTP ${response.status}`,
+                    });
+                }
             }
         } catch (error) {
             console.error('[SIABDES Kiosk] Kesalahan jaringan saat sinkronisasi:', error);
@@ -151,6 +187,22 @@ class PengelolaAntrean {
             this.isSyncing = false;
             this.beriTahuStatus();
         }
+    }
+
+    async bersihkanAntreanGagal() {
+        try {
+            await db.antrean_kehadiran
+                .where('status_sinkron')
+                .equals('gagal')
+                .delete();
+            this.beriTahuStatus();
+        } catch (e) {
+            console.warn('[SIABDES Antrean] Gagal membersihkan antrean gagal:', e);
+        }
+    }
+
+    async prosesSinkronisasi() {
+        return await this.sinkronkanSemua();
     }
 
     /**

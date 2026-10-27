@@ -55,6 +55,18 @@ class CetakController extends Controller
         $namaHariCetak = $mapHari[$now->format('l')] ?? $now->format('l');
         $namaBulanCetak = $mapBulan[(int) $now->format('n')] ?? $now->format('F');
         $waktuCetak = "{$namaHariCetak}, {$now->format('j')} {$namaBulanCetak} {$now->format('Y')} - {$now->format('H:i')} WITA";
+        $waktuCetakSingkat = "{$now->format('j')} {$namaBulanCetak} {$now->format('Y')}, {$now->format('H.i')} WITA";
+
+        // URL publik untuk verifikasi keabsahan dokumen
+        $urlVerifikasi = route('dokumen.verifikasi', $rapat->kode);
+        $qrVerifikasiSvg = null;
+        try {
+            $qrVerifikasiSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(70)
+                ->margin(0)
+                ->generate($urlVerifikasi);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal generate QR Verifikasi Cetak: ' . $e->getMessage());
+        }
 
         return view('cetak.lembar-a4', [
             'rapat' => $rapat,
@@ -63,6 +75,9 @@ class CetakController extends Controller
             'totalUndangan' => $totalUndangan,
             'totalHadir' => $totalHadir,
             'waktuCetak' => $waktuCetak,
+            'waktuCetakSingkat' => $waktuCetakSingkat,
+            'urlVerifikasi' => $urlVerifikasi,
+            'qrVerifikasiSvg' => $qrVerifikasiSvg,
         ]);
     }
 

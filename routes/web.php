@@ -43,11 +43,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['kiosk.pin'])->group(function () {
     Route::match(['get', 'post'], '/kiosk/{kode}', [\App\Http\Controllers\KioskController::class, 'index'])->name('kiosk.index');
 });
+Route::get('/kiosk/{kode}/data', [\App\Http\Controllers\KioskController::class, 'data'])->name('kiosk.data');
 Route::post('/kiosk/{kode}/kunci', [\App\Http\Controllers\KioskController::class, 'kunci'])->name('kiosk.kunci');
 
 // Registrasi Mandiri Publik via Ponsel Peserta
 Route::get('/r/{kode}', [\App\Http\Controllers\RegistrasiMandiriController::class, 'index'])->name('registrasi.mandiri');
 Route::get('/r/{kode}/cari', [\App\Http\Controllers\RegistrasiMandiriController::class, 'cari'])->name('registrasi.cari');
+
+// Verifikasi Keabsahan Dokumen Publik (/v/{kode})
+Route::get('/v/{kode}', [\App\Http\Controllers\VerifikasiDokumenController::class, 'show'])->name('dokumen.verifikasi');
+
+// Salinan Kartu Bukti Hadir Digital Pribadi (/bukti/{id})
+Route::get('/bukti/{id}', [\App\Http\Controllers\BuktiKehadiranController::class, 'show'])->name('kehadiran.bukti');
 
 // Kebijakan Privasi Publik (UU No. 27/2022 PDP)
 Route::view('/privasi', 'privasi')->name('privasi');

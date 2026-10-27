@@ -158,6 +158,24 @@ class ModulCetakDanEksporTest extends TestCase
         // Pastikan statistik kehadiran benar (8 + 4 = 12 hadir dari 16 undangan)
         $response->assertSee('12');
         $response->assertSee('16');
+
+        // Pastikan Blok Verifikasi Dokumen Resmi Muncul
+        $response->assertSee('VERIFIKASI DOKUMEN RESMI');
+        $response->assertSee('Pindai QR untuk verifikasi keabsahan daftar hadir');
+        $response->assertSee('BLG9');
+    }
+
+    public function test_halaman_publik_verifikasi_keabsahan_dokumen_dapat_diakses_oleh_siapa_saja(): void
+    {
+        $response = $this->get(route('dokumen.verifikasi', $this->rapat->kode));
+
+        $response->assertOk();
+        $response->assertViewIs('verifikasi.dokumen');
+        $response->assertSee('Dokumen Resmi Terverifikasi');
+        $response->assertSee('BLG9');
+        $response->assertSee('Musyawarah Perencanaan Pembangunan Desa (Musrenbangdes)');
+        $response->assertSee('I WAYAN SUDARSANA, S.Sos.');
+        $response->assertSee('Pemerintah Desa Belega');
     }
 
     public function test_ekspor_excel_menggunakan_rekap_kehadiran_export(): void

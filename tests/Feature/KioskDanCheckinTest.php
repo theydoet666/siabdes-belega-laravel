@@ -231,4 +231,57 @@ class KioskDanCheckinTest extends TestCase
             'nama' => 'I Ketut Sumadana',
         ]);
     }
+
+    public function test_halaman_kartu_bukti_hadir_digital_dapat_diakses_dan_menampilkan_data_peserta(): void
+    {
+        $kehadiran = Kehadiran::create([
+            'id' => (string) Str::uuid(),
+            'rapat_id' => $this->rapat->id,
+            'undangan_id' => $this->undangan->id,
+            'ttd_path' => 'ttd/sample-ttd.png',
+            'jalur' => JalurCheckin::KIOSK,
+            'waktu_perangkat' => now(),
+            'dibatalkan' => false,
+        ]);
+
+        $response = $this->get(route('kehadiran.bukti', $kehadiran->id));
+
+        $response->assertOk();
+        $response->assertViewIs('kehadiran.kartu-bukti');
+        $response->assertSee('KARTU BUKTI KEHADIRAN DIGITAL');
+        $response->assertSee('I Ketut Sumadana');
+        $response->assertSee('Kelian Banjar');
+        $response->assertSee('Banjar Belega Kangin');
+        $response->assertSee($this->rapat->judul);
+        $response->assertSee('Hadir Sah');
+    }
+
+    public function test_daftar_undangan_kiosk_dan_registrasi_menyertakan_kehadiran_id_untuk_akses_bukti(): void
+    {
+        $kehadiran = Kehadiran::create([
+            'id' => (string) Str::uuid(),
+            'rapat_id' => $this->rapat->id,
+            'undangan_id' => $this->undangan->id,
+            'ttd_path' => 'ttd/sample-ttd.png',
+            'jalur' => JalurCheckin::KIOSK,
+            'waktu_perangkat' => now(),
+            'dibatalkan' => false,
+        ]);
+
+        // Cek endpoint JSON kiosk/data
+        $responseJson = $this->getJson('/kiosk/' . $this->rapat->kode . '/data');
+        $responseJson->assertOk();
+        $responseJson->assertJsonFragment([
+            'id' => $this->undangan->id,
+            'sudah_hadir' => true,
+            'kehadiran_id' => $kehadiran->id,
+        ]);
+
+        // Cek view registrasi mandiri
+        $responseView = $this->get('/r/' . $this->rapat->kode);
+        $responseView->assertOk();
+        $undanganAwal = $responseView->viewData('undanganAwal');
+        $this->assertTrue($undanganAwal->first()->sudah_hadir);
+        $this->assertEquals($kehadiran->id, $undanganAwal->first()->kehadiran_id);
+    }
 }

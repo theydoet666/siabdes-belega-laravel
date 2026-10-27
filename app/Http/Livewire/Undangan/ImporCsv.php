@@ -74,6 +74,11 @@ class ImporCsv extends Component
         );
 
         $this->dispatch('undangan-diperbarui', pesan: "Berhasil mengimpor {$totalDiimpor} nama undangan.");
+        $this->dispatch('swal:alert', [
+            'title' => 'Impor Undangan Berhasil',
+            'text' => "Sebanyak {$totalDiimpor} data undangan baru telah berhasil diimpor ke dalam rapat.",
+            'icon' => 'success',
+        ]);
         $this->tutup();
     }
 

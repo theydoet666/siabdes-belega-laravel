@@ -14,6 +14,7 @@ export default function tandaTanganPad() {
         adaCoretan: false,
         warnaTinta: '#1c3a7a', // Token warna pena dinas
         lebarGaris: 3.2,
+        resizeObserver: null,
 
         init() {
             this.canvas = this.$refs.signatureCanvas;
@@ -22,8 +23,30 @@ export default function tandaTanganPad() {
             this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
             this.aturUkuranKanvas();
 
+            // Dengarkan event pembersihan kanvas tanda tangan (misal saat ganti peserta atau reset)
+            window.addEventListener('bersihkan-tanda-tangan', () => {
+                this.bersihkan();
+            });
+
+            window.addEventListener('siapkan-kanvas-ttd', () => {
+                this.bersihkan();
+                this.aturUkuranKanvas(false);
+            });
+
+            // ResizeObserver agar kanvas selalu pas saat tab/layar TTD menjadi aktif/terlihat
+            if (window.ResizeObserver && this.canvas.parentElement) {
+                this.resizeObserver = new ResizeObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+                            this.aturUkuranKanvas(this.adaCoretan);
+                        }
+                    }
+                });
+                this.resizeObserver.observe(this.canvas.parentElement);
+            }
+
             window.addEventListener('resize', () => {
-                this.aturUkuranKanvas(true);
+                this.aturUkuranKanvas(this.adaCoretan);
             });
         },
 
@@ -31,39 +54,49 @@ export default function tandaTanganPad() {
             if (!this.canvas || !this.canvas.parentElement) return;
 
             const rect = this.canvas.parentElement.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
+
             const dpr = window.devicePixelRatio || 1;
 
             let tempCanvas = null;
-            if (pertahankanGambar && this.adaCoretan) {
+            if (pertahankanGambar && this.adaCoretan && this.canvas.width > 0 && this.canvas.height > 0) {
                 tempCanvas = document.createElement('canvas');
                 tempCanvas.width = this.canvas.width;
                 tempCanvas.height = this.canvas.height;
-                tempCanvas.getContext('2d').drawImage(this.canvas, 0, 0);
+                const tempCtx = tempCanvas.getContext('2d');
+                if (tempCtx) {
+                    tempCtx.drawImage(this.canvas, 0, 0);
+                }
             }
 
             // Set ukuran internal canvas dengan DPR untuk ketajaman retina
-            this.canvas.width = rect.width * dpr;
-            this.canvas.height = rect.height * dpr;
+            this.canvas.width = Math.floor(rect.width * dpr);
+            this.canvas.height = Math.floor(rect.height * dpr);
             this.canvas.style.width = `${rect.width}px`;
             this.canvas.style.height = `${rect.height}px`;
 
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             this.ctx.scale(dpr, dpr);
             this.ctx.lineCap = 'round';
             this.ctx.lineJoin = 'round';
             this.ctx.strokeStyle = this.warnaTinta;
             this.ctx.lineWidth = this.lebarGaris;
 
-            if (tempCanvas) {
+            if (tempCanvas && pertahankanGambar) {
                 this.ctx.drawImage(tempCanvas, 0, 0, rect.width, rect.height);
             }
         },
 
         simpanSnapshot() {
-            if (!this.canvas || !this.ctx) return;
-            const snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            this.undoStack.push(snapshot);
-            if (this.undoStack.length > 20) {
-                this.undoStack.shift();
+            if (!this.canvas || !this.ctx || this.canvas.width <= 0 || this.canvas.height <= 0) return;
+            try {
+                const snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                this.undoStack.push(snapshot);
+                if (this.undoStack.length > 20) {
+                    this.undoStack.shift();
+                }
+            } catch (e) {
+                console.warn('Gagal menyimpan snapshot kanvas:', e);
             }
         },
 
@@ -77,6 +110,10 @@ export default function tandaTanganPad() {
 
         mulaiMenggambar(e) {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+            if (this.canvas.width <= 0 || this.canvas.height <= 0) {
+                this.aturUkuranKanvas();
+            }
 
             this.simpanSnapshot();
             this.isDrawing = true;
@@ -137,37 +174,59 @@ export default function tandaTanganPad() {
         batalkan() {
             if (this.undoStack.length === 0) return;
             const previous = this.undoStack.pop();
-            this.ctx.putImageData(previous, 0, 0);
-
-            // Cek apakah masih ada coretan di kanvas
-            this.cekApakahAdaCoretan();
+            if (this.ctx && this.canvas && this.canvas.width > 0 && this.canvas.height > 0) {
+                try {
+                    this.ctx.putImageData(previous, 0, 0);
+                } catch (e) {
+                    console.warn('Gagal membatalkan coretan:', e);
+                }
+                this.cekApakahAdaCoretan();
+            }
         },
 
-        bersihkan() {
+        bersihkan(simpanRiwayat = false) {
             if (!this.canvas || !this.ctx) return;
-            this.simpanSnapshot();
-            const rect = this.canvas.getBoundingClientRect();
-            this.ctx.clearRect(0, 0, rect.width, rect.height);
+            if (this.canvas.width > 0 && this.canvas.height > 0) {
+                if (simpanRiwayat) {
+                    this.simpanSnapshot();
+                }
+                this.ctx.save();
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.restore();
+            }
             this.adaCoretan = false;
+            this.undoStack = [];
+            this.points = [];
+            this.isDrawing = false;
         },
 
         cekApakahAdaCoretan() {
-            const imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            const data = imgData.data;
-            for (let i = 3; i < data.length; i += 4) {
-                if (data[i] > 10) {
-                    this.adaCoretan = true;
-                    return;
-                }
+            if (!this.canvas || !this.ctx || this.canvas.width <= 0 || this.canvas.height <= 0) {
+                this.adaCoretan = false;
+                return;
             }
-            this.adaCoretan = false;
+            try {
+                const imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                const data = imgData.data;
+                for (let i = 3; i < data.length; i += 4) {
+                    if (data[i] > 10) {
+                        this.adaCoretan = true;
+                        return;
+                    }
+                }
+                this.adaCoretan = false;
+            } catch (e) {
+                console.warn('Gagal memeriksa coretan kanvas:', e);
+                this.adaCoretan = false;
+            }
         },
 
         /**
          * Ekspor tanda tangan ke Data URL PNG dengan auto-crop
          */
         eksporPng() {
-            if (!this.adaCoretan) return null;
+            if (!this.adaCoretan || !this.canvas || this.canvas.width <= 0 || this.canvas.height <= 0) return null;
             return cropCanvasKeBoundingBox(this.canvas, 16);
         }
     };

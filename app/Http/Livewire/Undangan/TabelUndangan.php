@@ -38,12 +38,24 @@ class TabelUndangan extends Component
     }
 
     #[On('undangan-diperbarui')]
+    #[On('undangan-diperbarui-tabel')]
     public function tanganiUndanganDiperbarui(?string $pesan = null): void
     {
         if ($pesan) {
             $this->pesanSukses = $pesan;
         }
         $this->resetPage();
+    }
+
+    public function segarkanData(): void
+    {
+        $this->resetPage();
+        $this->dispatch('undangan-diperbarui');
+        $this->dispatch('swal:alert', [
+            'title' => 'Daftar Undangan Disegarkan',
+            'text' => 'Daftar peserta dan status kehadiran terkini telah diperbarui.',
+            'icon' => 'success',
+        ]);
     }
 
     public function updatingCari(): void
@@ -81,7 +93,13 @@ class TabelUndangan extends Component
 
         $undangan->delete();
 
+        $this->dispatch('undangan-diperbarui');
         $this->pesanSukses = "Undangan {$namaUndangan} berhasil dihapus.";
+        $this->dispatch('swal:alert', [
+            'title' => 'Undangan Dihapus',
+            'text' => "Peserta '{$namaUndangan}' telah dihapus dari daftar undangan rapat.",
+            'icon' => 'success',
+        ]);
     }
 
     public function render()

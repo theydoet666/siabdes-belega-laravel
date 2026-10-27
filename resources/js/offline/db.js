@@ -6,8 +6,8 @@ import Dexie from 'dexie';
  */
 export const db = new Dexie('siabdes_kiosk_db');
 
-db.version(1).stores({
-    undangan: 'id, rapat_id, nama, jabatan, instansi, hp, sumber, urutan, nama_cari',
+db.version(2).stores({
+    undangan: 'id, rapat_id, nama, jabatan, instansi, hp, sumber, urutan, nama_cari, sudah_hadir',
     antrean_kehadiran: 'id, rapat_id, undangan_id, jalur, waktu_perangkat, status_sinkron, status_coba, dibuat_pada'
 });
 
