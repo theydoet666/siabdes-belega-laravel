@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Undangan;
 
 use App\Models\Rapat;
 use App\Services\ImporUndanganService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -11,22 +12,28 @@ use Livewire\WithFileUploads;
 
 class ImporCsv extends Component
 {
-    use WithFileUploads;
+    use AuthorizesRequests, WithFileUploads;
 
     public ?string $rapatId = null;
+
     public ?Rapat $rapat = null;
+
     public bool $tampil = false;
 
     public $file = null;
+
     public ?array $previewData = null;
+
     public bool $abaikanDuplikat = true;
+
     public ?string $pesanError = null;
 
     #[On('buka-modal-impor-csv')]
     public function buka(string $rapatId): void
     {
         $this->rapatId = $rapatId;
-        $this->rapat = Rapat::find($rapatId);
+        $this->rapat = Rapat::findOrFail($rapatId);
+        $this->authorize('update', $this->rapat);
         $this->reset(['file', 'previewData', 'pesanError']);
         $this->abaikanDuplikat = true;
         $this->tampil = true;
@@ -52,15 +59,19 @@ class ImporCsv extends Component
             $this->previewData = $service->bacaDanValidasi($this->file->getRealPath(), $this->rapatId);
             $this->pesanError = null;
         } catch (\Exception $e) {
-            $this->pesanError = 'Gagal memproses berkas: ' . $e->getMessage();
+            $this->pesanError = 'Gagal memproses berkas: '.$e->getMessage();
             $this->previewData = null;
         }
     }
 
     public function eksekusiImpor(ImporUndanganService $service)
     {
+        $this->authorize('update', $this->rapat);
+
         if (empty($this->previewData) || empty($this->previewData['baris'])) {
+
             $this->pesanError = 'Tidak ada baris data valid untuk diimpor.';
+
             return;
         }
 

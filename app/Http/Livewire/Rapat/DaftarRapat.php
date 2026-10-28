@@ -2,7 +2,7 @@
 
 namespace App\Http\Livewire\Rapat;
 
-use App\Enums\StatusRapat;
+use App\Enums\PeranPengguna;
 use App\Models\Rapat;
 use App\Services\RapatService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -12,18 +12,22 @@ use Livewire\WithPagination;
 
 class DaftarRapat extends Component
 {
-    use WithPagination, AuthorizesRequests;
+    use AuthorizesRequests, WithPagination;
 
     public string $cari = '';
+
     public string $filterStatus = '';
 
     // Flash message
     public ?string $pesanSukses = null;
+
     public ?string $pesanError = null;
 
     // Modal Hapus State
     public bool $bukaModalHapus = false;
+
     public ?string $rapatIdHapus = null;
+
     public ?string $judulRapatHapus = null;
 
     protected $queryString = [
@@ -80,7 +84,7 @@ class DaftarRapat extends Component
 
     public function eksekusiHapus(RapatService $rapatService): void
     {
-        if (!$this->rapatIdHapus) {
+        if (! $this->rapatIdHapus) {
             return;
         }
 
@@ -107,17 +111,23 @@ class DaftarRapat extends Component
             ->orderBy('tanggal', 'desc')
             ->orderBy('dibuat_pada', 'desc');
 
-        if (!empty($this->cari)) {
-            $cari = '%' . $this->cari . '%';
+        $profil = Auth::user()?->profil;
+        if ($profil && $profil->peran !== PeranPengguna::ADMIN) {
+            $query->where('dibuat_oleh', $profil->id);
+        }
+
+        if (! empty($this->cari)) {
+
+            $cari = '%'.$this->cari.'%';
             $query->where(function ($q) use ($cari) {
                 $q->where('judul', 'like', $cari)
-                  ->orWhere('kode', 'like', $cari)
-                  ->orWhere('tempat', 'like', $cari)
-                  ->orWhere('penyelenggara', 'like', $cari);
+                    ->orWhere('kode', 'like', $cari)
+                    ->orWhere('tempat', 'like', $cari)
+                    ->orWhere('penyelenggara', 'like', $cari);
             });
         }
 
-        if (!empty($this->filterStatus)) {
+        if (! empty($this->filterStatus)) {
             $query->where('status', $this->filterStatus);
         }
 

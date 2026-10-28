@@ -14,13 +14,6 @@ class OperatorService
 {
     /**
      * Menambahkan operator baru ke tabel users dan profil secara atomik.
-     *
-     * @param string $email
-     * @param string $password
-     * @param string $nama
-     * @param PeranPengguna $peran
-     * @param Profil|null $aktor
-     * @return Profil
      */
     public function tambahOperator(
         string $email,
@@ -65,11 +58,6 @@ class OperatorService
 
     /**
      * Mengubah peran operator dan mencatat ke audit log.
-     *
-     * @param Profil $profil
-     * @param PeranPengguna $peranBaru
-     * @param Profil|null $aktor
-     * @return bool
      */
     public function ubahPeran(Profil $profil, PeranPengguna $peranBaru, ?Profil $aktor = null): bool
     {
@@ -100,16 +88,12 @@ class OperatorService
 
     /**
      * Mengubah status aktif/nonaktif akun operator dan mencatat ke audit log.
-     *
-     * @param Profil $profil
-     * @param Profil|null $aktor
-     * @return bool
      */
     public function toggleStatus(Profil $profil, ?Profil $aktor = null): bool
     {
         return DB::transaction(function () use ($profil, $aktor) {
             $statusLama = $profil->aktif;
-            $statusBatu = !$statusLama;
+            $statusBatu = ! $statusLama;
             $profil->aktif = $statusBatu;
             $profil->save();
 

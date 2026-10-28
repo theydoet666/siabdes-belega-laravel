@@ -6,6 +6,7 @@ use App\Enums\SumberUndangan;
 use App\Models\AuditLog;
 use App\Models\Rapat;
 use App\Models\Undangan;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
@@ -13,16 +14,26 @@ use Livewire\Component;
 
 class FormUndangan extends Component
 {
+    use AuthorizesRequests;
+
     public ?string $rapatId = null;
+
     public ?Rapat $rapat = null;
+
     public ?string $undanganId = null;
+
     public bool $isEdit = false;
+
     public bool $tampil = false;
 
     public string $nama = '';
+
     public string $jabatan = '';
+
     public string $instansi = '';
+
     public string $hp = '';
+
     public string $sumber = 'tambahan';
 
     #[On('buka-modal-tambah-undangan')]
@@ -31,7 +42,8 @@ class FormUndangan extends Component
         $this->undanganId = null;
         $this->isEdit = false;
         $this->rapatId = $rapatId;
-        $this->rapat = Rapat::find($rapatId);
+        $this->rapat = Rapat::findOrFail($rapatId);
+        $this->authorize('update', $this->rapat);
         $this->reset(['nama', 'jabatan', 'instansi', 'hp']);
         $this->sumber = 'tambahan';
         $this->resetValidation();
@@ -45,6 +57,8 @@ class FormUndangan extends Component
         $this->undanganId = $undangan->id;
         $this->rapatId = $undangan->rapat_id;
         $this->rapat = $undangan->rapat;
+        $this->authorize('update', $this->rapat);
+
         $this->nama = $undangan->nama;
         $this->jabatan = $undangan->jabatan ?? '';
         $this->instansi = $undangan->instansi ?? '';
@@ -83,6 +97,8 @@ class FormUndangan extends Component
 
     public function simpan()
     {
+        $this->authorize('update', $this->rapat);
+
         $this->validate();
 
         $sumberEnum = $this->sumber === 'import' ? SumberUndangan::IMPORT : SumberUndangan::TAMBAHAN;

@@ -124,11 +124,12 @@
                 <!-- Bagian Profil & Identitas Peserta -->
                 <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
                     <!-- Foto Wajah jika ada -->
-                    @if ($kehadiran->foto_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($kehadiran->foto_path))
+                    @if ($fotoUrl)
                         <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-emerald-600/30 shadow-md">
-                            <img src="{{ asset('storage/' . $kehadiran->foto_path) }}" alt="Foto Peserta" class="w-full h-full object-cover" />
+                            <img src="{{ $fotoUrl }}" alt="Foto Peserta" class="w-full h-full object-cover" />
                         </div>
                     @else
+
                         <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xl border border-emerald-200">
                             {{ strtoupper(substr($undangan->nama, 0, 2)) }}
                         </div>
@@ -184,9 +185,10 @@
                     <div class="text-center w-1/2 border-r border-slate-200 pr-4">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tanda Tangan Digital</span>
                         <div class="h-16 flex items-center justify-center bg-slate-50/50 rounded-xl border border-slate-200/80 p-1">
-                            @if ($kehadiran->ttd_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($kehadiran->ttd_path))
-                                <img src="{{ asset('storage/' . $kehadiran->ttd_path) }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain" />
+                            @if ($ttdUrl)
+                                <img src="{{ $ttdUrl }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain" />
                             @else
+
                                 <div class="text-[11px] font-bold text-emerald-700 font-mono">✓ TERCATAT DIGITAL</div>
                             @endif
                         </div>

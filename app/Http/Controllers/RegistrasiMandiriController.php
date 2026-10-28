@@ -10,6 +10,7 @@ use App\Services\PencarianUndanganService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class RegistrasiMandiriController extends Controller
 {
@@ -25,7 +26,7 @@ class RegistrasiMandiriController extends Controller
     {
         $rapat = Rapat::where('kode', $kode)->firstOrFail();
         $undanganAwal = Undangan::where('rapat_id', $rapat->id)
-            ->select('undangan.*')
+            ->select('id', 'rapat_id', 'nama', 'jabatan', 'instansi', 'sumber', 'urutan')
             ->selectSub(
                 Kehadiran::select('id')
                     ->whereColumn('undangan_id', 'undangan.id')
@@ -39,8 +40,8 @@ class RegistrasiMandiriController extends Controller
             ->orderBy('nama', 'asc')
             ->get();
 
-        $urlRegistrasi = url('/r/' . $rapat->kode);
-        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(240)->margin(1)->generate($urlRegistrasi);
+        $urlRegistrasi = url('/r/'.$rapat->kode);
+        $qrSvg = QrCode::size(240)->margin(1)->generate($urlRegistrasi);
 
         return view('kiosk.index', [
             'rapat' => $rapat,

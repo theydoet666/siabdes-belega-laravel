@@ -13,8 +13,10 @@ use App\Models\Profil;
 use App\Models\Rapat;
 use App\Models\Undangan;
 use App\Models\User;
+use App\Services\ImporUndanganService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
@@ -23,7 +25,9 @@ class ModulCetakDanEksporTest extends TestCase
     use RefreshDatabase;
 
     protected User $operatorUser;
+
     protected Profil $operatorProfil;
+
     protected Rapat $rapat;
 
     protected function setUp(): void
@@ -43,7 +47,7 @@ class ModulCetakDanEksporTest extends TestCase
 
         $this->operatorUser = User::factory()->create();
         $this->operatorProfil = Profil::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'user_id' => $this->operatorUser->id,
             'nama' => 'Operator Belega',
             'email' => $this->operatorUser->email,
@@ -250,5 +254,36 @@ class ModulCetakDanEksporTest extends TestCase
         $this->assertEquals('BELUM HADIR', $row2[5]);
         $this->assertEquals('-', $row2[6]);
         $this->assertEquals('Tambahan di Tempat', $row2[9]);
+    }
+
+    public function test_export_excel_dan_impor_mencegah_formula_injection(): void
+    {
+        $formulaPayload = '=HYPERLINK("http://x","x")';
+
+        $undangan = Undangan::create([
+            'id' => (string) Str::uuid(),
+            'rapat_id' => $this->rapat->id,
+            'nama' => $formulaPayload,
+            'jabatan' => '+628123456',
+            'instansi' => '@ATTACK_ORG',
+            'hp' => '-12345678',
+            'sumber' => SumberUndangan::IMPORT,
+            'urutan' => 99,
+        ]);
+
+        $export = new RekapKehadiranExport($this->rapat->id);
+        $row = $export->map($undangan);
+
+        // Nilai formula harus diawali dengan tanda petik tunggal ' sebagai teks literal
+        $this->assertEquals("'".$formulaPayload, $row[1]);
+        $this->assertEquals("'+628123456", $row[2]);
+        $this->assertEquals("'@ATTACK_ORG", $row[3]);
+        $this->assertEquals("'-12345678", $row[4]);
+
+        // Verifikasi pada ImporUndanganService
+        $imporService = app(ImporUndanganService::class);
+        $this->assertEquals("'=HYPERLINK(\"http://x\",\"x\")", $imporService->amankanSel($formulaPayload));
+        $this->assertEquals("'+628123456", $imporService->amankanSel('+628123456'));
+        $this->assertEquals("'@ATTACK_ORG", $imporService->amankanSel('@ATTACK_ORG'));
     }
 }

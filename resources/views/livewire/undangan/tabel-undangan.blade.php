@@ -160,7 +160,7 @@
                                     @php
                                         $kehadiranItem = $item->kehadiran->first();
                                     @endphp
-                                    <a href="{{ route('kehadiran.bukti', $kehadiranItem->id) }}" 
+                                    <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('kehadiran.bukti', ['id' => $kehadiranItem->id]) }}" 
                                        target="_blank"
                                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 transition cursor-pointer shadow-xs"
                                        title="Klik untuk melihat / mengunduh Kartu Bukti Hadir Digital">
@@ -185,7 +185,8 @@
                                             $kehadiranItem = $item->kehadiran->first();
                                         @endphp
                                         <!-- Unduh / Lihat Kartu Bukti Hadir -->
-                                        <a href="{{ route('kehadiran.bukti', $kehadiranItem->id) }}" 
+                                        <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('kehadiran.bukti', ['id' => $kehadiranItem->id]) }}" 
+
                                            target="_blank"
                                            class="p-1.5 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition cursor-pointer shadow-xs"
                                            title="Unduh / Lihat Kartu Bukti Kehadiran Digital ({{ $item->nama }})">

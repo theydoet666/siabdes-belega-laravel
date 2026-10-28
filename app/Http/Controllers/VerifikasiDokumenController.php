@@ -18,9 +18,9 @@ class VerifikasiDokumenController extends Controller
             ->with([
                 'undangan' => function ($query) {
                     $query->orderBy('urutan', 'asc')
-                          ->with(['kehadiran' => function ($kq) {
-                              $kq->where('dibatalkan', false);
-                          }]);
+                        ->with(['kehadiran' => function ($kq) {
+                            $kq->where('dibatalkan', false);
+                        }]);
                 },
                 'pembuat',
             ])
@@ -45,11 +45,11 @@ class VerifikasiDokumenController extends Controller
 
         $mapHari = [
             'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
-            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu',
         ];
         $mapBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
-            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
         $hariRapat = $rapat->tanggal ? ($mapHari[$rapat->tanggal->format('l')] ?? $rapat->tanggal->format('l')) : '-';

@@ -16,9 +16,11 @@ class Rapat extends Model
     protected $table = 'rapat';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     const CREATED_AT = 'dibuat_pada';
+
     const UPDATED_AT = 'diperbarui_pada';
 
     protected $fillable = [
@@ -51,6 +53,15 @@ class Rapat extends Model
         'penandatangan_nip',
         'penandatangan_lokasi',
         'dibuat_oleh',
+    ];
+
+    /**
+     * Atribut yang disembunyikan saat serialisasi ke array atau JSON.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'pin_kiosk',
     ];
 
     protected function casts(): array

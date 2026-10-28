@@ -256,7 +256,7 @@
                                type="password" 
                                id="password" 
                                required 
-                               placeholder="Minimal 6 karakter" 
+                               placeholder="Minimal 12 karakter (huruf & angka)" 
                                class="w-full px-3.5 py-2.5 bg-kertas/50 border @error('password') border-rose-300 focus:border-rose-500 @else border-garis focus:border-daun @enderror rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
                         @error('password')
                             <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>

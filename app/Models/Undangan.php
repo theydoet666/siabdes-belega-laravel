@@ -16,9 +16,11 @@ class Undangan extends Model
     protected $table = 'undangan';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     const CREATED_AT = 'dibuat_pada';
+
     const UPDATED_AT = null;
 
     protected $fillable = [
@@ -30,6 +32,15 @@ class Undangan extends Model
         'hp',
         'sumber',
         'urutan',
+    ];
+
+    /**
+     * Atribut yang disembunyikan saat serialisasi ke array atau JSON demi privasi PDP.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'hp',
     ];
 
     protected function casts(): array

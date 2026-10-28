@@ -10,7 +10,9 @@ use Livewire\Component;
 class HalamanLogin extends Component
 {
     public string $email = '';
+
     public string $password = '';
+
     public bool $remember = false;
 
     protected function rules(): array
@@ -46,12 +48,14 @@ class HalamanLogin extends Component
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             $this->addError('email', "Terlalu banyak percobaan login. Silakan coba lagi dalam {$seconds} detik.");
+
             return;
         }
 
-        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             RateLimiter::hit($throttleKey, 60);
             $this->addError('email', 'Email atau kata sandi yang Anda masukkan salah.');
+
             return;
         }
 
@@ -60,12 +64,13 @@ class HalamanLogin extends Component
         $user = Auth::user();
         $profil = $user->profil;
 
-        if (!$profil || !$profil->aktif) {
+        if (! $profil || ! $profil->aktif) {
             Auth::logout();
             session()->invalidate();
             session()->regenerateToken();
 
             $this->addError('email', 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator Desa.');
+
             return;
         }
 

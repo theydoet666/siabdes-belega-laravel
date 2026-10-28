@@ -10,7 +10,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class PanelQr extends Component
 {
     public ?string $rapatId = null;
+
     public ?Rapat $rapat = null;
+
     public bool $tampil = false;
 
     #[On('buka-panel-qr')]
@@ -34,7 +36,7 @@ class PanelQr extends Component
         $urlRegistrasi = null;
 
         if ($this->rapat) {
-            $urlRegistrasi = url('/r/' . $this->rapat->kode);
+            $urlRegistrasi = url('/r/'.$this->rapat->kode);
             $qrSvg = QrCode::size(240)
                 ->margin(1)
                 ->generate($urlRegistrasi);

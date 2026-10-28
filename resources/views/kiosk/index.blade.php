@@ -7,7 +7,7 @@
 @endphp
 
 <x-layouts.kiosk :rapat="$rapat">
-    <div x-data="kioskApp({ rapat: {{ Js::from($rapat) }}, undanganAwal: {{ Js::from($undanganAwal) }} })"
+    <div x-data="kioskApp({ rapat: {{ Js::from($rapat) }}, undanganAwal: {{ Js::from($undanganAwal) }}, jalur: '{{ request()->routeIs('registrasi.mandiri') ? 'mandiri' : 'kiosk' }}' })"
          class="min-h-screen flex flex-col justify-between">
         
         <!-- Header Kiosk Tablet -->
@@ -124,8 +124,9 @@
                                     <template x-if="item.sudah_hadir">
                                         <div class="flex items-center gap-1.5">
                                             <template x-if="item.kehadiran_id">
-                                                <a :href="'/bukti/' + item.kehadiran_id" 
+                                                <a :href="'/r/' + rapat.kode + '/bukti/' + item.kehadiran_id" 
                                                    target="_blank"
+
                                                    @click.stop
                                                    class="px-3 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 text-xs font-bold inline-flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                                                    title="Buka / Unduh Kartu Bukti Hadir Digital">
@@ -228,8 +229,9 @@
                                     <template x-if="item.sudah_hadir">
                                         <div class="flex items-center gap-1.5">
                                             <template x-if="item.kehadiran_id">
-                                                <a :href="'/bukti/' + item.kehadiran_id" 
+                                                <a :href="'/r/' + rapat.kode + '/bukti/' + item.kehadiran_id" 
                                                    target="_blank"
+
                                                    @click.stop
                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 text-xs font-bold transition shadow-xs cursor-pointer"
                                                    title="Buka / Unduh Kartu Bukti Hadir Digital">

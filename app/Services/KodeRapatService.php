@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Rapat;
-use Illuminate\Support\Str;
 
 class KodeRapatService
 {
@@ -14,14 +13,11 @@ class KodeRapatService
     public const CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
     /**
-     * Menghasilkan kode rapat unik 4 karakter.
+     * Menghasilkan kode rapat unik 8 karakter.
      *
-     * @param int $panjang
-     * @param int $maxPercobaan
-     * @return string
      * @throws \RuntimeException jika gagal menghasilkan kode unik setelah batas percobaan
      */
-    public function generate(int $panjang = 4, int $maxPercobaan = 50): string
+    public function generate(int $panjang = 8, int $maxPercobaan = 50): string
     {
         $charsetLen = strlen(self::CHARSET);
 
@@ -33,23 +29,20 @@ class KodeRapatService
             }
 
             // Pastikan belum digunakan di tabel rapat
-            if (!Rapat::where('kode', $kode)->exists()) {
+            if (! Rapat::where('kode', $kode)->exists()) {
                 return $kode;
             }
         }
 
-        // Fallback jika terjadi kolisi berulang (sangat kecil kemungkinannya: 32^4 = 1.048.576 kombinasi)
+        // Fallback jika terjadi kolisi berulang (32^8 = 1.099.511.627.776 kombinasi)
         throw new \RuntimeException('Gagal menghasilkan kode rapat unik. Silakan coba lagi.');
     }
 
     /**
-     * Memvalidasi format kode rapat (4 karakter dalam set yang diizinkan).
-     *
-     * @param string $kode
-     * @return bool
+     * Memvalidasi format kode rapat (4-8 karakter dalam set yang diizinkan untuk kompatibilitas data lama).
      */
     public function isValid(string $kode): bool
     {
-        return (bool) preg_match('/^[A-HJ-NP-Z2-9]{4}$/', strtoupper(trim($kode)));
+        return (bool) preg_match('/^[A-HJ-NP-Z2-9]{4,8}$/', strtoupper(trim($kode)));
     }
 }

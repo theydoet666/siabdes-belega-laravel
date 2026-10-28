@@ -15,9 +15,11 @@ class Kehadiran extends Model
     protected $table = 'kehadiran';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     const CREATED_AT = 'dibuat_pada';
+
     const UPDATED_AT = null;
 
     protected $fillable = [

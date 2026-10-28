@@ -16,11 +16,19 @@ class ProfilSeeder extends Seeder
      */
     public function run(): void
     {
+        $passwordAwal = env('ADMIN_INITIAL_PASSWORD');
+        $isRandom = false;
+
+        if (empty($passwordAwal)) {
+            $passwordAwal = Str::password(16, true, true, false);
+            $isRandom = true;
+        }
+
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@belega.desa.id'],
             [
                 'name' => 'Administrator Desa Belega',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make($passwordAwal),
             ]
         );
 
@@ -34,5 +42,17 @@ class ProfilSeeder extends Seeder
                 'aktif' => true,
             ]
         );
+
+        if ($this->command) {
+            if ($isRandom) {
+                $this->command->warn('================================================================');
+                $this->command->warn('PERINGATAN KEAMANAN: Password awal Administrator di-generate acak:');
+                $this->command->warn('Password: '.$passwordAwal);
+                $this->command->warn('Wajib catat dan segera ganti password ini saat login pertama!');
+                $this->command->warn('================================================================');
+            } else {
+                $this->command->info('Administrator diinisialisasi menggunakan password dari ADMIN_INITIAL_PASSWORD.');
+            }
+        }
     }
 }

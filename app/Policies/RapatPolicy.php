@@ -25,6 +25,14 @@ class RapatPolicy
     }
 
     /**
+     * Memeriksa apakah pengguna adalah pembuat/pemilik rapat.
+     */
+    protected function isPemilik(User $user, Rapat $rapat): bool
+    {
+        return $this->isUserAktif($user) && $rapat->dibuat_oleh === $user->profil?->id;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
@@ -34,10 +42,11 @@ class RapatPolicy
 
     /**
      * Determine whether the user can view the model.
+     * Dibatasi untuk admin atau pembuat rapat (dibuat_oleh).
      */
     public function view(User $user, Rapat $rapat): bool
     {
-        return $this->isUserAktif($user);
+        return $this->isAdmin($user) || $this->isPemilik($user, $rapat);
     }
 
     /**
@@ -50,18 +59,20 @@ class RapatPolicy
 
     /**
      * Determine whether the user can update the model.
+     * Dibatasi untuk admin atau pembuat rapat (dibuat_oleh).
      */
     public function update(User $user, Rapat $rapat): bool
     {
-        return $this->isUserAktif($user);
+        return $this->isAdmin($user) || $this->isPemilik($user, $rapat);
     }
 
     /**
      * Determine whether the user can duplicate the model.
+     * Dibatasi untuk admin atau pembuat rapat (dibuat_oleh).
      */
     public function duplicate(User $user, Rapat $rapat): bool
     {
-        return $this->isUserAktif($user);
+        return $this->isAdmin($user) || $this->isPemilik($user, $rapat);
     }
 
     /**

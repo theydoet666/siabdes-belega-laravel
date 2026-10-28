@@ -10,7 +10,6 @@ use App\Models\Profil;
 use App\Models\User;
 use App\Services\OperatorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -144,8 +143,9 @@ class AutentikasiDanOperatorTest extends TestCase
             ->call('bukaModal')
             ->set('nama', 'Ni Wayan Sari')
             ->set('email', 'sari@belega.desa.id')
-            ->set('password', 'sari12345')
+            ->set('password', 'SariBelega2026')
             ->set('peran', 'operator')
+
             ->call('simpanOperator')
             ->assertHasNoErrors()
             ->assertSet('bukaModalTambah', false)
@@ -203,5 +203,51 @@ class AutentikasiDanOperatorTest extends TestCase
         // Admin dapat akses /rapat dan /pengaturan
         $this->actingAs($adminUser)->get('/rapat')->assertStatus(200);
         $this->actingAs($adminUser)->get('/pengaturan')->assertStatus(200);
+    }
+
+    public function test_validasi_kebijakan_password_operator_minimal_12_karakter_huruf_angka(): void
+    {
+        $adminUser = User::where('email', 'admin@belega.desa.id')->first();
+        $this->actingAs($adminUser);
+
+        // 1. Password kurang dari 12 karakter harus gagal
+        Livewire::test(KelolaOperator::class)
+            ->call('bukaModal')
+            ->set('nama', 'Staf Pendek')
+            ->set('email', 'pendek@belega.desa.id')
+            ->set('password', 'Kombinasi1') // 10 karakter
+            ->set('peran', 'operator')
+            ->call('simpanOperator')
+            ->assertHasErrors(['password']);
+
+        // 2. Password 12 karakter hanya angka harus gagal
+        Livewire::test(KelolaOperator::class)
+            ->call('bukaModal')
+            ->set('nama', 'Staf Angka')
+            ->set('email', 'angka@belega.desa.id')
+            ->set('password', '123456789012') // 12 angka tanpa huruf
+            ->set('peran', 'operator')
+            ->call('simpanOperator')
+            ->assertHasErrors(['password']);
+
+        // 3. Password 12 karakter hanya huruf harus gagal
+        Livewire::test(KelolaOperator::class)
+            ->call('bukaModal')
+            ->set('nama', 'Staf Huruf')
+            ->set('email', 'huruf@belega.desa.id')
+            ->set('password', 'abcdefghijkl') // 12 huruf tanpa angka
+            ->set('peran', 'operator')
+            ->call('simpanOperator')
+            ->assertHasErrors(['password']);
+
+        // 4. Password 12 karakter dengan huruf dan angka harus berhasil
+        Livewire::test(KelolaOperator::class)
+            ->call('bukaModal')
+            ->set('nama', 'Staf Sukses')
+            ->set('email', 'sukses@belega.desa.id')
+            ->set('password', 'PasswordKuat2026') // 16 karakter ada huruf dan angka
+            ->set('peran', 'operator')
+            ->call('simpanOperator')
+            ->assertHasNoErrors();
     }
 }

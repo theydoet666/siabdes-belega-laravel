@@ -17,9 +17,7 @@ class ImporUndanganService
     /**
      * Membaca dan memvalidasi berkas CSV / Excel untuk rapat tertentu.
      *
-     * @param UploadedFile|string $file
-     * @param string $rapatId
-     * @return array
+     * @param  UploadedFile|string  $file
      */
     public function bacaDanValidasi($file, string $rapatId): array
     {
@@ -64,10 +62,10 @@ class ImporUndanganService
                 continue;
             }
 
-            $nama = trim((string) ($row[$headerMap['nama']] ?? ''));
-            $jabatan = trim((string) ($row[$headerMap['jabatan']] ?? ''));
-            $instansi = trim((string) ($row[$headerMap['instansi']] ?? ''));
-            $hp = trim((string) ($row[$headerMap['hp']] ?? ''));
+            $nama = $this->amankanSel($row[$headerMap['nama']] ?? '', 120);
+            $jabatan = $this->amankanSel($row[$headerMap['jabatan']] ?? '', 120);
+            $instansi = $this->amankanSel($row[$headerMap['instansi']] ?? '', 120);
+            $hp = $this->amankanSel($row[$headerMap['hp']] ?? '', 20);
 
             $nomorBaris = $i + 1;
             $namaNorm = $this->normalisasiNama($nama);
@@ -114,10 +112,6 @@ class ImporUndanganService
     /**
      * Menyimpan baris-baris valid hasil parsing ke tabel undangan.
      *
-     * @param string $rapatId
-     * @param array $barisData
-     * @param bool $abaikanDuplikat
-     * @param Profil|null $aktor
      * @return int Jumlah baris yang berhasil diimpor
      */
     public function simpan(
@@ -146,10 +140,10 @@ class ImporUndanganService
                 Undangan::create([
                     'id' => (string) Str::uuid(),
                     'rapat_id' => $rapatId,
-                    'nama' => trim($item['nama']),
-                    'jabatan' => trim($item['jabatan'] ?? ''),
-                    'instansi' => trim($item['instansi'] ?? ''),
-                    'hp' => trim($item['hp'] ?? ''),
+                    'nama' => $this->amankanSel($item['nama'], 120),
+                    'jabatan' => $this->amankanSel($item['jabatan'] ?? '', 120),
+                    'instansi' => $this->amankanSel($item['instansi'] ?? '', 120),
+                    'hp' => $this->amankanSel($item['hp'] ?? '', 20),
                     'sumber' => SumberUndangan::IMPORT,
                     'urutan' => $maxUrutan,
                 ]);
@@ -177,12 +171,38 @@ class ImporUndanganService
     }
 
     /**
+     * Sanitasi sel teks dari Formula Injection dan batasi panjang karakter.
+     */
+    public function amankanSel(?string $teks, int $maxPanjang = 120): string
+    {
+        if ($teks === null || $teks === '') {
+            return '';
+        }
+
+        $bersih = preg_replace('/[*~`]+/', '', $teks);
+        $bersih = preg_replace('/\s+/', ' ', (string) $bersih);
+        $bersih = trim($bersih);
+
+        if ($bersih === '' || $bersih === '-') {
+            return '';
+        }
+
+        // Jika teks diawali = + - @ \t \r, amankan dengan awalan tanda petik '
+        if (preg_match('/^[=+\-@\t\r]/', $bersih)) {
+            $bersih = "'".$bersih;
+        }
+
+        return mb_substr($bersih, 0, $maxPanjang);
+    }
+
+    /**
      * Normalisasi string nama untuk perbandingan duplikasi (case-insensitive & tanda baca).
      */
     public function normalisasiNama(string $nama): string
     {
         $bersih = preg_replace('/[^a-zA-Z0-9 ]/u', ' ', $nama);
         $bersih = preg_replace('/\s+/', ' ', $bersih);
+
         return mb_strtolower(trim($bersih));
     }
 
@@ -239,6 +259,7 @@ class ImporUndanganService
                 return false;
             }
         }
+
         return true;
     }
 }

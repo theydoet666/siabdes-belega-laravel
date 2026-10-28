@@ -29,6 +29,7 @@ class KepatuhanPrivasiDanAuditLogTest extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected Profil $adminProfil;
 
     protected function setUp(): void

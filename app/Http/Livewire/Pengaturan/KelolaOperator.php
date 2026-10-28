@@ -7,6 +7,7 @@ use App\Models\Profil;
 use App\Services\OperatorService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,17 +17,23 @@ class KelolaOperator extends Component
 
     // Search and filter
     public string $cari = '';
+
     public string $filterPeran = '';
 
     // Modal tambah operator
     public bool $bukaModalTambah = false;
+
     public string $nama = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $peran = 'operator';
 
     // Flash message state
     public ?string $pesanSukses = null;
+
     public ?string $pesanError = null;
 
     protected $queryString = [
@@ -73,7 +80,7 @@ class KelolaOperator extends Component
         $this->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => ['required', 'string', Password::min(12)->letters()->numbers()],
             'peran' => ['required', Rule::in(['admin', 'operator'])],
         ], [
             'nama.required' => 'Nama operator wajib diisi.',
@@ -81,7 +88,7 @@ class KelolaOperator extends Component
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Alamat email sudah terdaftar di sistem.',
             'password.required' => 'Kata sandi wajib diisi.',
-            'password.min' => 'Kata sandi minimal 6 karakter.',
+            'password.min' => 'Kata sandi minimal 12 karakter serta harus mengandung kombinasi huruf dan angka.',
             'peran.required' => 'Peran pengguna wajib dipilih.',
             'peran.in' => 'Peran pengguna yang dipilih tidak valid.',
         ]);
@@ -109,13 +116,14 @@ class KelolaOperator extends Component
         // Cegah admin mengubah perannya sendiri
         if ($profil->id === $aktor?->id) {
             $this->pesanError = 'Anda tidak dapat mengubah peran akun Anda sendiri.';
+
             return;
         }
 
         $peranBaru = $profil->peran === PeranPengguna::ADMIN ? PeranPengguna::OPERATOR : PeranPengguna::ADMIN;
         $operatorService->ubahPeran($profil, $peranBaru, $aktor);
 
-        $this->pesanSukses = "Peran {$profil->nama} berhasil diubah menjadi " . ($peranBaru === PeranPengguna::ADMIN ? 'Administrator' : 'Operator') . ".";
+        $this->pesanSukses = "Peran {$profil->nama} berhasil diubah menjadi ".($peranBaru === PeranPengguna::ADMIN ? 'Administrator' : 'Operator').'.';
     }
 
     public function toggleStatus(string $profilId, OperatorService $operatorService): void
@@ -126,6 +134,7 @@ class KelolaOperator extends Component
         // Cegah admin menonaktifkan akun sendiri
         if ($profil->id === $aktor?->id) {
             $this->pesanError = 'Anda tidak dapat menonaktifkan akun Anda sendiri.';
+
             return;
         }
 
@@ -140,15 +149,15 @@ class KelolaOperator extends Component
         $query = Profil::with('user')
             ->orderBy('dibuat_pada', 'desc');
 
-        if (!empty($this->cari)) {
-            $cari = '%' . $this->cari . '%';
+        if (! empty($this->cari)) {
+            $cari = '%'.$this->cari.'%';
             $query->where(function ($q) use ($cari) {
                 $q->where('nama', 'like', $cari)
-                  ->orWhere('email', 'like', $cari);
+                    ->orWhere('email', 'like', $cari);
             });
         }
 
-        if (!empty($this->filterPeran)) {
+        if (! empty($this->filterPeran)) {
             $query->where('peran', $this->filterPeran);
         }
 

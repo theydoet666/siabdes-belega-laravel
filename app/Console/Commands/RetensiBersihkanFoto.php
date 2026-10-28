@@ -35,9 +35,11 @@ class RetensiBersihkanFoto extends Command
             try {
                 $fotoDihapus = $retensiService->hapusFotoRapat($spesifikRapatId);
                 $this->info("Berhasil! {$fotoDihapus} foto kehadiran dibersihkan untuk rapat tersebut.");
+
                 return Command::SUCCESS;
             } catch (\Throwable $e) {
                 $this->error("Gagal membersihkan foto: {$e->getMessage()}");
+
                 return Command::FAILURE;
             }
         }

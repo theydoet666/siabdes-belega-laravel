@@ -13,6 +13,7 @@ class AuditLog extends Model
     protected $table = 'audit_log';
 
     const CREATED_AT = 'dibuat_pada';
+
     const UPDATED_AT = null;
 
     protected $fillable = [

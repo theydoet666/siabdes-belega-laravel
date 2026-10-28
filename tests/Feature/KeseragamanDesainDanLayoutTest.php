@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Enums\PeranPengguna;
 use App\Enums\StatusRapat;
 use App\Http\Livewire\Pengaturan\PengaturanIdentitas;
-use App\Models\AuditLog;
 use App\Models\PengaturanSistem;
 use App\Models\Profil;
 use App\Models\Rapat;
@@ -23,8 +22,11 @@ class KeseragamanDesainDanLayoutTest extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected Profil $adminProfil;
+
     protected User $operatorUser;
+
     protected Profil $operatorProfil;
 
     protected function setUp(): void
@@ -110,7 +112,7 @@ class KeseragamanDesainDanLayoutTest extends TestCase
         // Buat 25 rapat untuk menguji paginasi
         for ($i = 1; $i <= 25; $i++) {
             Rapat::create([
-                'kode' => 'P' . str_pad((string)$i, 3, '0', STR_PAD_LEFT),
+                'kode' => 'P'.str_pad((string) $i, 3, '0', STR_PAD_LEFT),
                 'judul' => "Agenda Rapat Pengujian Paginasi Ke-{$i}",
                 'tanggal' => Carbon::now()->subDays($i),
                 'tempat' => 'Balai Desa',

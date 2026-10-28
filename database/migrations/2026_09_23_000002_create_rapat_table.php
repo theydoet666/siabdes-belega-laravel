@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rapat', function (Blueprint $table) {
             $table->char('id', 36)->primary();
-            $table->string('kode', 4)->unique();
+            $table->string('kode', 20)->unique();
             $table->string('judul', 255);
             $table->date('tanggal');
             $table->time('jam_mulai')->nullable();

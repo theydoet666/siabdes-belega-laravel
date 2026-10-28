@@ -9,7 +9,6 @@ use App\Http\Livewire\Rapat\DetailRapat;
 use App\Http\Livewire\Rapat\FormRapat;
 use App\Http\Livewire\Rapat\ModalDuplikasiRapat;
 use App\Http\Livewire\Rapat\PanelQr;
-use App\Models\AuditLog;
 use App\Models\Kehadiran;
 use App\Models\Profil;
 use App\Models\Rapat;
@@ -30,8 +29,11 @@ class ManajemenRapatTest extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected Profil $adminProfil;
+
     protected User $operatorUser;
+
     protected Profil $operatorProfil;
 
     protected function setUp(): void
@@ -52,17 +54,24 @@ class ManajemenRapatTest extends TestCase
         $this->operatorUser = $this->operatorProfil->user;
     }
 
-    public function test_kode_rapat_service_menghasilkan_4_karakter_tanpa_karakter_ambigu(): void
+    public function test_kode_rapat_service_menghasilkan_8_karakter_tanpa_karakter_ambigu_dan_validasi_kompatibel(): void
     {
         $service = app(KodeRapatService::class);
 
         for ($i = 0; $i < 50; $i++) {
             $kode = $service->generate();
 
-            $this->assertEquals(4, strlen($kode));
+            $this->assertEquals(8, strlen($kode));
             $this->assertTrue($service->isValid($kode));
             $this->assertDoesNotMatchConstraints('/[IO01]/i', $kode);
         }
+
+        // Kompatibilitas kode lama (4 karakter) tetap valid
+        $this->assertTrue($service->isValid('ABCD'));
+        $this->assertTrue($service->isValid('9XYZ'));
+        $this->assertFalse($service->isValid('ABC')); // < 4 ditolak
+        $this->assertFalse($service->isValid('ABCDEFGHI')); // > 8 ditolak
+        $this->assertFalse($service->isValid('ABCD1EFG')); // karakter 1 dilarang
     }
 
     private function assertDoesNotMatchConstraints(string $pattern, string $string): void
@@ -91,7 +100,7 @@ class ManajemenRapatTest extends TestCase
 
         $rapat = Rapat::where('judul', 'Musyawarah RKPDes 2027')->first();
         $this->assertNotNull($rapat);
-        $this->assertEquals(4, strlen($rapat->kode));
+        $this->assertEquals(8, strlen($rapat->kode));
         $this->assertEquals(StatusRapat::DRAFT, $rapat->status);
         $this->assertTrue(Hash::check('123456', $rapat->pin_kiosk));
         $this->assertEquals('Gedung Serbaguna Desa Belega', $rapat->tempat);
@@ -203,7 +212,7 @@ class ManajemenRapatTest extends TestCase
             ->call('buka', $rapat->id)
             ->assertSet('tampil', true)
             ->assertSee($rapat->kode)
-            ->assertSee('/r/' . $rapat->kode);
+            ->assertSee('/r/'.$rapat->kode);
     }
 
     public function test_operator_tidak_bisa_menghapus_rapat_tetapi_admin_bisa(): void
@@ -225,8 +234,8 @@ class ManajemenRapatTest extends TestCase
             'nama' => 'Peserta Uji',
         ]);
 
-        $ttdPath = 'ttd/test_ttd_' . $rapat->id . '.png';
-        $fotoPath = 'foto/test_foto_' . $rapat->id . '.jpg';
+        $ttdPath = 'ttd/test_ttd_'.$rapat->id.'.png';
+        $fotoPath = 'foto/test_foto_'.$rapat->id.'.jpg';
         Storage::disk('public')->put($ttdPath, 'fake-signature-content');
         Storage::disk('public')->put($fotoPath, 'fake-photo-content');
 

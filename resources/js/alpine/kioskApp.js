@@ -38,10 +38,13 @@ function notifikasiSiabdes({ icon = 'info', title = '', text = '', html = '', co
  * Mengelola alur state machine: cari -> (modal/form) -> ttd -> foto -> bukti
  */
 export default function kioskApp(konfigurasi) {
+    const jalurTerdeteksi = konfigurasi.jalur || (window.location.pathname.includes('/r/') ? 'mandiri' : 'kiosk');
+
     return {
         rapat: konfigurasi.rapat,
         rapatId: konfigurasi.rapat.id,
         kodeRapat: konfigurasi.rapat.kode,
+        jalur: jalurTerdeteksi,
 
         // State Machine Layar: 'cari' | 'modal_daftar' | 'form_tambahan' | 'ttd' | 'foto' | 'bukti'
         layar: 'cari',
@@ -111,7 +114,7 @@ export default function kioskApp(konfigurasi) {
                 // Simpan/perbarui ke Dexie
                 await db.undangan.bulkPut(daftarUndangan.map(u => ({
                     id: u.id,
-                    rapat_id: u.rapat_id,
+                    rapat_id: u.rapat_id || this.rapatId,
                     nama: u.nama,
                     jabatan: u.jabatan || '',
                     instansi: u.instansi || '',
@@ -163,9 +166,10 @@ export default function kioskApp(konfigurasi) {
         pilihUndangan(item) {
             if (item.sudah_hadir) {
                 if (item.kehadiran_id) {
-                    window.open('/bukti/' + item.kehadiran_id, '_blank');
+                    window.open('/r/' + this.rapat.kode + '/bukti/' + item.kehadiran_id, '_blank');
                     return;
                 }
+
                 notifikasiSiabdes({
                     icon: 'info',
                     title: 'Sudah Tercatat Hadir',
@@ -376,7 +380,7 @@ export default function kioskApp(konfigurasi) {
                 undangan_id: this.undanganDipilih.id,
                 ttd: this.ttdBase64,
                 foto: this.fotoBase64,
-                jalur: 'kiosk',
+                jalur: this.jalur || 'kiosk',
                 waktu_perangkat: waktuSekarang.toISOString(),
                 undangan_baru: this.undanganDipilih.is_baru ? {
                     nama: this.undanganDipilih.nama,

@@ -16,9 +16,11 @@ class Profil extends Model
     protected $table = 'profil';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     const CREATED_AT = 'dibuat_pada';
+
     const UPDATED_AT = null;
 
     protected $fillable = [

@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Undangan;
 use App\Models\AuditLog;
 use App\Models\Rapat;
 use App\Models\Undangan;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -12,16 +13,20 @@ use Livewire\WithPagination;
 
 class TabelUndangan extends Component
 {
-    use WithPagination;
+    use AuthorizesRequests, WithPagination;
 
     public string $rapatId;
+
     public ?Rapat $rapat = null;
 
     public string $cari = '';
+
     public string $filterSumber = '';
+
     public string $filterKehadiran = '';
 
     public ?string $pesanSukses = null;
+
     public ?string $pesanError = null;
 
     protected $queryString = [
@@ -35,6 +40,7 @@ class TabelUndangan extends Component
     {
         $this->rapatId = $rapatId;
         $this->rapat = Rapat::findOrFail($rapatId);
+        $this->authorize('view', $this->rapat);
     }
 
     #[On('undangan-diperbarui')]
@@ -75,7 +81,10 @@ class TabelUndangan extends Component
 
     public function hapusUndangan(string $id): void
     {
+        $this->authorize('update', $this->rapat);
+
         $undangan = Undangan::where('rapat_id', $this->rapatId)->findOrFail($id);
+
         $namaUndangan = $undangan->nama;
         $aktor = Auth::user()?->profil;
 
@@ -109,17 +118,17 @@ class TabelUndangan extends Component
             ->orderBy('urutan', 'asc')
             ->orderBy('dibuat_pada', 'asc');
 
-        if (!empty($this->cari)) {
-            $cari = '%' . $this->cari . '%';
+        if (! empty($this->cari)) {
+            $cari = '%'.$this->cari.'%';
             $query->where(function ($q) use ($cari) {
                 $q->where('nama', 'like', $cari)
-                  ->orWhere('jabatan', 'like', $cari)
-                  ->orWhere('instansi', 'like', $cari)
-                  ->orWhere('hp', 'like', $cari);
+                    ->orWhere('jabatan', 'like', $cari)
+                    ->orWhere('instansi', 'like', $cari)
+                    ->orWhere('hp', 'like', $cari);
             });
         }
 
-        if (!empty($this->filterSumber)) {
+        if (! empty($this->filterSumber)) {
             $query->where('sumber', $this->filterSumber);
         }
 

@@ -16,10 +16,12 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
+class RekapKehadiranExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected string $rapatId;
+
     protected ?Rapat $rapat = null;
+
     private int $nomorUrut = 0;
 
     public function __construct(string $rapatId)
@@ -29,16 +31,31 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
     }
 
     /**
-     * Bersihkan teks dari tanda bintang atau karakter tak lazim
+     * Mengamankan teks sel dari formula injection (CSV/Excel injection)
+     * dan membersihkan karakter tak lazim.
      */
-    private function bersihkanTeks(?string $teks): string
+    public function amankanSel(?string $teks): string
     {
         if ($teks === null) {
             return '-';
         }
-        $bersih = preg_replace('/[*_~`]+/', '', $teks);
+
+        $bersih = preg_replace('/[*~`]+/', '', $teks);
         $bersih = preg_replace('/\s+/', ' ', (string) $bersih);
-        return trim($bersih) ?: '-';
+        $bersih = trim($bersih);
+
+        if ($bersih === '' || $bersih === '-') {
+            return '-';
+        }
+
+        // Formula injection mitigation:
+        // Jika nilai diawali dengan karakter formula =, +, -, @, \t, atau \r,
+        // tambahkan tanda petik tunggal ' agar dieksekusi sebagai teks literal di Excel
+        if (preg_match('/^[=+\-@\t\r]/', $bersih)) {
+            return "'".$bersih;
+        }
+
+        return $bersih;
     }
 
     /**
@@ -77,13 +94,13 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
     /**
      * Mapping data per baris
      *
-     * @param Undangan $row
+     * @param  Undangan  $row
      */
     public function map($row): array
     {
         $this->nomorUrut++;
         $kehadiran = $row->kehadiran->first();
-        $hadir = ($kehadiran !== null && !$kehadiran->dibatalkan);
+        $hadir = ($kehadiran !== null && ! $kehadiran->dibatalkan);
 
         $statusKehadiran = $hadir ? 'HADIR' : 'BELUM HADIR';
 
@@ -93,11 +110,11 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
 
         if ($hadir) {
             $waktu = $kehadiran->waktu_perangkat ?? $kehadiran->dibuat_pada;
-            $waktuHadir = $waktu ? $waktu->timezone('Asia/Makassar')->format('d/m/Y H:i:s') . ' WITA' : '-';
+            $waktuHadir = $waktu ? $waktu->timezone('Asia/Makassar')->format('d/m/Y H:i:s').' WITA' : '-';
             $jalurCheckin = strtoupper($kehadiran->jalur->value ?? '-');
 
-            if (!empty($kehadiran->diwakili_oleh)) {
-                $keterangan = 'Diwakili oleh: ' . $this->bersihkanTeks($kehadiran->diwakili_oleh);
+            if (! empty($kehadiran->diwakili_oleh)) {
+                $keterangan = 'Diwakili oleh: '.$this->amankanSel($kehadiran->diwakili_oleh);
             }
         }
 
@@ -105,10 +122,10 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
 
         return [
             $this->nomorUrut,
-            $this->bersihkanTeks($row->nama),
-            $this->bersihkanTeks($row->jabatan),
-            $this->bersihkanTeks($row->instansi),
-            $row->hp ?: '-',
+            $this->amankanSel($row->nama),
+            $this->amankanSel($row->jabatan),
+            $this->amankanSel($row->instansi),
+            $this->amankanSel($row->hp),
             $statusKehadiran,
             $waktuHadir,
             $jalurCheckin,
@@ -126,7 +143,7 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
         $highestColumn = $sheet->getHighestColumn();
 
         // Style header
-        $sheet->getStyle('A1:' . $highestColumn . '1')->applyFromArray([
+        $sheet->getStyle('A1:'.$highestColumn.'1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -146,7 +163,7 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
 
         // Border untuk seluruh tabel
         if ($highestRow > 1) {
-            $sheet->getStyle('A1:' . $highestColumn . $highestRow)->applyFromArray([
+            $sheet->getStyle('A1:'.$highestColumn.$highestRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -159,9 +176,9 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
             ]);
 
             // Alignment center untuk kolom No, Status, Waktu, Jalur, Sumber
-            $sheet->getStyle('A2:A' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('E2:H' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('J2:J' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A2:A'.$highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('E2:H'.$highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('J2:J'.$highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         }
 
         return [];
@@ -173,6 +190,7 @@ class RekapKehadiranExport implements FromCollection, WithHeadings, WithMapping,
     public function title(): string
     {
         $kode = $this->rapat?->kode ?? 'RAPAT';
-        return 'Kehadiran ' . $kode;
+
+        return 'Kehadiran '.$kode;
     }
 }

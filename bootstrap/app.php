@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureUserRole;
+use App\Http\Middleware\HeaderKeamanan;
+use App\Http\Middleware\PastikanKioskTerkunciPin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,11 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(HeaderKeamanan::class);
+
         $middleware->alias([
-            'role' => \App\Http\Middleware\EnsureUserRole::class,
-            'kiosk.pin' => \App\Http\Middleware\PastikanKioskTerkunciPin::class,
+            'role' => EnsureUserRole::class,
+            'kiosk.pin' => PastikanKioskTerkunciPin::class,
         ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

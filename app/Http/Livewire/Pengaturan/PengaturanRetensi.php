@@ -15,19 +15,24 @@ class PengaturanRetensi extends Component
     use WithPagination;
 
     public string $cari = '';
+
     public string $filterStatus = ''; // '' (semua), 'aktif' (belum dihapus), 'kadaluarsa', 'dibersihkan'
 
     // Inline edit retensi
     public ?string $editRapatId = null;
+
     public int $editRetensiHari = 90;
 
     // Flash feedback
     public ?string $pesanSukses = null;
+
     public ?string $pesanError = null;
 
     // Modal konfirmasi pembersihan
     public bool $bukaModalKonfirmasi = false;
+
     public ?string $rapatTargetId = null;
+
     public ?string $rapatTargetJudul = null;
 
     protected $queryString = [
@@ -94,7 +99,7 @@ class PengaturanRetensi extends Component
 
     public function eksekusiBersihkanFoto(RetensiFotoService $retensiService): void
     {
-        if (!$this->rapatTargetId) {
+        if (! $this->rapatTargetId) {
             return;
         }
 
@@ -113,7 +118,7 @@ class PengaturanRetensi extends Component
         if ($hasil['rapat_diproses'] > 0) {
             $this->pesanSukses = "Pembersihan selesai! {$hasil['rapat_diproses']} rapat diproses dan total {$hasil['total_foto_dihapus']} file foto berhasil dihapus.";
         } else {
-            $this->pesanSukses = "Tidak ada foto rapat yang melewati batas retensi saat ini.";
+            $this->pesanSukses = 'Tidak ada foto rapat yang melewati batas retensi saat ini.';
         }
     }
 
@@ -126,11 +131,11 @@ class PengaturanRetensi extends Component
             $q->whereNotNull('foto_path')->where('foto_path', '!=', '');
         }]);
 
-        if (!empty($this->cari)) {
-            $cari = '%' . $this->cari . '%';
+        if (! empty($this->cari)) {
+            $cari = '%'.$this->cari.'%';
             $query->where(function ($q) use ($cari) {
                 $q->where('judul', 'like', $cari)
-                  ->orWhere('kode', 'like', $cari);
+                    ->orWhere('kode', 'like', $cari);
             });
         }
 

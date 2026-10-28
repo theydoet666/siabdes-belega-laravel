@@ -17,8 +17,7 @@ class RetensiFotoService
      * Hapus seluruh foto fisik kehadiran untuk rapat tertentu dari storage,
      * kosongkan kolom foto_path di database, dan set foto_dihapus_pada.
      *
-     * @param string $rapatId
-     * @param string|null $aktorId Profil ID aktor yang melakukan aksi (opsional jika dari cron/CLI)
+     * @param  string|null  $aktorId  Profil ID aktor yang melakukan aksi (opsional jika dari cron/CLI)
      * @return int Jumlah foto yang berhasil dihapus
      */
     public function hapusFotoRapat(string $rapatId, ?string $aktorId = null): int
@@ -29,8 +28,11 @@ class RetensiFotoService
 
         DB::transaction(function () use ($rapat, $aktorId, &$fotoDihapusCount) {
             foreach ($rapat->kehadiran as $kehadiran) {
-                if (!empty($kehadiran->foto_path)) {
-                    // Hapus file fisik dari disk publik
+                if (! empty($kehadiran->foto_path)) {
+                    // Hapus file fisik dari disk lokal (dan disk publik untuk berkas lama)
+                    if (Storage::disk('local')->exists($kehadiran->foto_path)) {
+                        Storage::disk('local')->delete($kehadiran->foto_path);
+                    }
                     if (Storage::disk('public')->exists($kehadiran->foto_path)) {
                         Storage::disk('public')->delete($kehadiran->foto_path);
                     }
@@ -84,11 +86,12 @@ class RetensiFotoService
         // Ambil rapat yang belum dibersihkan
         $semuaRapat = Rapat::whereNull('foto_dihapus_pada')->get();
 
-        $rapatKadaluarsa = $semuaRapat->filter(function (Rapat $rapat) use ($sekarang) {
-            if (!$rapat->tanggal) {
+        $rapatKadaluarsa = $semuaRapat->filter(function (Rapat $rapat) {
+            if (! $rapat->tanggal) {
                 return false;
             }
             $batasRetensi = $rapat->tanggal->copy()->addDays($rapat->retensi_hari);
+
             return $batasRetensi->isPast();
         });
 

@@ -108,14 +108,20 @@ class PengelolaAntrean {
 
         try {
             const tokenCsrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const tokenKiosk = document.querySelector('meta[name="kiosk-token"]')?.getAttribute('content');
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': tokenCsrf || '',
+            };
+            if (tokenKiosk) {
+                headers['X-Kiosk-Token'] = tokenKiosk;
+            }
 
             const response = await fetch('/api/sinkron-kehadiran', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': tokenCsrf || '',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     items: pendingItems.map(item => ({
                         id: item.id,

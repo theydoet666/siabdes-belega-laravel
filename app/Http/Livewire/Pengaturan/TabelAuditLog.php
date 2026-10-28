@@ -3,7 +3,6 @@
 namespace App\Http\Livewire\Pengaturan;
 
 use App\Models\AuditLog;
-use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,12 +11,16 @@ class TabelAuditLog extends Component
     use WithPagination;
 
     public string $cari = '';
+
     public string $filterTabel = '';
+
     public ?string $tanggalMulai = null;
+
     public ?string $tanggalSelesai = null;
 
     // Modal detail JSON rincian
     public bool $bukaModalDetail = false;
+
     public ?AuditLog $logTerpilih = null;
 
     protected $queryString = [
@@ -75,27 +78,27 @@ class TabelAuditLog extends Component
     {
         $query = AuditLog::with('pengguna')->orderBy('dibuat_pada', 'desc');
 
-        if (!empty($this->cari)) {
-            $cari = '%' . $this->cari . '%';
+        if (! empty($this->cari)) {
+            $cari = '%'.$this->cari.'%';
             $query->where(function ($q) use ($cari) {
                 $q->where('aksi', 'like', $cari)
-                  ->orWhere('baris_id', 'like', $cari)
-                  ->orWhereHas('pengguna', function ($qp) use ($cari) {
-                      $qp->where('nama', 'like', $cari)
-                         ->orWhere('email', 'like', $cari);
-                  });
+                    ->orWhere('baris_id', 'like', $cari)
+                    ->orWhereHas('pengguna', function ($qp) use ($cari) {
+                        $qp->where('nama', 'like', $cari)
+                            ->orWhere('email', 'like', $cari);
+                    });
             });
         }
 
-        if (!empty($this->filterTabel)) {
+        if (! empty($this->filterTabel)) {
             $query->where('tabel_target', $this->filterTabel);
         }
 
-        if (!empty($this->tanggalMulai)) {
+        if (! empty($this->tanggalMulai)) {
             $query->whereDate('dibuat_pada', '>=', $this->tanggalMulai);
         }
 
-        if (!empty($this->tanggalSelesai)) {
+        if (! empty($this->tanggalSelesai)) {
             $query->whereDate('dibuat_pada', '<=', $this->tanggalSelesai);
         }
 

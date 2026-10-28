@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\StatusRapat;
-use App\Enums\PeranPengguna;
 use App\Models\AuditLog;
 use App\Models\Profil;
 use App\Models\Rapat;
@@ -21,17 +20,13 @@ class RapatService
 
     /**
      * Membuat rapat baru.
-     *
-     * @param array $data
-     * @param Profil $aktor
-     * @return Rapat
      */
     public function buatRapat(array $data, Profil $aktor): Rapat
     {
         return DB::transaction(function () use ($data, $aktor) {
             $kode = $this->kodeRapatService->generate();
 
-            $pinKioskHash = !empty($data['pin_kiosk'])
+            $pinKioskHash = ! empty($data['pin_kiosk'])
                 ? Hash::make($data['pin_kiosk'])
                 : null;
 
@@ -85,12 +80,6 @@ class RapatService
 
     /**
      * Menduplikasi rapat.
-     *
-     * @param Rapat $rapatAsal
-     * @param string $judulBaru
-     * @param bool $salinUndangan
-     * @param Profil $aktor
-     * @return Rapat
      */
     public function duplikasiRapat(
         Rapat $rapatAsal,
@@ -172,10 +161,6 @@ class RapatService
     /**
      * Menghapus rapat secara permanen (khusus admin).
      * Menghapus data rapat (cascade ke undangan dan kehadiran) serta file fisik di storage.
-     *
-     * @param Rapat $rapat
-     * @param Profil $aktor
-     * @return bool
      */
     public function hapusRapat(Rapat $rapat, Profil $aktor): bool
     {
@@ -184,10 +169,10 @@ class RapatService
         $filePaths = [];
 
         foreach ($daftarKehadiran as $k) {
-            if (!empty($k->ttd_path)) {
+            if (! empty($k->ttd_path)) {
                 $filePaths[] = $k->ttd_path;
             }
-            if (!empty($k->foto_path)) {
+            if (! empty($k->foto_path)) {
                 $filePaths[] = $k->foto_path;
             }
         }
@@ -214,14 +199,16 @@ class RapatService
 
             // Hapus file fisik di storage SETELAH transaksi database sukses commit
             DB::afterCommit(function () use ($filePaths) {
-                if (!empty($filePaths)) {
+                if (! empty($filePaths)) {
                     foreach ($filePaths as $path) {
-                        // Cek dan hapus dari disk public atau disk default
+                        // Cek dan hapus dari disk local atau disk public
+                        if (Storage::disk('local')->exists($path)) {
+                            Storage::disk('local')->delete($path);
+                        }
                         if (Storage::disk('public')->exists($path)) {
                             Storage::disk('public')->delete($path);
-                        } elseif (Storage::exists($path)) {
-                            Storage::delete($path);
                         }
+
                     }
                 }
             });

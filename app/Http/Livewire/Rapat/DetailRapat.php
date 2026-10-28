@@ -9,6 +9,7 @@ use App\Services\RapatService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class DetailRapat extends Component
@@ -16,47 +17,70 @@ class DetailRapat extends Component
     use AuthorizesRequests;
 
     public Rapat $rapat;
+
     public string $rapatId;
 
     // Form fields
     public string $judul = '';
+
     public string $tanggal = '';
+
     public ?string $jam_mulai = null;
+
     public ?string $jam_selesai = null;
+
     public string $tempat = '';
+
     public string $penyelenggara = '';
+
     public ?string $catatan = null;
+
     public int $retensi_hari = 90;
+
     public string $pin_kiosk_baru = '';
 
     // Penandatangan Laporan (3 Pihak)
     // 1. Verifikator (Sekdes)
     public bool $verifikator_tampil = true;
+
     public string $verifikator_label = 'Telah dilakukan verifikasi';
+
     public string $verifikator_jabatan = 'Sekretaris Desa';
+
     public string $verifikator_nama = 'Gusti Ketut Amertayasa, S.M';
+
     public ?string $verifikator_nip = '';
 
     // 2. Pelaksana Kegiatan (Kasi / Kaur)
     public bool $pelaksana_tampil = true;
+
     public string $pelaksana_jabatan = 'Kasi Pelayanan';
+
     public string $pelaksana_nama = 'Ni Made Arini';
+
     public ?string $pelaksana_nip = '';
 
     // 3. Mengetahui / Mengesahkan (Perbekel / Plt. Perbekel)
     public bool $mengetahui_tampil = true;
+
     public string $mengetahui_label = 'Mengetahui :';
+
     public string $penandatangan_nama = '';
+
     public string $penandatangan_jabatan = '';
+
     public ?string $penandatangan_nip = '';
+
     public string $penandatangan_lokasi = '';
 
     // Status & Tabs
     public string $status = 'draft';
+
     public string $tabAktif = 'undangan';
 
     // Flash notifications
     public ?string $pesanSukses = null;
+
     public ?string $pesanError = null;
 
     // Modal konfirmasi hapus
@@ -66,7 +90,7 @@ class DetailRapat extends Component
         'tabAktif' => ['except' => 'undangan', 'as' => 'tab'],
     ];
 
-    #[\Livewire\Attributes\On('undangan-diperbarui')]
+    #[On('undangan-diperbarui')]
     public function segarkanData(): void
     {
         $this->rapat->loadCount(['undangan', 'kehadiran']);
@@ -81,6 +105,7 @@ class DetailRapat extends Component
     public function mount(string $id): void
     {
         $this->rapat = Rapat::withCount(['undangan', 'kehadiran'])->findOrFail($id);
+        $this->authorize('view', $this->rapat);
         $this->rapatId = $this->rapat->id;
 
         $this->isiDataForm();
@@ -164,9 +189,11 @@ class DetailRapat extends Component
 
     public function ubahStatus(string $statusBaru): void
     {
+        $this->authorize('update', $this->rapat);
+
         $statusEnum = StatusRapat::tryFrom($statusBaru);
 
-        if (!$statusEnum || $this->rapat->status === $statusEnum) {
+        if (! $statusEnum || $this->rapat->status === $statusEnum) {
             return;
         }
 
@@ -188,16 +215,18 @@ class DetailRapat extends Component
             ],
         ]);
 
-        $this->pesanSukses = "Status rapat berhasil diubah menjadi: " . strtoupper($statusEnum->value) . ".";
+        $this->pesanSukses = 'Status rapat berhasil diubah menjadi: '.strtoupper($statusEnum->value).'.';
         $this->dispatch('swal:alert', [
             'title' => 'Status Rapat Diperbarui',
-            'text' => "Status agenda rapat berhasil diubah menjadi " . strtoupper($statusEnum->value) . ".",
+            'text' => 'Status agenda rapat berhasil diubah menjadi '.strtoupper($statusEnum->value).'.',
             'icon' => 'success',
         ]);
     }
 
     public function simpanPerubahan(): void
     {
+        $this->authorize('update', $this->rapat);
+
         $this->validate();
 
         $this->rapat->judul = $this->judul;
@@ -209,7 +238,7 @@ class DetailRapat extends Component
         $this->rapat->catatan = $this->catatan ?: null;
         $this->rapat->retensi_hari = $this->retensi_hari;
 
-        if (!empty($this->pin_kiosk_baru)) {
+        if (! empty($this->pin_kiosk_baru)) {
             $this->rapat->pin_kiosk = Hash::make($this->pin_kiosk_baru);
             $this->pin_kiosk_baru = '';
         }

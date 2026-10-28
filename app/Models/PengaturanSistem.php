@@ -13,9 +13,11 @@ class PengaturanSistem extends Model
     protected $table = 'pengaturan_sistem';
 
     public $incrementing = false;
+
     protected $primaryKey = 'id';
 
     const CREATED_AT = null;
+
     const UPDATED_AT = 'diperbarui_pada';
 
     protected $fillable = [
@@ -42,28 +44,36 @@ class PengaturanSistem extends Model
 
     public function getLogoUrlAttribute($value): ?string
     {
-        if (!$value) return null;
+        if (! $value) {
+            return null;
+        }
         if (str_contains($value, '/storage/')) {
             $path = substr($value, strpos($value, '/storage/'));
+
             return asset(ltrim($path, '/'));
         }
         if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
             return $value;
         }
-        return asset('storage/' . ltrim($value, '/'));
+
+        return asset('storage/'.ltrim($value, '/'));
     }
 
     public function getFaviconUrlAttribute($value): ?string
     {
-        if (!$value) return null;
+        if (! $value) {
+            return null;
+        }
         if (str_contains($value, '/storage/')) {
             $path = substr($value, strpos($value, '/storage/'));
+
             return asset(ltrim($path, '/'));
         }
         if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
             return $value;
         }
-        return asset('storage/' . ltrim($value, '/'));
+
+        return asset('storage/'.ltrim($value, '/'));
     }
 
     public function pengubah(): BelongsTo

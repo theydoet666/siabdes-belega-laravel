@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Pengaturan;
 use App\Models\AuditLog;
 use App\Models\PengaturanSistem;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -14,21 +13,30 @@ class PengaturanIdentitas extends Component
     use WithFileUploads;
 
     public string $nama_sistem = 'SIABDES Belega';
+
     public string $subjudul_sistem = 'Sistem Absensi Rapat Kantor Desa Belega';
+
     public string $nama_desa = 'Pemerintah Desa Belega';
+
     public string $alamat_desa = 'Jalan Raya Belega, Blahbatuh, Gianyar, Bali — Kode Pos 80581';
+
     public string $kecamatan = 'Kecamatan Blahbatuh';
+
     public string $kabupaten = 'Kabupaten Gianyar';
+
     public string $provinsi = 'Bali';
 
     public ?string $logo_url = null;
+
     public ?string $favicon_url = null;
 
     // Temporary uploaded files
     public $logoBaru = null;
+
     public $faviconBaru = null;
 
     public ?string $pesanSukses = null;
+
     public ?string $pesanError = null;
 
     public function mount(): void
@@ -81,7 +89,9 @@ class PengaturanIdentitas extends Component
 
     public function getLogoPreviewProperty(): ?string
     {
-        if (!$this->logoBaru) return null;
+        if (! $this->logoBaru) {
+            return null;
+        }
         try {
             if (method_exists($this->logoBaru, 'isPreviewable') && $this->logoBaru->isPreviewable()) {
                 return $this->logoBaru->temporaryUrl();
@@ -89,12 +99,15 @@ class PengaturanIdentitas extends Component
         } catch (\Throwable $e) {
             return null;
         }
+
         return null;
     }
 
     public function getFaviconPreviewProperty(): ?string
     {
-        if (!$this->faviconBaru) return null;
+        if (! $this->faviconBaru) {
+            return null;
+        }
         try {
             if (method_exists($this->faviconBaru, 'isPreviewable') && $this->faviconBaru->isPreviewable()) {
                 return $this->faviconBaru->temporaryUrl();
@@ -102,6 +115,7 @@ class PengaturanIdentitas extends Component
         } catch (\Throwable $e) {
             return null;
         }
+
         return null;
     }
 
@@ -133,7 +147,7 @@ class PengaturanIdentitas extends Component
         // Proses upload Logo baru
         if ($this->logoBaru) {
             $pathLogo = $this->logoBaru->store('identitas', 'public');
-            $pengaturan->logo_url = '/storage/' . $pathLogo;
+            $pengaturan->logo_url = '/storage/'.$pathLogo;
             $this->logo_url = $pengaturan->logo_url;
             $this->logoBaru = null;
         }
@@ -141,7 +155,7 @@ class PengaturanIdentitas extends Component
         // Proses upload Favicon baru
         if ($this->faviconBaru) {
             $pathFavicon = $this->faviconBaru->store('identitas', 'public');
-            $pengaturan->favicon_url = '/storage/' . $pathFavicon;
+            $pengaturan->favicon_url = '/storage/'.$pathFavicon;
             $this->favicon_url = $pengaturan->favicon_url;
             $this->faviconBaru = null;
         }
@@ -151,7 +165,7 @@ class PengaturanIdentitas extends Component
 
         AuditLog::create([
             'aktor' => $profilId,
-            'aksi' => "Memperbarui konfigurasi identitas instansi & kop dinas sistem",
+            'aksi' => 'Memperbarui konfigurasi identitas instansi & kop dinas sistem',
             'tabel_target' => 'pengaturan_sistem',
             'baris_id' => '1',
             'rincian' => [

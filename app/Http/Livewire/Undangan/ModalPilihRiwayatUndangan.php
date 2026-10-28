@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\Rapat;
 use App\Models\Undangan;
 use App\Repositories\UndanganRepository;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -15,19 +16,26 @@ use Livewire\Component;
 
 class ModalPilihRiwayatUndangan extends Component
 {
+    use AuthorizesRequests;
+
     public ?string $rapatId = null;
+
     public ?Rapat $rapat = null;
+
     public bool $tampil = false;
 
     public string $cari = '';
+
     public array $terpilih = []; // array of indices
+
     public ?string $pesanInfo = null;
 
     #[On('buka-modal-riwayat')]
     public function buka(string $rapatId): void
     {
         $this->rapatId = $rapatId;
-        $this->rapat = Rapat::find($rapatId);
+        $this->rapat = Rapat::findOrFail($rapatId);
+        $this->authorize('update', $this->rapat);
         $this->reset(['cari', 'terpilih', 'pesanInfo']);
         $this->tampil = true;
     }
@@ -50,8 +58,12 @@ class ModalPilihRiwayatUndangan extends Component
 
     public function salinTerpilih(UndanganRepository $repo)
     {
+        $this->authorize('update', $this->rapat);
+
         if (empty($this->terpilih)) {
+
             $this->pesanInfo = 'Pilih minimal satu nama undangan untuk disalin.';
+
             return;
         }
 
@@ -63,7 +75,7 @@ class ModalPilihRiwayatUndangan extends Component
             $count = 0;
 
             foreach ($this->terpilih as $idx) {
-                if (!isset($daftar[$idx])) {
+                if (! isset($daftar[$idx])) {
                     continue;
                 }
 

@@ -2,23 +2,23 @@
 
 namespace Tests\Feature;
 
-use App\Enums\PeranPengguna;
+use App\Enums\JalurCheckin;
 use App\Enums\SumberUndangan;
 use App\Http\Livewire\Undangan\FormUndangan;
-use App\Http\Livewire\Undangan\ImporCsv;
 use App\Http\Livewire\Undangan\ModalPilihRiwayatUndangan;
 use App\Http\Livewire\Undangan\TabelUndangan;
-use App\Models\AuditLog;
+use App\Models\Kehadiran;
 use App\Models\Profil;
 use App\Models\Rapat;
 use App\Models\Undangan;
 use App\Models\User;
 use App\Repositories\UndanganRepository;
 use App\Services\ImporUndanganService;
-use App\Services\OperatorService;
 use App\Services\RapatService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -27,7 +27,9 @@ class ModulUndanganTest extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected Profil $adminProfil;
+
     protected Rapat $rapat;
 
     protected function setUp(): void
@@ -54,18 +56,18 @@ class ModulUndanganTest extends TestCase
 
         // Buat file CSV contoh 10 baris (termasuk 1 duplikat di file)
         $csvContent = "Nama,Jabatan,Instansi,No HP\n"
-            . "I Wayan Sudarsana,Perbekel,Pemerintah Desa,0811111111\n"
-            . "I Made Sujana,Sekdes,Pemerintah Desa,0822222222\n"
-            . "Ni Luh Gede Rai,Kaur Keuangan,Pemerintah Desa,0833333333\n"
-            . "I Ketut Ariawan,Kasi Pemerintahan,Pemerintah Desa,0844444444\n"
-            . "I Nyoman Sugiartha,Kelian Banjar,Banjar Belega Kangin,0855555555\n"
-            . "I Wayan Mardika,Kelian Banjar,Banjar Belega Kawan,0866666666\n"
-            . "Ni Kadek Ayu,Ketua BPD,BPD Desa Belega,0877777777\n"
-            . "I Wayan Sudarsana,Perbekel,Pemerintah Desa,0811111111\n" // DUPLIKAT DI FILE
-            . "I Gusti Ngurah Agung,Tokoh Adat,Desa Adat Belega,0888888888\n"
-            . ",Anggota Tanpa Nama,Organisasi,0899999999\n"; // INVALID TANPA NAMA
+            ."I Wayan Sudarsana,Perbekel,Pemerintah Desa,0811111111\n"
+            ."I Made Sujana,Sekdes,Pemerintah Desa,0822222222\n"
+            ."Ni Luh Gede Rai,Kaur Keuangan,Pemerintah Desa,0833333333\n"
+            ."I Ketut Ariawan,Kasi Pemerintahan,Pemerintah Desa,0844444444\n"
+            ."I Nyoman Sugiartha,Kelian Banjar,Banjar Belega Kangin,0855555555\n"
+            ."I Wayan Mardika,Kelian Banjar,Banjar Belega Kawan,0866666666\n"
+            ."Ni Kadek Ayu,Ketua BPD,BPD Desa Belega,0877777777\n"
+            ."I Wayan Sudarsana,Perbekel,Pemerintah Desa,0811111111\n" // DUPLIKAT DI FILE
+            ."I Gusti Ngurah Agung,Tokoh Adat,Desa Adat Belega,0888888888\n"
+            .",Anggota Tanpa Nama,Organisasi,0899999999\n"; // INVALID TANPA NAMA
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'test_csv_') . '.csv';
+        $tempFile = tempnam(sys_get_temp_dir(), 'test_csv_').'.csv';
         file_put_contents($tempFile, $csvContent);
 
         $uploadedFile = new UploadedFile($tempFile, 'undangan.csv', 'text/csv', null, true);
@@ -100,7 +102,7 @@ class ModulUndanganTest extends TestCase
 
         // Tambah undangan di rapat 1
         Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $this->rapat->id,
             'nama' => 'I Made Tokoh',
             'jabatan' => 'Ketua LPM',
@@ -110,7 +112,7 @@ class ModulUndanganTest extends TestCase
 
         // Tambah undangan yang sama di rapat 2
         Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $rapat2->id,
             'nama' => 'I Made Tokoh',
             'jabatan' => 'Ketua LPM',
@@ -120,7 +122,7 @@ class ModulUndanganTest extends TestCase
 
         // Tambah orang beda di rapat 2
         Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $rapat2->id,
             'nama' => 'Ni Nyoman Putri',
             'jabatan' => 'Bendahara BPD',
@@ -172,7 +174,7 @@ class ModulUndanganTest extends TestCase
         ], $this->adminProfil);
 
         Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $rapatLama->id,
             'nama' => 'I Wayan Tetap',
             'jabatan' => 'Kelian',
@@ -200,7 +202,7 @@ class ModulUndanganTest extends TestCase
         $this->actingAs($this->adminUser);
 
         $u1 = Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $this->rapat->id,
             'nama' => 'I Ketut Suara',
             'jabatan' => 'Kaur',
@@ -208,7 +210,7 @@ class ModulUndanganTest extends TestCase
         ]);
 
         $u2 = Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $this->rapat->id,
             'nama' => 'Ni Wayan Sari',
             'jabatan' => 'Kasi',
@@ -233,25 +235,25 @@ class ModulUndanganTest extends TestCase
         $this->actingAs($this->adminUser);
 
         $undangan = Undangan::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'rapat_id' => $this->rapat->id,
             'nama' => 'I Made Hadir',
             'jabatan' => 'Kader',
             'urutan' => 1,
         ]);
 
-        $kehadiran = \App\Models\Kehadiran::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+        $kehadiran = Kehadiran::create([
+            'id' => (string) Str::uuid(),
             'rapat_id' => $this->rapat->id,
             'undangan_id' => $undangan->id,
             'ttd_path' => 'ttd/test.png',
-            'jalur' => \App\Enums\JalurCheckin::KIOSK,
+            'jalur' => JalurCheckin::KIOSK,
             'waktu_perangkat' => now(),
             'dibatalkan' => false,
         ]);
 
         Livewire::test(TabelUndangan::class, ['rapatId' => $this->rapat->id])
             ->assertSee('I Made Hadir')
-            ->assertSee(route('kehadiran.bukti', $kehadiran->id));
+            ->assertSee(URL::signedRoute('kehadiran.bukti', ['id' => $kehadiran->id]));
     }
 }

@@ -4,17 +4,25 @@ namespace App\Http\Livewire\Rapat;
 
 use App\Models\Rapat;
 use App\Services\RapatService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ModalDuplikasiRapat extends Component
 {
+    use AuthorizesRequests;
+
     public ?string $rapatId = null;
+
     public ?Rapat $rapatAsal = null;
+
     public string $judulBaru = '';
+
     public bool $salinUndangan = true;
+
     public int $totalUndangan = 0;
+
     public bool $tampil = false;
 
     #[On('buka-modal-duplikasi')]
@@ -24,7 +32,9 @@ class ModalDuplikasiRapat extends Component
         $this->rapatAsal = Rapat::withCount('undangan')->find($rapatId);
 
         if ($this->rapatAsal) {
-            $this->judulBaru = 'Salinan - ' . $this->rapatAsal->judul;
+            $this->authorize('duplicate', $this->rapatAsal);
+            $this->judulBaru = 'Salinan - '.$this->rapatAsal->judul;
+
             $this->totalUndangan = $this->rapatAsal->undangan_count ?? 0;
             $this->salinUndangan = true;
             $this->tampil = true;
@@ -49,9 +59,11 @@ class ModalDuplikasiRapat extends Component
             'judulBaru.max' => 'Judul rapat maksimal 255 karakter.',
         ]);
 
-        if (!$this->rapatAsal) {
+        if (! $this->rapatAsal) {
             return;
         }
+
+        $this->authorize('duplicate', $this->rapatAsal);
 
         $aktor = Auth::user()?->profil;
 

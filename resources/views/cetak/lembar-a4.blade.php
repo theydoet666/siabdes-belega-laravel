@@ -264,9 +264,10 @@
                         <td style="border: 1px solid #000; padding: 3px 4px; vertical-align: middle;">
                             @if ($hadir && $kehadiran->ttd_path)
                                 <div class="flex items-center justify-center">
-                                    <img src="{{ asset('storage/' . $kehadiran->ttd_path) }}" 
+                                    <img src="{{ route('berkas.tampil', ['jenis' => 'ttd', 'id' => $kehadiran->id]) }}" 
                                          alt="TTD" 
                                          style="max-height: 40px; max-width: 110px; object-fit: contain;" />
+
                                 </div>
                             @elseif ($hadir)
                                 <div class="text-center text-[8.5pt] font-bold text-emerald-800">

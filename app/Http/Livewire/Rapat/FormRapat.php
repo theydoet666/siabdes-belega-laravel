@@ -10,35 +10,55 @@ class FormRapat extends Component
 {
     // Data Rapat
     public string $judul = '';
+
     public string $tanggal = '';
+
     public string $jam_mulai = '09:00';
+
     public string $jam_selesai = '12:00';
+
     public string $tempat = 'Ruang Rapat Kantor Desa Belega';
+
     public string $penyelenggara = 'Pemerintah Desa Belega';
+
     public string $catatan = '';
+
     public int $retensi_hari = 90;
+
     public string $pin_kiosk = '';
 
     // Data Penandatangan Laporan (3 Pihak)
     // 1. Verifikator (Sekdes)
     public bool $verifikator_tampil = true;
+
     public string $verifikator_label = 'Telah dilakukan verifikasi';
+
     public string $verifikator_jabatan = 'Sekretaris Desa';
+
     public string $verifikator_nama = 'Gusti Ketut Amertayasa, S.M';
+
     public string $verifikator_nip = '';
 
     // 2. Pelaksana Kegiatan (Kasi / Kaur)
     public bool $pelaksana_tampil = true;
+
     public string $pelaksana_jabatan = 'Kasi Pelayanan';
+
     public string $pelaksana_nama = 'Ni Made Arini';
+
     public string $pelaksana_nip = '';
 
     // 3. Mengetahui / Mengesahkan (Perbekel / Plt. Perbekel)
     public bool $mengetahui_tampil = true;
+
     public string $mengetahui_label = 'Mengetahui :';
+
     public string $penandatangan_nama = 'I WAYAN SUDARSANA, S.Sos.';
+
     public string $penandatangan_jabatan = 'Plt. Perbekel Desa Belega';
+
     public string $penandatangan_nip = '';
+
     public string $penandatangan_lokasi = 'Kantor Perbekel Desa Belega';
 
     public function mount(): void

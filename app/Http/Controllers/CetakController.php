@@ -6,13 +6,17 @@ use App\Exports\RekapKehadiranExport;
 use App\Models\PengaturanSistem;
 use App\Models\Rapat;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CetakController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Tampilkan halaman cetak Lembar A4 Daftar Hadir Rapat
      */
@@ -21,12 +25,14 @@ class CetakController extends Controller
         $rapat = Rapat::with([
             'undangan' => function ($query) {
                 $query->orderBy('urutan', 'asc')
-                      ->orderBy('dibuat_pada', 'asc')
-                      ->with(['kehadiran' => function ($kq) {
-                          $kq->where('dibatalkan', false);
-                      }]);
+                    ->orderBy('dibuat_pada', 'asc')
+                    ->with(['kehadiran' => function ($kq) {
+                        $kq->where('dibatalkan', false);
+                    }]);
             },
         ])->findOrFail($id);
+
+        $this->authorize('view', $rapat);
 
         $pengaturan = PengaturanSistem::first() ?? new PengaturanSistem([
             'nama_sistem' => 'SIABDES Belega',
@@ -46,11 +52,11 @@ class CetakController extends Controller
         $now = Carbon::now('Asia/Makassar');
         $mapHari = [
             'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
-            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu',
         ];
         $mapBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
-            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
         $namaHariCetak = $mapHari[$now->format('l')] ?? $now->format('l');
         $namaBulanCetak = $mapBulan[(int) $now->format('n')] ?? $now->format('F');
@@ -61,11 +67,11 @@ class CetakController extends Controller
         $urlVerifikasi = route('dokumen.verifikasi', $rapat->kode);
         $qrVerifikasiSvg = null;
         try {
-            $qrVerifikasiSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(70)
+            $qrVerifikasiSvg = QrCode::size(70)
                 ->margin(0)
                 ->generate($urlVerifikasi);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Gagal generate QR Verifikasi Cetak: ' . $e->getMessage());
+            Log::warning('Gagal generate QR Verifikasi Cetak: '.$e->getMessage());
         }
 
         return view('cetak.lembar-a4', [
@@ -87,7 +93,8 @@ class CetakController extends Controller
     public function eksporExcel(string $id): BinaryFileResponse
     {
         $rapat = Rapat::findOrFail($id);
-        
+        $this->authorize('view', $rapat);
+
         $tanggalFormatted = $rapat->tanggal ? $rapat->tanggal->format('Y-m-d') : date('Y-m-d');
         $namaFile = "Rekap_Kehadiran_{$rapat->kode}_{$tanggalFormatted}.xlsx";
 
