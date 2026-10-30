@@ -69,3 +69,21 @@ Route::middleware(['throttle:publik'])->group(function () {
 
 // Kebijakan Privasi Publik (UU No. 27/2022 PDP)
 Route::view('/privasi', 'privasi')->name('privasi');
+
+// Melayani Berkas Publik Storage (Solusi Handal Shared Hosting Tanpa Symlink)
+Route::get('/storage/{path}', function (string $path) {
+    if (str_contains($path, '..')) {
+        abort(403, 'Akses tidak sah.');
+    }
+
+    $filePath = storage_path('app/public/'.$path);
+
+    if (! file_exists($filePath)) {
+        abort(404, 'Berkas tidak ditemukan.');
+    }
+
+    return response()->file($filePath, [
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.local');
+

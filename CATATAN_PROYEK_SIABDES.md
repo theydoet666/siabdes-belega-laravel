@@ -1,7 +1,7 @@
 # Rangkuman & Catatan Pengembangan SIABDES Belega (Laravel 12)
 
-**Tanggal Pembaruan Terakhir:** 28 September 2026  
-**Status Proyek:** Seluruh fitur telah selesai diimplementasikan, disempurnakan dengan Verifikasi Keabsahan Dokumen Digital (`/v/{kode}`), Kartu Bukti Hadir Digital Pribadi (`/bukti/{id}`), tombol unduh bukti pada tabel daftar undangan rapat, perbaikan layout cetak A4 2cm margin dengan kop profesional, perbaikan reset canvas TTD multi-peserta, penanganan offline antrean sync, dan diverifikasi dengan 45 automated tests (383 assertions, 100% PASS).
+**Tanggal Pembaruan Terakhir:** 29 Oktober 2026  
+**Status Proyek:** Seluruh fitur telah selesai dan **BERHASIL DI-HOSTING / DEPLOY KE PRODUCTION** di subdomain resmi `https://siabsendesa.belega.id/` (cPanel Rumahweb, PHP 8.4.27, MySQL 8). Dokumentasi SOP pemeliharaan dan revisi berkala tersimpan di `DOKUMENTASI_HOSTING_PRODUCTION.md`.
 
 ---
 
@@ -84,3 +84,29 @@ Kompilasi Aset Frontend:
 ```bash
 npm run build
 ```
+
+---
+
+## 5. Pembaruan Sesi 29 Oktober 2026 — Deployment Produksi Sukses
+
+- **Target URL Produksi:** `https://siabsendesa.belega.id/`
+- **Hosting Environment:** Rumahweb Shared Hosting (cPanel / CloudLinux), PHP 8.4.27 (`ea-php84`).
+- **Database:** MySQL `belm9279_siabdes_belega` (User: `belm9279_admin_siabdesa`).
+- **Penataan Folder Keamanan Tinggi:**
+  - File inti Laravel terisolasi aman di `/home/belm9279/siabdes_app/` (di luar web root).
+  - Web root publik terpusat di `/home/belm9279/public_html/siabsendesa.belega.id/`.
+- **Catatan & SOP Revisi Masa Depan:** Tersimpan lengkap di [`DOKUMENTASI_HOSTING_PRODUCTION.md`](file:///c:/laragon/www/siabdes-belega-laravel/DOKUMENTASI_HOSTING_PRODUCTION.md).
+
+---
+
+## 6. Pembaruan Sesi 30 Oktober 2026 — Perbaikan Kamera Kiosk Multi-Peserta & Form Login Dinamis
+
+- **Solusi Kamera Kiosk:** Mengatasi masalah kamera mati / layar hitam saat orang kedua dan seterusnya absen di perangkat yang sama:
+  - Event-driven camera lifecycle (`siapkan-kamera-wajah` dan `hentikan-kamera-wajah`).
+  - Kamera hanya aktif saat masuk ke layar foto, dan otomatis mati saat kembali ke tanda tangan atau selesai absensi.
+  - Reset bersih `srcObject = null` dan pembersihan track lama sebelum membuka kamera baru.
+  - Tombol bantuan interaktif "Aktifkan / Coba Kamera Lagi" pada layar foto.
+- **Form Login Dinamis:** Logo dinas, nama sistem, dan subjudul terhubung otomatis dengan tabel `pengaturan_sistem`.
+- **Kompilasi Aset:** Aset JavaScript terkompilasi ke `public/build/assets/app-DXMyTv61.js` (arsip: `public/build.zip`).
+
+

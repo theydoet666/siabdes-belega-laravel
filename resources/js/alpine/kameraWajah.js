@@ -19,12 +19,47 @@ export default function kameraWajah() {
 
         init() {
             this.videoEl = this.$refs.videoElement;
+
+            window.addEventListener('siapkan-kamera-wajah', () => {
+                this.resetDanMulai();
+            });
+
+            window.addEventListener('hentikan-kamera-wajah', () => {
+                this.hentikanKamera();
+            });
+
+            // Mulai kamera jika saat init layar sudah berada di foto
+            if (this.layar === 'foto') {
+                this.resetDanMulai();
+            }
+        },
+
+        resetDanMulai() {
+            this.fotoBase64 = null;
+            this.isCountingDown = false;
+            this.countdown = 3;
+            if (this.countdownInterval) {
+                clearInterval(this.countdownInterval);
+                this.countdownInterval = null;
+            }
             this.mulaiKamera();
         },
 
         async mulaiKamera() {
             this.pesanErrorKamera = null;
             this.fotoBase64 = null;
+
+            // Hentikan stream sebelumnya jika masih tertinggal agar resource kamera segar
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => {
+                    try {
+                        track.stop();
+                    } catch (e) {
+                        console.warn('Error stopping track:', e);
+                    }
+                });
+                this.stream = null;
+            }
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 this.kameraTersedia = false;
@@ -42,9 +77,17 @@ export default function kameraWajah() {
                     audio: false,
                 });
 
+                if (!this.videoEl) {
+                    this.videoEl = this.$refs.videoElement;
+                }
+
                 if (this.videoEl) {
                     this.videoEl.srcObject = this.stream;
-                    await this.videoEl.play();
+                    try {
+                        await this.videoEl.play();
+                    } catch (playErr) {
+                        console.warn('[SIABDES Kamera] Gagal play video otomatis:', playErr);
+                    }
                 }
 
                 this.kameraAktif = true;
@@ -58,10 +101,20 @@ export default function kameraWajah() {
 
         hentikanKamera() {
             if (this.stream) {
-                this.stream.getTracks().forEach(track => track.stop());
+                this.stream.getTracks().forEach(track => {
+                    try {
+                        track.stop();
+                    } catch (e) {
+                        console.warn('Error stopping track:', e);
+                    }
+                });
                 this.stream = null;
             }
+            if (this.videoEl) {
+                this.videoEl.srcObject = null;
+            }
             this.kameraAktif = false;
+            this.isCountingDown = false;
             if (this.countdownInterval) {
                 clearInterval(this.countdownInterval);
                 this.countdownInterval = null;

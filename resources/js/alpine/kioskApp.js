@@ -337,8 +337,14 @@ export default function kioskApp(konfigurasi) {
 
             if (namaLayar === 'cari') {
                 window.dispatchEvent(new CustomEvent('bersihkan-tanda-tangan'));
+                window.dispatchEvent(new CustomEvent('hentikan-kamera-wajah'));
             } else if (namaLayar === 'ttd') {
                 window.dispatchEvent(new CustomEvent('siapkan-kanvas-ttd'));
+                window.dispatchEvent(new CustomEvent('hentikan-kamera-wajah'));
+            } else if (namaLayar === 'foto') {
+                window.dispatchEvent(new CustomEvent('siapkan-kamera-wajah'));
+            } else {
+                window.dispatchEvent(new CustomEvent('hentikan-kamera-wajah'));
             }
         },
 

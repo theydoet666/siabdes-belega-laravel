@@ -81,7 +81,10 @@ class HalamanLogin extends Component
 
     public function render()
     {
-        return view('livewire.auth.halaman-login')
-            ->layout('layouts.guest', ['title' => 'Masuk Operator']);
+        $pengaturan = \App\Models\PengaturanSistem::first();
+
+        return view('livewire.auth.halaman-login', [
+            'pengaturan' => $pengaturan,
+        ])->layout('layouts.guest', ['title' => 'Masuk Operator']);
     }
 }
