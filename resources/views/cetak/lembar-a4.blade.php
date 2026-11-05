@@ -110,51 +110,83 @@
     <!-- Kontainer Lembar A4 -->
     <main class="lembar-a4">
         
+        @php
+            // Perhitungan ukuran font dinamis agar teks panjang tidak turun ke baris bawah
+            $textNamaDesa = strtoupper($pengaturan->nama_desa ?: 'Pemerintah Desa Belega');
+            $lenNamaDesa = strlen($textNamaDesa);
+            if ($lenNamaDesa > 26) {
+                $fontSizeNamaDesa = '12.5pt';
+                $letterSpacingNamaDesa = '0.2px';
+            } elseif ($lenNamaDesa > 20) {
+                $fontSizeNamaDesa = '13.5pt';
+                $letterSpacingNamaDesa = '0.3px';
+            } elseif ($lenNamaDesa > 15) {
+                $fontSizeNamaDesa = '14.5pt';
+                $letterSpacingNamaDesa = '0.5px';
+            } else {
+                $fontSizeNamaDesa = '16pt';
+                $letterSpacingNamaDesa = '0.75px';
+            }
+
+            $textSubNama = !empty($pengaturan->sub_nama_desa) ? strtoupper($pengaturan->sub_nama_desa) : '';
+            $lenSubNama = strlen($textSubNama);
+            if ($lenSubNama > 26) {
+                $fontSizeSubNama = '11.5pt';
+                $letterSpacingSubNama = '0.2px';
+            } elseif ($lenSubNama > 20) {
+                $fontSizeSubNama = '12.5pt';
+                $letterSpacingSubNama = '0.3px';
+            } else {
+                $fontSizeSubNama = '13pt';
+                $letterSpacingSubNama = '0.5px';
+            }
+        @endphp
+
         <!-- KOP DINAS RESMI -->
         <header class="text-center relative">
-            <div class="flex items-center justify-between gap-5">
-                <!-- Lambang / Logo Desa Belega / Kabupaten (Dibuat Lebih Besar & Proporsional) -->
-                <div class="w-24 h-24 shrink-0 flex items-center justify-center">
+            <div class="flex items-center justify-between gap-3">
+                <!-- Lambang / Logo Kiri: Desa Belega / Kabupaten -->
+                <div class="w-20 h-20 shrink-0 flex items-center justify-center">
                     @if ($pengaturan->logo_url)
-                        <img src="{{ $pengaturan->logo_url }}" alt="Logo Instansi" style="max-height: 85px; max-width: 85px; object-fit: contain;" />
+                        <img src="{{ $pengaturan->logo_url }}" alt="Logo Instansi" style="max-height: 75px; max-width: 75px; object-fit: contain;" />
                     @else
                         <!-- Logo Garis Vektor Default Bali / Pancasila -->
-                        <div class="w-20 h-20 border-2 border-black rounded-full flex flex-col items-center justify-center p-1 text-center">
-                            <span class="text-[10px] font-bold uppercase leading-none">Desa</span>
-                            <span class="text-[12px] font-black uppercase leading-none mt-1">Belega</span>
+                        <div class="w-16 h-16 border-2 border-black rounded-full flex flex-col items-center justify-center p-1 text-center">
+                            <span class="text-[9px] font-bold uppercase leading-none">Desa</span>
+                            <span class="text-[11px] font-black uppercase leading-none mt-0.5">Belega</span>
                         </div>
                     @endif
                 </div>
 
-                <!-- Teks Kop Dinas (Ukuran Lebih Besar & Berwibawa) -->
-                <div class="flex-1 text-center">
-                    <h3 class="font-bold uppercase tracking-wider text-black" style="font-size: 13pt; line-height: 1.25; letter-spacing: 0.5px;">
+                <!-- Teks Kop Dinas (Ukuran Harmonis & Dijamin 1 Baris) -->
+                <div class="flex-1 text-center min-w-0 px-1">
+                    <h3 class="font-bold uppercase tracking-wider text-black" style="font-size: 11.5pt; line-height: 1.25; letter-spacing: 0.5px;">
                         @if (str_starts_with(strtoupper($pengaturan->kabupaten ?? ''), 'PEMERINTAH'))
                             {{ strtoupper($pengaturan->kabupaten) }}
                         @else
                             PEMERINTAH {{ strtoupper($pengaturan->kabupaten ?: 'KABUPATEN GIANYAR') }}
                         @endif
                     </h3>
-                    <h3 class="font-bold uppercase tracking-wider text-black" style="font-size: 13pt; line-height: 1.25; letter-spacing: 0.5px;">
+                    <h3 class="font-bold uppercase tracking-wider text-black" style="font-size: 11.5pt; line-height: 1.25; letter-spacing: 0.5px;">
                         {{ strtoupper($pengaturan->kecamatan ?: 'Kecamatan Blahbatuh') }}
                     </h3>
-                    <h2 class="font-extrabold uppercase tracking-wide text-black mt-0.5 mb-1" style="font-size: 17pt; line-height: 1.25; letter-spacing: 1px;">
-                        {{ strtoupper($pengaturan->nama_desa ?: 'Pemerintah Desa Belega') }}
+                    <h2 class="font-extrabold uppercase text-black mt-0.5 mb-0.5" style="font-size: {{ $fontSizeNamaDesa }}; line-height: 1.25; letter-spacing: {{ $letterSpacingNamaDesa }}; white-space: nowrap;">
+                        {{ $textNamaDesa }}
                     </h2>
-                    @if (!empty($pengaturan->sub_nama_desa))
-                        <h3 class="font-bold uppercase tracking-wider text-black mb-1" style="font-size: 13.5pt; line-height: 1.25; letter-spacing: 0.5px;">
-                            {{ strtoupper($pengaturan->sub_nama_desa) }}
+                    @if (!empty($textSubNama))
+                        <h3 class="font-bold uppercase text-black mb-0.5" style="font-size: {{ $fontSizeSubNama }}; line-height: 1.25; letter-spacing: {{ $letterSpacingSubNama }}; white-space: nowrap;">
+                            {{ $textSubNama }}
                         </h3>
                     @endif
-                    <p class="italic leading-tight text-neutral-800" style="font-size: 9.5pt;">
+                    <p class="italic leading-tight text-neutral-800 mt-0.5" style="font-size: 9pt;">
                         {{ $pengaturan->alamat_desa ?: 'Jalan Raya Belega, Blahbatuh, Gianyar, Bali — Kode Pos 80581' }}
                     </p>
                 </div>
 
                 <!-- Sisi Kanan Kop: Logo Lembaga Desa (jika ada) atau Spacer Penyeimbang -->
-                <div class="w-24 h-24 shrink-0 flex items-center justify-center">
+                <div class="w-20 h-20 shrink-0 flex items-center justify-center">
                     @if (!empty($pengaturan->logo_lembaga_url))
-                        <img src="{{ $pengaturan->logo_lembaga_url }}" alt="Logo Lembaga" style="max-height: 85px; max-width: 85px; object-fit: contain;" />
+                        <img src="{{ $pengaturan->logo_lembaga_url }}" alt="Logo Lembaga" style="max-height: 75px; max-width: 75px; object-fit: contain;" />
                     @endif
                 </div>
             </div>
