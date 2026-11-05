@@ -121,11 +121,16 @@ npm run build
   - Diposisikan simetris di sebelah kanan atas Kop Surat Absensi Lembar A4 (max 85x85px).
 - **Migrasi Database:** `2026_11_05_000010_add_sub_nama_dan_logo_lembaga_to_pengaturan_sistem_table.php`.
 - **Query Sinkronisasi Server cPanel:**
+  - **Query Sinkronisasi Server cPanel:**
   ```sql
   ALTER TABLE pengaturan_sistem 
   ADD COLUMN sub_nama_desa VARCHAR(255) NULL AFTER nama_desa,
   ADD COLUMN logo_lembaga_url VARCHAR(500) NULL AFTER logo_url;
   ```
+- **Optimasi Tipografi Kop Cetak A4:**
+  - Penyesuaian ukuran font dinamis (13.5pt) dan `white-space: nowrap;` untuk teks panjang (contoh: *BADAN PERMUSYAWARATAN DESA*) agar dijamin 100% selalu dalam 1 baris lurus tanpa terdorong ke bawah.
+  - Perlebaran area teks tengah (+48px) dengan optimasi jarak gap (12px) dan ukuran proporsional logo kiri & kanan (80px).
+- **Arsip Deployment Siap Pakai:** `update-fitur-subnama-logo.zip` (~20 KB) untuk kemudahan update ke cPanel.
 
 
 
