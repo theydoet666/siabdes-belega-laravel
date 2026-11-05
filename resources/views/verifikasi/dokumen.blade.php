@@ -46,6 +46,11 @@
                     <h1 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-white">
                         {{ $pengaturan->nama_desa ?: 'Pemerintah Desa Belega' }}
                     </h1>
+                    @if (!empty($pengaturan->sub_nama_desa))
+                        <div class="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-300">
+                            {{ $pengaturan->sub_nama_desa }}
+                        </div>
+                    @endif
                     <p class="text-xs text-slate-300">
                         {{ $pengaturan->subjudul_sistem ?: 'Sistem Informasi Absensi & Dokumen Rapat Digital (SIABDES)' }}
                     </p>

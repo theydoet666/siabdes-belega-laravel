@@ -1,6 +1,6 @@
 # 📘 DOKUMENTASI LENGKAP HOSTING & PRODUCTION SIABDES BELEGA
 
-**Terakhir Diperbarui:** 29 Oktober 2026  
+**Terakhir Diperbarui:** 5 November 2026  
 **Status Produksi:** ✅ ONLINE & AKTIF  
 **URL Produksi:** [https://siabsendesa.belega.id/](https://siabsendesa.belega.id/)  
 
@@ -111,7 +111,23 @@ $app = require_once __DIR__.'/../../siabdes_app/bootstrap/app.php';
 
 ---
 
-## 6. SOP / Prosedur Revisi & Update di Masa Depan
+## 7. Catatan Pembaruan Fitur 5 November 2026 (Sub Nama Desa & Logo Lembaga)
+
+Jika ingin memperbarui server hosting cPanel dengan fitur baru ini:
+1. **Database cPanel:** Buka phpMyAdmin di cPanel > pilih database `belm9279_siabdes_belega` > klik tab **SQL** > jalankan query:
+   ```sql
+   ALTER TABLE pengaturan_sistem 
+   ADD COLUMN sub_nama_desa VARCHAR(255) NULL AFTER nama_desa,
+   ADD COLUMN logo_lembaga_url VARCHAR(500) NULL AFTER logo_url;
+   ```
+2. **Unggah Berkas Baru ke cPanel (`siabdes_app`):**
+   - `app/Models/PengaturanSistem.php`
+   - `app/Http/Livewire/Pengaturan/PengaturanIdentitas.php`
+   - `resources/views/livewire/pengaturan/pengaturan-identitas.blade.php`
+   - `resources/views/cetak/lembar-a4.blade.php`
+   - `resources/views/kehadiran/kartu-bukti.blade.php`
+   - `resources/views/verifikasi/dokumen.blade.php`
+
 
 Bila besok ada perubahan fitur atau perbaikan bug, ikuti panduan praktis berikut:
 

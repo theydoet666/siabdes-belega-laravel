@@ -98,6 +98,11 @@
                             <h2 class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-tight">
                                 {{ $pengaturan->nama_desa ?: 'Pemerintah Desa Belega' }}
                             </h2>
+                            @if (!empty($pengaturan->sub_nama_desa))
+                                <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-tight">
+                                    {{ $pengaturan->sub_nama_desa }}
+                                </div>
+                            @endif
                         </div>
                     </div>
 

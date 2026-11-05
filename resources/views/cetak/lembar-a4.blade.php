@@ -141,13 +141,22 @@
                     <h2 class="font-extrabold uppercase tracking-wide text-black mt-0.5 mb-1" style="font-size: 17pt; line-height: 1.25; letter-spacing: 1px;">
                         {{ strtoupper($pengaturan->nama_desa ?: 'Pemerintah Desa Belega') }}
                     </h2>
+                    @if (!empty($pengaturan->sub_nama_desa))
+                        <h3 class="font-bold uppercase tracking-wider text-black mb-1" style="font-size: 13.5pt; line-height: 1.25; letter-spacing: 0.5px;">
+                            {{ strtoupper($pengaturan->sub_nama_desa) }}
+                        </h3>
+                    @endif
                     <p class="italic leading-tight text-neutral-800" style="font-size: 9.5pt;">
                         {{ $pengaturan->alamat_desa ?: 'Jalan Raya Belega, Blahbatuh, Gianyar, Bali — Kode Pos 80581' }}
                     </p>
                 </div>
 
-                <!-- Spacer Kanan Penyeimbang -->
-                <div class="w-24 h-24 shrink-0"></div>
+                <!-- Sisi Kanan Kop: Logo Lembaga Desa (jika ada) atau Spacer Penyeimbang -->
+                <div class="w-24 h-24 shrink-0 flex items-center justify-center">
+                    @if (!empty($pengaturan->logo_lembaga_url))
+                        <img src="{{ $pengaturan->logo_lembaga_url }}" alt="Logo Lembaga" style="max-height: 85px; max-width: 85px; object-fit: contain;" />
+                    @endif
+                </div>
             </div>
 
             <!-- Garis Ganda Pembatas Kop -->

@@ -25,11 +25,13 @@ class PengaturanSistem extends Model
         'nama_sistem',
         'subjudul_sistem',
         'nama_desa',
+        'sub_nama_desa',
         'alamat_desa',
         'kecamatan',
         'kabupaten',
         'provinsi',
         'logo_url',
+        'logo_lembaga_url',
         'favicon_url',
         'diperbarui_oleh',
     ];
@@ -43,6 +45,23 @@ class PengaturanSistem extends Model
     }
 
     public function getLogoUrlAttribute($value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+        if (str_contains($value, '/storage/')) {
+            $path = substr($value, strpos($value, '/storage/'));
+
+            return asset(ltrim($path, '/'));
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+
+        return asset('storage/'.ltrim($value, '/'));
+    }
+
+    public function getLogoLembagaUrlAttribute($value): ?string
     {
         if (! $value) {
             return null;

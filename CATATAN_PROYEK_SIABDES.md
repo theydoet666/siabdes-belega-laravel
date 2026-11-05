@@ -109,4 +109,23 @@ npm run build
 - **Form Login Dinamis:** Logo dinas, nama sistem, dan subjudul terhubung otomatis dengan tabel `pengaturan_sistem`.
 - **Kompilasi Aset:** Aset JavaScript terkompilasi ke `public/build/assets/app-DXMyTv61.js` (arsip: `public/build.zip`).
 
+---
+
+## 7. Pembaruan Sesi 5 November 2026 — Fitur Sub Nama Desa & Logo Lembaga pada Kop Absen
+
+- **Fitur Sub Nama Pemdes / Lembaga Desa (`sub_nama_desa`):**
+  - Input opsional di menu Pengaturan Identitas.
+  - Ditampilkan di bawah Nama Pemerintahan Desa pada Kop Absen resmi A4, Kartu Bukti Hadir Digital, dan Halaman Verifikasi Dokumen.
+- **Fitur Logo Lembaga Desa (`logo_lembaga_url`):**
+  - Upload opsional logo lembaga/badan/panitia desa di samping Logo Utama Desa dan Favicon.
+  - Diposisikan simetris di sebelah kanan atas Kop Surat Absensi Lembar A4 (max 85x85px).
+- **Migrasi Database:** `2026_11_05_000010_add_sub_nama_dan_logo_lembaga_to_pengaturan_sistem_table.php`.
+- **Query Sinkronisasi Server cPanel:**
+  ```sql
+  ALTER TABLE pengaturan_sistem 
+  ADD COLUMN sub_nama_desa VARCHAR(255) NULL AFTER nama_desa,
+  ADD COLUMN logo_lembaga_url VARCHAR(500) NULL AFTER logo_url;
+  ```
+
+
 

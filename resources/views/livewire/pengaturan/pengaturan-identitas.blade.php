@@ -40,29 +40,39 @@
                     @error('nama_desa') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-tinta mb-1.5">Kecamatan <span class="text-rose-600">*</span></label>
-                    <input wire:model="kecamatan" type="text" required class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta" />
-                    @error('kecamatan') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    <label class="block text-xs font-semibold text-tinta mb-1.5">
+                        Sub Nama Pemdes / Lembaga Desa <span class="text-xs text-tinta/40 font-normal">(Opsional)</span>
+                    </label>
+                    <input wire:model="sub_nama_desa" type="text" placeholder="Contoh: BADAN PERMUSYAWARATAN DESA (BPD)" class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta placeholder:text-tinta/30" />
+                    <p class="text-[11px] text-tinta/50 mt-1">Kosongkan jika tidak dipakai. Jika diisi, akan tampil di bawah Nama Desa pada Kop Absen.</p>
+                    @error('sub_nama_desa') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
+                    <label class="block text-xs font-semibold text-tinta mb-1.5">Kecamatan <span class="text-rose-600">*</span></label>
+                    <input wire:model="kecamatan" type="text" required class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta" />
+                    @error('kecamatan') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
                     <label class="block text-xs font-semibold text-tinta mb-1.5">Kabupaten <span class="text-rose-600">*</span></label>
                     <input wire:model="kabupaten" type="text" required class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta" />
                     @error('kabupaten') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-xs font-semibold text-tinta mb-1.5">Provinsi <span class="text-rose-600">*</span></label>
                     <input wire:model="provinsi" type="text" required class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta" />
                     @error('provinsi') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-tinta mb-1.5">Alamat Lengkap Kantor Desa <span class="text-rose-600">*</span></label>
-                <textarea wire:model="alamat_desa" rows="2" required class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta"></textarea>
-                @error('alamat_desa') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                <div>
+                    <label class="block text-xs font-semibold text-tinta mb-1.5">Alamat Lengkap Kantor Desa <span class="text-rose-600">*</span></label>
+                    <textarea wire:model="alamat_desa" rows="2" required class="w-full px-3.5 py-2.5 bg-kertas/50 border border-garis focus:border-daun rounded-xl text-sm text-tinta"></textarea>
+                    @error('alamat_desa') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
 
@@ -73,29 +83,35 @@
                 <p class="text-xs text-tinta/60 mt-0.5">Logo akan dicetak pada Kop Surat Lembar A4 dan ditampilkan pada bilah header aplikasi.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <!-- Upload Logo -->
-                <div class="p-4 rounded-xl bg-kertas/50 border border-garis/80 space-y-3">
-                    <label class="block text-xs font-bold text-tinta">Logo Instansi Desa (PNG/JPG, Maks. 2MB)</label>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Upload Logo Utama Instansi (Kiri Kop) -->
+                <div class="p-4 rounded-xl bg-kertas/50 border border-garis/80 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-tinta">Logo Utama Desa (Kiri Kop)</label>
+                            <span class="text-[10px] font-semibold text-tinta/60 bg-white px-2 py-0.5 rounded-full border border-garis">Kiri Kop</span>
+                        </div>
+                        <p class="text-[11px] text-tinta/50">Logo resmi Pemerintah Desa atau Kabupaten.</p>
+                    </div>
                     
-                    <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-xl bg-white border border-garis flex items-center justify-center p-2 overflow-hidden shrink-0">
+                    <div class="flex items-center gap-3 pt-1">
+                        <div class="w-16 h-16 rounded-xl bg-white border border-garis flex items-center justify-center p-1.5 overflow-hidden shrink-0 shadow-xs">
                             @if ($this->logoPreview)
-                                <img src="{{ $this->logoPreview }}" alt="Preview Logo Baru" class="max-h-16 max-w-16 object-contain" />
+                                <img src="{{ $this->logoPreview }}" alt="Preview Logo Baru" class="max-h-14 max-w-14 object-contain" />
                             @elseif ($logoBaru)
-                                <div class="text-[11px] font-bold text-daun text-center leading-tight">Berkas Logo Dipilih</div>
+                                <div class="text-[10px] font-bold text-daun text-center leading-tight">Berkas Baru Dipilih</div>
                             @elseif ($logo_url)
-                                <img src="{{ $logo_url }}" alt="Logo Saat Ini" class="max-h-16 max-w-16 object-contain" />
+                                <img src="{{ $logo_url }}" alt="Logo Saat Ini" class="max-h-14 max-w-14 object-contain" />
                             @else
-                                <div class="w-12 h-12 rounded-full border border-black flex flex-col items-center justify-center text-[8px] font-bold text-tinta text-center leading-none">
+                                <div class="w-10 h-10 rounded-full border border-black flex flex-col items-center justify-center text-[7px] font-bold text-tinta text-center leading-none">
                                     <span>DESA</span>
                                     <span>BELEGA</span>
                                 </div>
                             @endif
                         </div>
 
-                        <div class="flex-1 space-y-2">
-                            <input wire:model="logoBaru" type="file" accept="image/*" class="text-xs text-tinta file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-daun file:text-white hover:file:bg-daun-tua cursor-pointer" />
+                        <div class="flex-1 space-y-1.5 min-w-0">
+                            <input wire:model="logoBaru" type="file" accept="image/*" class="w-full text-[11px] text-tinta file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-daun file:text-white hover:file:bg-daun-tua cursor-pointer" />
                             @if ($logo_url)
                                 <div>
                                     <button wire:click="hapusLogo" 
@@ -103,7 +119,7 @@
                                             data-confirm-danger
                                             type="button" 
                                             class="text-[11px] text-rose-600 hover:underline cursor-pointer">
-                                        Hapus Logo (Reset ke Default)
+                                        Hapus Logo (Reset)
                                     </button>
                                 </div>
                             @endif
@@ -112,12 +128,62 @@
                     @error('logoBaru') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Upload Favicon -->
-                <div class="p-4 rounded-xl bg-kertas/50 border border-garis/80 space-y-3">
-                    <label class="block text-xs font-bold text-tinta">Favicon Browser (PNG/ICO, Maks. 1MB)</label>
+                <!-- Upload Logo Lembaga Desa (Kanan Kop, Opsional) -->
+                <div class="p-4 rounded-xl bg-kertas/50 border border-garis/80 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-tinta">Logo Lembaga Desa (Kanan Kop)</label>
+                            <span class="text-[10px] font-semibold text-daun bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Opsional</span>
+                        </div>
+                        <p class="text-[11px] text-tinta/50">Logo BPD, LPM, Karang Taruna, atau Panitia Rapat.</p>
+                    </div>
                     
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-white border border-garis flex items-center justify-center p-1 overflow-hidden shrink-0">
+                    <div class="flex items-center gap-3 pt-1">
+                        <div class="w-16 h-16 rounded-xl bg-white border border-garis flex items-center justify-center p-1.5 overflow-hidden shrink-0 shadow-xs">
+                            @if ($this->logoLembagaPreview)
+                                <img src="{{ $this->logoLembagaPreview }}" alt="Preview Logo Lembaga Baru" class="max-h-14 max-w-14 object-contain" />
+                            @elseif ($logoLembagaBaru)
+                                <div class="text-[10px] font-bold text-daun text-center leading-tight">Berkas Baru Dipilih</div>
+                            @elseif ($logo_lembaga_url)
+                                <img src="{{ $logo_lembaga_url }}" alt="Logo Lembaga Saat Ini" class="max-h-14 max-w-14 object-contain" />
+                            @else
+                                <div class="w-10 h-10 rounded-xl border border-dashed border-garis flex flex-col items-center justify-center text-[8px] font-semibold text-tinta/40 text-center leading-tight">
+                                    <span>Logo</span>
+                                    <span>Kanan</span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="flex-1 space-y-1.5 min-w-0">
+                            <input wire:model="logoLembagaBaru" type="file" accept="image/*" class="w-full text-[11px] text-tinta file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-daun file:text-white hover:file:bg-daun-tua cursor-pointer" />
+                            @if ($logo_lembaga_url)
+                                <div>
+                                    <button wire:click="hapusLogoLembaga" 
+                                            data-confirm="Yakin ingin menghapus logo lembaga desa dari kop absen?"
+                                            data-confirm-danger
+                                            type="button" 
+                                            class="text-[11px] text-rose-600 hover:underline cursor-pointer">
+                                        Hapus Logo Lembaga
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    @error('logoLembagaBaru') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
+                </div>
+
+                <!-- Upload Favicon -->
+                <div class="p-4 rounded-xl bg-kertas/50 border border-garis/80 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-tinta">Favicon Browser</label>
+                            <span class="text-[10px] font-semibold text-tinta/60 bg-white px-2 py-0.5 rounded-full border border-garis">Tab Browser</span>
+                        </div>
+                        <p class="text-[11px] text-tinta/50">Ikon kecil tab browser (PNG/ICO, Maks. 1MB).</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 pt-1">
+                        <div class="w-12 h-12 rounded-xl bg-white border border-garis flex items-center justify-center p-1 overflow-hidden shrink-0 shadow-xs">
                             @if ($this->faviconPreview)
                                 <img src="{{ $this->faviconPreview }}" alt="Preview Favicon Baru" class="max-h-8 max-w-8 object-contain" />
                             @elseif ($faviconBaru)
@@ -133,8 +199,8 @@
                             @endif
                         </div>
 
-                        <div class="flex-1 space-y-2">
-                            <input wire:model="faviconBaru" type="file" accept="image/*,.ico" class="text-xs text-tinta file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-daun file:text-white hover:file:bg-daun-tua cursor-pointer" />
+                        <div class="flex-1 space-y-1.5 min-w-0">
+                            <input wire:model="faviconBaru" type="file" accept="image/*,.ico" class="w-full text-[11px] text-tinta file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-daun file:text-white hover:file:bg-daun-tua cursor-pointer" />
                             @if ($favicon_url)
                                 <div>
                                     <button wire:click="hapusFavicon" 
