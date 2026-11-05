@@ -3,12 +3,13 @@
 
 | | |
 |---|---|
-| **Versi dokumen** | 2.1 (Selesai & Terverifikasi) |
-| **Tanggal** | 27 Oktober 2026 |
-| **Status** | **Selesai Diimplementasikan (100% PASS — Siap Produksi)** |
+| **Versi dokumen** | 2.3 (Pembaruan Produksi & Fitur Lembaga Desa) |
+| **Tanggal** | 5 November 2026 |
+| **Status** | **Selesai Diimplementasikan & Berjalan di Produksi (https://siabsendesa.belega.id/)** |
 | **Pemilik produk** | Pemerintah Desa Belega, Kec. Blahbatuh, Kab. Gianyar |
 | **Stack Lama** | React + Vite + Tailwind CSS · Supabase (Postgres, Auth, Storage, Edge Functions) · PWA Dexie.js |
 | **Stack Baru** | **Laravel 12** + **Blade** + **Livewire 3** + **Alpine.js** + **Tailwind CSS** (frontend) · **MySQL 8** (database) |
+| **Lingkungan Produksi** | Shared Hosting cPanel (PHP 8.4 ea-php84, Apache/LiteSpeed, MySQL 8) |
 | **Prinsip Migrasi** | **Logic bisnis, alur kerja, dan desain visual TIDAK BOLEH berubah.** Migrasi ini murni migrasi teknologi (re-platforming), bukan pembuatan ulang produk. |
 
 ---
@@ -145,6 +146,20 @@ Pada versi migrasi ini, aplikasi dibangun ulang di atas **Laravel** sebagai back
 
 ### 5.7 Keseragaman Antarmuka & Footer Sistem
 - Footer resmi terintegrasi di seluruh halaman via Blade layout `resources/views/layouts/app.blade.php` (menggantikan komponen footer React yang di-*mount* di setiap route).
+
+### 5.8 Konfigurasi Lembaga Desa & Kop Surat Ganda (Pembaruan Sesi 5 Nov 2026)
+- **Sub Nama Pemerintahan Desa / Lembaga (`sub_nama_desa`)**: Bidang teks opsional pada menu Pengaturan Identitas untuk mewadahi badan/lembaga desa (BPD, LPM, Karang Taruna, Panitia Pemilihan Perbekel, dsb.). Ditampilkan otomatis di bawah baris Nama Desa pada Kop Lembar Absensi A4, Kartu Bukti Hadir, dan Sertifikat Verifikasi Dokumen.
+- **Logo Lembaga / Logo Sekunder (`logo_lembaga_url`)**: Fitur unggah berkas logo sekunder (opsional, max 2MB) yang ditempatkan secara simetris di sisi **kanan atas** Kop Lembar Absensi A4 (berdampingan dengan logo utama desa di sisi kiri).
+- **Tipografi Cetak Adaptif (1 Baris Lurus)**: Skema ukuran font dinamis otomatis (12.5pt – 16pt) dan aturan `white-space: nowrap;` pada Kop Lembar A4 untuk menjamin nama instansi yang panjang (seperti *BADAN PERMUSYAWARATAN DESA*) selalu pas dalam 1 baris lurus tanpa terpotong atau terdorong ke bawah.
+
+### 5.9 Siklus Kamera Kiosk Multi-Peserta Tanpa Layar Hitam (Pembaruan Sesi 30 Okt 2026)
+- Arsitektur kamera *event-driven* (`siapkan-kamera-wajah` dan `hentikan-kamera-wajah`) pada mode Kiosk Alpine.js.
+- Kamera hanya diaktifkan saat peserta memasuki layar foto, dan otomatis dilepas (`track.stop()` serta `srcObject = null`) saat beralih ke layar lain.
+- Setiap pergantian peserta baru di perangkat PC/tablet yang sama secara otomatis meminta ulang stream video yang segar (*fresh video stream*), menyelesaikan kendala layar kamera hitam pada orang kedua dan seterusnya.
+- Tombol bantuan re-aktivasi kamera (*"Aktifkan / Coba Kamera Lagi"*) sebagai mitigasi jeda izin hardware peramban.
+
+### 5.10 Form Login Dinamis Terintegrasi Identitas Desa
+- Komponen form login (`HalamanLogin.php`) kini membaca langsung atribut `logo_url`, `nama_sistem`, dan `subjudul_sistem` dari tabel basis data `pengaturan_sistem`, menjaga konsistensi identitas instansi sejak pintu masuk aplikasi.
 
 ---
 
@@ -293,12 +308,14 @@ CREATE TABLE pengaturan_sistem (
   nama_sistem       VARCHAR(255) NOT NULL DEFAULT 'SIABDES Belega',
   subjudul_sistem   VARCHAR(255) NOT NULL DEFAULT 'Sistem Absensi Rapat Kantor Desa Belega',
   nama_desa         VARCHAR(255) NOT NULL DEFAULT 'Pemerintah Desa Belega',
+  sub_nama_desa     VARCHAR(255) NULL,                              -- Sub Nama Pemdes / Lembaga Desa (Opsional)
   alamat_desa       VARCHAR(500) DEFAULT 'Jalan Raya Belega, Blahbatuh, Gianyar, Bali — Kode Pos 80581',
   kecamatan         VARCHAR(255) DEFAULT 'Kecamatan Blahbatuh',
   kabupaten         VARCHAR(255) DEFAULT 'Kabupaten Gianyar',
   provinsi          VARCHAR(255) DEFAULT 'Bali',
-  logo_url          VARCHAR(500) NULL,
-  favicon_url       VARCHAR(500) NULL,
+  logo_url          VARCHAR(500) NULL,                              -- Logo Utama Desa (Kiri Kop)
+  logo_lembaga_url  VARCHAR(500) NULL,                              -- Logo Lembaga/BPD/Panitia (Kanan Kop, Opsional)
+  favicon_url       VARCHAR(500) NULL,                              -- Favicon Browser Tab
   diperbarui_pada   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   diperbarui_oleh   CHAR(36) NULL,
   FOREIGN KEY (diperbarui_oleh) REFERENCES profil(id)
@@ -426,6 +443,11 @@ siabdes-belega-laravel/
 │   └── seeders/
 │       ├── ProfilSeeder.php
 │       └── PengaturanSistemSeeder.php
+├── public/
+│   ├── .htaccess                            (Aturan rewrite + penanganan rute /storage/)
+│   ├── storage.php                          (Jembatan berkas storage produksi untuk shared hosting cPanel)
+│   ├── index.php                            (Front controller Laravel)
+│   └── build/                               (Aset CSS & JS kompilasi Vite produksi)
 ├── routes/
 │   ├── web.php
 │   └── api.php                              (endpoint sinkronisasi antrean offline kiosk)
@@ -520,10 +542,15 @@ Perbedaan fundamental yang harus ditangani secara sadar saat migrasi: React SPA 
 | Modul Undangan & Bank Riwayat | **Selesai** | Teruji via `ModulUndanganTest` (6 tests PASS), impor CSV, modal riwayat, tombol bukti hadir |
 | Modul Registrasi & Kiosk (Offline-First) | **Selesai** | Teruji via `KioskDanCheckinTest` (8 tests PASS), Dexie.js offline-first, TTD kanvas halus, foto kamera |
 | Modul Cetak & Ekspor | **Selesai** | Teruji via `ModulCetakDanEksporTest` (5 tests PASS), format cetak A4 margin 20mm + ekspor XLSX |
+| Modul Sub Nama & Logo Lembaga Kop Ganda *(baru)* | **Selesai** | Mendukung sub nama badan/lembaga desa, logo kanan kop ganda, & tipografi adaptif 1 baris |
+| Siklus Kamera Kiosk Multi-User *(baru)* | **Selesai** | Event-driven camera lifecycle, auto-cleanup stream, bebas layar hitam pada pergantian peserta |
+| Integrasi Form Login Dinamis *(baru)* | **Selesai** | Terkoneksi otomatis dengan logo dinas, nama sistem, dan subjudul `pengaturan_sistem` |
 | Modul Privasi & Audit Log | **Selesai** | Teruji via `KepatuhanPrivasiDanAuditLogTest` (6 tests PASS), retensi otomatis UU No. 27/2022 PDP |
 | Keseragaman UI & Paginasi | **Selesai** | Teruji via `KeseragamanDesainDanLayoutTest` (3 tests PASS), desain konsisten token tema SIABDES |
 | Modul Verifikasi Dokumen & Bukti Hadir | **Selesai** | Halaman publik `/v/{kode}` dan kartu bukti hadir digital `/bukti/{id}` terverifikasi |
+| Jembatan Berkas Storage Shared Hosting *(baru)* | **Selesai** | `public/storage.php` bypass symlink Apache cPanel, melayani seluruh foto/logo/ttd instan |
+| Deployment Produksi Live | **Selesai & Aktif** | **Aktif di https://siabsendesa.belega.id/ (cPanel Rumahweb, PHP 8.4, MySQL 8)** |
 | Uji Otomatis & Paritas Fungsi | **Selesai** | **46 Feature/Unit Tests (390 assertions, 100% PASS)** |
 
 ---
-*Dokumen ini adalah spesifikasi teknis resmi SIABDES Belega pada stack Laravel 12 + Blade + Livewire 3 + Alpine.js + Tailwind CSS v4 + MySQL 8, yang telah selesai diimplementasikan, diverifikasi melalui automated test suite, dan siap digunakan di lingkungan produksi Pemerintah Desa Belega.*
+*Dokumen ini adalah spesifikasi teknis resmi SIABDES Belega pada stack Laravel 12 + Blade + Livewire 3 + Alpine.js + Tailwind CSS v4 + MySQL 8, yang telah selesai diimplementasikan, diverifikasi melalui automated test suite, dan telah aktif beroperasi di lingkungan produksi Pemerintah Desa Belega (https://siabsendesa.belega.id/).*
