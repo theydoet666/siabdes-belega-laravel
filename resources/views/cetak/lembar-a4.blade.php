@@ -56,7 +56,10 @@
         }
     </style>
 </head>
-<body x-data="{ tampilQrVerifikasi: true }" class="preview-cetak-body bg-slate-700 font-serif">
+<body x-data="{ 
+    tampilQrVerifikasi: (localStorage.getItem('siabdes_cetak_qr') !== 'false'), 
+    tampilWaktuCetak: (localStorage.getItem('siabdes_cetak_waktu') !== 'false') 
+}" class="preview-cetak-body bg-slate-700 font-serif">
 
     <!-- Floating Top Bar untuk Kontrol Preview Cetak (no-print) -->
     <header class="no-print sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 text-white px-4 py-3 shadow-md mb-6">
@@ -74,8 +77,21 @@
             </div>
 
             <div class="flex items-center gap-2.5">
+                <!-- Tombol Toggle Waktu Dicetak -->
+                <button @click="tampilWaktuCetak = !tampilWaktuCetak; localStorage.setItem('siabdes_cetak_waktu', tampilWaktuCetak)" 
+                        type="button" 
+                        :class="tampilWaktuCetak ? 'bg-emerald-800 text-white border-emerald-600 shadow-emerald-900/30' : 'bg-slate-800 text-slate-300 border-slate-700'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-sans font-semibold transition cursor-pointer shadow-sm"
+                        title="Tampilkan atau sembunyikan tulisan waktu cetak di footer lembar absen">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Waktu Cetak:</span>
+                    <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded" :class="tampilWaktuCetak ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300'" x-text="tampilWaktuCetak ? 'Tampil' : 'Sembunyi'"></span>
+                </button>
+
                 <!-- Tombol Toggle QR Keabsahan Dokumen -->
-                <button @click="tampilQrVerifikasi = !tampilQrVerifikasi" 
+                <button @click="tampilQrVerifikasi = !tampilQrVerifikasi; localStorage.setItem('siabdes_cetak_qr', tampilQrVerifikasi)" 
                         type="button" 
                         :class="tampilQrVerifikasi ? 'bg-emerald-800 text-white border-emerald-600 shadow-emerald-900/30' : 'bg-slate-800 text-slate-300 border-slate-700'"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-sans font-semibold transition cursor-pointer shadow-sm"
@@ -424,7 +440,7 @@
 
                 <!-- Sisi Kanan: Waktu Cetak & Lokasi Kantor Resmi -->
                 <div class="text-right leading-tight font-sans">
-                    <div class="text-[8.5pt] text-neutral-700">
+                    <div x-show="tampilWaktuCetak" class="text-[8.5pt] text-neutral-700">
                         Dicetak: {{ $waktuCetakSingkat ?? $waktuCetak }}
                     </div>
                     <div class="font-bold text-black uppercase text-[9pt] mt-0.5">
@@ -441,7 +457,7 @@
                         ({{ round(($totalHadir / $totalUndangan) * 100, 1) }}%)
                     @endif
                 </div>
-                <div x-show="!tampilQrVerifikasi">
+                <div x-show="!tampilQrVerifikasi && tampilWaktuCetak">
                     Dicetak pada: {{ $waktuCetak }}
                 </div>
             </div>

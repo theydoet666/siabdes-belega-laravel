@@ -167,6 +167,21 @@ npm run build
   - `resources/views/kehadiran/kartu-bukti.blade.php`
 - **Paket Update cPanel:** `update-unduh-kartu-bukti.zip`
 
+---
+
+## 10. Pembaruan Sesi 6 November 2026 — Fitur Toggle Tampilkan / Sembunyikan Waktu Cetak Lembar A4
+
+- **Fitur Baru:**
+  - Ditambahkan tombol kontrol interaktif **"Waktu Cetak: Tampil / Sembunyi"** pada top bar pratinjau cetak A4 (`/rapat/{id}/cetak`).
+  - Mengontrol secara instan (real-time) kemunculan teks *"Dicetak: [Tanggal, Jam WITA]"* pada footer dokumen.
+  - Saat disetel ke *Sembunyi*, tulisan tanggal dan jam cetak tidak akan muncul di layar maupun hasil cetak kertas/PDF. Nama lokasi penandatangan (*DESA BELEGA*) tetap utuh.
+  - Dilengkapi penyimpanan otomatis ke `localStorage` (`siabdes_cetak_waktu`), sehingga preferensi operator tetap tersimpan di browser.
+- **Perubahan Basis Data:** Tidak ada.
+- **Berkas yang Diperbarui:**
+  - `resources/views/cetak/lembar-a4.blade.php`
+- **Paket Update cPanel:** `update-toggle-waktu-cetak.zip`
+
+
 
 
 
