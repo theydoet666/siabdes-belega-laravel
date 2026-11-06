@@ -51,6 +51,8 @@ class BerkasKehadiranController extends Controller
         return response(Storage::disk($disk)->get($path), 200, [
             'Content-Type' => $mime,
             'Cache-Control' => 'private, max-age=86400',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
         ]);
     }
 }

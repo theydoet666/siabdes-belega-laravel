@@ -7,6 +7,7 @@ use App\Models\PengaturanSistem;
 use App\Models\Rapat;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -74,6 +75,11 @@ class BuktiKehadiranController extends Controller
             ? URL::temporarySignedRoute('berkas.tampil', now()->addHours(24), ['jenis' => 'ttd', 'id' => $kehadiran->id])
             : null;
 
+        // Konversi foto wajah, tanda tangan, dan logo ke Base64 Data URI untuk menjamin kanvas bebas dari kontaminasi CORS (Tainted Canvas)
+        $fotoBase64 = $this->imageToBase64($kehadiran->foto_path);
+        $ttdBase64 = $this->imageToBase64($kehadiran->ttd_path);
+        $logoBase64 = $this->imageToBase64($pengaturan->logo_url);
+
         // Teks untuk share ke WhatsApp
         $pesanWa = "Halo, saya telah menyelesaikan absensi resmi Pemerintah Desa Belega pada acara '{$rapat->judul}' (Kode: {$rapat->kode}).\n\nLihat Kartu Bukti Hadir Digital saya:\n{$urlBuktiPribadi}";
         $linkWa = 'https://wa.me/?text='.urlencode($pesanWa);
@@ -90,8 +96,65 @@ class BuktiKehadiranController extends Controller
             'urlBuktiPribadi' => $urlBuktiPribadi,
             'fotoUrl' => $fotoUrl,
             'ttdUrl' => $ttdUrl,
+            'fotoBase64' => $fotoBase64,
+            'ttdBase64' => $ttdBase64,
+            'logoBase64' => $logoBase64,
             'linkWa' => $linkWa,
         ]);
+    }
+
+    /**
+     * Mengonversi berkas gambar lokal/storage menjadi Base64 Data URI untuk rendering kanvas bebas CORS.
+     */
+    private function imageToBase64(?string $pathOrUrl): ?string
+    {
+        if (! $pathOrUrl) {
+            return null;
+        }
+
+        try {
+            if (str_starts_with($pathOrUrl, 'data:image/')) {
+                return $pathOrUrl;
+            }
+
+            // 1. Cek di Storage::disk('local')
+            if (Storage::disk('local')->exists($pathOrUrl)) {
+                $mime = str_ends_with(strtolower($pathOrUrl), '.png') ? 'image/png' : 'image/jpeg';
+
+                return 'data:'.$mime.';base64,'.base64_encode(Storage::disk('local')->get($pathOrUrl));
+            }
+
+            // 2. Cek di Storage::disk('public')
+            if (Storage::disk('public')->exists($pathOrUrl)) {
+                $mime = str_ends_with(strtolower($pathOrUrl), '.png') ? 'image/png' : 'image/jpeg';
+
+                return 'data:'.$mime.';base64,'.base64_encode(Storage::disk('public')->get($pathOrUrl));
+            }
+
+            // 3. Jika berupa path URL (misal: /storage/identitas/... atau http://domain/storage/...)
+            $parsedPath = parse_url($pathOrUrl, PHP_URL_PATH);
+            if ($parsedPath) {
+                // Hapus awalan /storage/ jika ada untuk dicek di disk public
+                $cleanStoragePath = preg_replace('#^/?storage/#', '', $parsedPath);
+                if (Storage::disk('public')->exists($cleanStoragePath)) {
+                    $mime = str_ends_with(strtolower($cleanStoragePath), '.png') ? 'image/png' : 'image/jpeg';
+
+                    return 'data:'.$mime.';base64,'.base64_encode(Storage::disk('public')->get($cleanStoragePath));
+                }
+
+                // Cek langsung di filesystem public_path
+                $localPublicPath = public_path(ltrim($parsedPath, '/'));
+                if (file_exists($localPublicPath)) {
+                    $mime = mime_content_type($localPublicPath) ?: (str_ends_with(strtolower($localPublicPath), '.png') ? 'image/png' : 'image/jpeg');
+
+                    return 'data:'.$mime.';base64,'.base64_encode(file_get_contents($localPublicPath));
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengonversi gambar ke base64: '.$e->getMessage());
+        }
+
+        return null;
     }
 
     /**

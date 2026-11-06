@@ -83,8 +83,8 @@
                 <div class="flex items-center justify-between border-b border-slate-200 pb-4 gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 shrink-0 bg-slate-50 border border-slate-200 rounded-2xl p-1.5 flex items-center justify-center">
-                            @if ($pengaturan->logo_url)
-                                <img src="{{ $pengaturan->logo_url }}" alt="Logo" class="max-h-full max-w-full object-contain" />
+                            @if ($logoBase64 || $pengaturan->logo_url)
+                                <img src="{{ $logoBase64 ?? $pengaturan->logo_url }}" alt="Logo" class="max-h-full max-w-full object-contain" crossorigin="anonymous" />
                             @else
                                 <div class="w-full h-full border border-slate-800 rounded-full flex flex-col items-center justify-center text-slate-900 text-center font-bold text-[7px]">
                                     BELEGA
@@ -129,9 +129,9 @@
                 <!-- Bagian Profil & Identitas Peserta -->
                 <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
                     <!-- Foto Wajah jika ada -->
-                    @if ($fotoUrl)
-                        <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-emerald-600/30 shadow-md">
-                            <img src="{{ $fotoUrl }}" alt="Foto Peserta" class="w-full h-full object-cover" />
+                    @if ($fotoBase64 || $fotoUrl)
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-2xl overflow-hidden border-2 border-emerald-600/30 shadow-md bg-slate-100">
+                            <img src="{{ $fotoBase64 ?? $fotoUrl }}" alt="Foto Peserta" class="w-full h-full object-cover" crossorigin="anonymous" />
                         </div>
                     @else
 
@@ -190,10 +190,9 @@
                     <div class="text-center w-1/2 border-r border-slate-200 pr-4">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tanda Tangan Digital</span>
                         <div class="h-16 flex items-center justify-center bg-slate-50/50 rounded-xl border border-slate-200/80 p-1">
-                            @if ($ttdUrl)
-                                <img src="{{ $ttdUrl }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain" />
+                            @if ($ttdBase64 || $ttdUrl)
+                                <img src="{{ $ttdBase64 ?? $ttdUrl }}" alt="Tanda Tangan" class="max-h-full max-w-full object-contain" crossorigin="anonymous" />
                             @else
-
                                 <div class="text-[11px] font-bold text-emerald-700 font-mono">✓ TERCATAT DIGITAL</div>
                             @endif
                         </div>
@@ -273,18 +272,42 @@
                 const canvas = await h2c(target, {
                     scale: 2,
                     useCORS: true,
-                    allowTaint: true,
+                    allowTaint: false,
                     backgroundColor: '#ffffff',
-                    logging: false
+                    logging: false,
+                    imageTimeout: 15000
                 });
 
-                const dataUrl = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.download = `Kartu_Bukti_Hadir_{{ $rapat->kode }}_{{ \Illuminate\Support\Str::slug($undangan->nama) }}.png`;
-                link.href = dataUrl;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                const namaBerkas = `Kartu_Bukti_Hadir_{{ $rapat->kode }}_{{ \Illuminate\Support\Str::slug($undangan->nama) }}.png`;
+
+                // Gunakan canvas.toBlob bila didukung untuk stabilitas unduh galeri di mobile Android / iOS
+                if (canvas.toBlob) {
+                    await new Promise((resolve, reject) => {
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                reject(new Error('Gagal menghasilkan berkas gambar'));
+                                return;
+                            }
+                            const blobUrl = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.download = namaBerkas;
+                            link.href = blobUrl;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+                            resolve();
+                        }, 'image/png');
+                    });
+                } else {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = namaBerkas;
+                    link.href = dataUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
 
                 if (window.SiabdesAlert) {
                     window.SiabdesAlert.fire({

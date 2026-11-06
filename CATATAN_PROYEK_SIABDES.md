@@ -150,6 +150,24 @@ npm run build
   - `resources/views/livewire/pengaturan/kelola-operator.blade.php`
 - **Paket Update cPanel:** `update-ubah-password-operator.zip`
 
+---
+
+## 9. Pembaruan Sesi 6 November 2026 — Perbaikan Unduh Kartu Bukti Hadir ke Galeri (PNG)
+
+- **Masalah:** Tombol "Simpan / Unduh Kartu ke Galeri (PNG)" pada halaman `/bukti/{id}` gagal dengan modal "Browser Anda membatasi penyimpanan canvas langsung" akibat *Canvas Tainting* saat `html2canvas` merender gambar cross-origin/signed URL (`allowTaint: true` memicu pembatasan W3C keamanan canvas).
+- **Solusi yang Diterapkan:**
+  - **Inline Base64 Data URI:** Di `BuktiKehadiranController.php`, gambar Logo, Foto Peserta, dan Tanda Tangan dikonversi langsung menjadi string Base64 Data URI di server (`$logoBase64`, `$fotoBase64`, `$ttdBase64`). Hal ini menjamin kanvas berstatus *100% Origin-Clean* (tidak pernah di-taint).
+  - **Perbaikan Opsi `html2canvas`:** `allowTaint` diubah menjadi `false`, `useCORS: true`, dan `imageTimeout: 15000`.
+  - **Metode Unduh Modern `toBlob`:** Menggunakan `canvas.toBlob()` dan `URL.createObjectURL(blob)` dengan fallback `toDataURL()` untuk kompatibilitas penuh di Android, iOS, dan desktop.
+  - **Header CORS:** Menambahkan `Access-Control-Allow-Origin: *` pada response `BerkasKehadiranController.php`.
+- **Perubahan Basis Data:** Tidak ada.
+- **Berkas yang Diperbarui:**
+  - `app/Http/Controllers/BuktiKehadiranController.php`
+  - `app/Http/Controllers/BerkasKehadiranController.php`
+  - `resources/views/kehadiran/kartu-bukti.blade.php`
+- **Paket Update cPanel:** `update-unduh-kartu-bukti.zip`
+
+
 
 
 
