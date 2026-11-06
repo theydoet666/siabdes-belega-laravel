@@ -132,5 +132,24 @@ npm run build
   - Perlebaran area teks tengah (+48px) dengan optimasi jarak gap (12px) dan ukuran proporsional logo kiri & kanan (80px).
 - **Arsip Deployment Siap Pakai:** `update-fitur-subnama-logo.zip` (~20 KB) untuk kemudahan update ke cPanel.
 
+---
+
+## 8. Pembaruan Sesi 6 November 2026 — Fitur Ubah / Reset Kata Sandi Operator
+
+- **Fitur Ubah Sandi Operator:**
+  - Ditambahkan tombol **Ubah Sandi** di setiap baris tabel operator pada menu **Pengaturan > Kelola Operator**.
+  - Modal interaktif yang menampilkan info ringkas akun target (nama & email), input kata sandi baru, dan konfirmasi kata sandi.
+  - Dilengkapi tombol toggle intip kata sandi (show/hide password) menggunakan Alpine.js.
+  - Validasi keamanan: minimal 12 karakter alfanumerik (`Password::min(12)->letters()->numbers()`) dan kesesuaian konfirmasi sandi.
+  - Terintegrasi atomik via `OperatorService::ubahPassword()` dengan hashing `bcrypt` (`Hash::make`).
+  - Pencatatan otomatis ke `audit_log` (tanpa menyimpan plain text maupun hash di log untuk menjaga kerahasiaan kredensial).
+- **Perubahan Basis Data:** Tidak ada (tabel `users.password` sudah ada bawaan sistem).
+- **Berkas yang Diperbarui:**
+  - `app/Services/OperatorService.php`
+  - `app/Http/Livewire/Pengaturan/KelolaOperator.php`
+  - `resources/views/livewire/pengaturan/kelola-operator.blade.php`
+- **Paket Update cPanel:** `update-ubah-password-operator.zip`
+
+
 
 

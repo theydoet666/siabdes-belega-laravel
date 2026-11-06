@@ -31,6 +31,19 @@ class KelolaOperator extends Component
 
     public string $peran = 'operator';
 
+    // Modal ubah password
+    public bool $bukaModalPassword = false;
+
+    public ?string $targetProfilId = null;
+
+    public ?string $targetNama = null;
+
+    public ?string $targetEmail = null;
+
+    public string $passwordBaru = '';
+
+    public string $konfirmasiPasswordBaru = '';
+
     // Flash message state
     public ?string $pesanSukses = null;
 
@@ -142,6 +155,61 @@ class KelolaOperator extends Component
         $statusTeks = $profil->aktif ? 'diaktifkan' : 'dinonaktifkan';
 
         $this->pesanSukses = "Akun operator {$profil->nama} berhasil {$statusTeks}.";
+    }
+
+    public function bukaModalUbahPassword(string $profilId): void
+    {
+        $this->resetFormPassword();
+        $profil = Profil::findOrFail($profilId);
+        $this->targetProfilId = $profil->id;
+        $this->targetNama = $profil->nama;
+        $this->targetEmail = $profil->email;
+        $this->bukaModalPassword = true;
+    }
+
+    public function tutupModalPassword(): void
+    {
+        $this->bukaModalPassword = false;
+        $this->resetFormPassword();
+    }
+
+    public function resetFormPassword(): void
+    {
+        $this->targetProfilId = null;
+        $this->targetNama = null;
+        $this->targetEmail = null;
+        $this->passwordBaru = '';
+        $this->konfirmasiPasswordBaru = '';
+        $this->resetValidation();
+    }
+
+    public function simpanPasswordBaru(OperatorService $operatorService): void
+    {
+        $this->validate([
+            'passwordBaru' => ['required', 'string', Password::min(12)->letters()->numbers()],
+            'konfirmasiPasswordBaru' => ['required', 'same:passwordBaru'],
+        ], [
+            'passwordBaru.required' => 'Kata sandi baru wajib diisi.',
+            'passwordBaru.min' => 'Kata sandi minimal 12 karakter serta harus mengandung kombinasi huruf dan angka.',
+            'konfirmasiPasswordBaru.required' => 'Konfirmasi kata sandi wajib diisi.',
+            'konfirmasiPasswordBaru.same' => 'Konfirmasi kata sandi tidak cocok dengan kata sandi baru.',
+        ]);
+
+        if (! $this->targetProfilId) {
+            $this->pesanError = 'Data operator tidak ditemukan.';
+            $this->tutupModalPassword();
+
+            return;
+        }
+
+        $profil = Profil::findOrFail($this->targetProfilId);
+        $aktor = Auth::user()?->profil;
+
+        $operatorService->ubahPassword($profil, $this->passwordBaru, $aktor);
+
+        $namaTarget = $this->targetNama;
+        $this->tutupModalPassword();
+        $this->pesanSukses = "Kata sandi untuk operator {$namaTarget} berhasil diperbarui.";
     }
 
     public function render()

@@ -110,7 +110,7 @@ Pada versi migrasi ini, aplikasi dibangun ulang di atas **Laravel** sebagai back
 ### 5.1 Autentikasi & Manajemen Operator Multi-User
 - Login aman berbasis sesi Laravel (`Auth::attempt`), menggantikan Supabase Auth, sesi tetap tersimpan (`remember me`).
 - Panel Admin untuk menambah operator baru — pengganti RPC `tambah_operator` adalah **`OperatorService::tambahOperator()`** yang membuat baris `users`/`profil` dengan password di-hash `bcrypt` (bawaan Laravel `Hash::make`).
-- Ubah peran (*Admin/Operator*), aktif/nonaktifkan akun, dengan pencatatan ke `audit_log`.
+- Ubah peran (*Admin/Operator*), aktif/nonaktifkan akun, serta ubah/reset kata sandi operator via modal interaktif (validasi min. 12 karakter alfanumerik) dengan pencatatan audit trail ke `audit_log`.
 - Paginasi tabel operator memakai Livewire `WithPagination` trait (menggantikan paginasi manual React).
 
 ### 5.2 Manajemen Rapat & Penandatangan Dokumen Dinamis

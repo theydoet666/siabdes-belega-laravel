@@ -113,4 +113,43 @@ class OperatorService
             return true;
         });
     }
+
+    /**
+     * Mengubah kata sandi operator dan mencatat ke audit log.
+     */
+    public function ubahPassword(Profil $profil, string $passwordBaru, ?Profil $aktor = null): bool
+    {
+        return DB::transaction(function () use ($profil, $passwordBaru, $aktor) {
+            $user = $profil->user;
+            if (! $user) {
+                if ($profil->user_id) {
+                    $user = User::find($profil->user_id);
+                }
+                if (! $user && $profil->email) {
+                    $user = User::where('email', $profil->email)->first();
+                }
+            }
+
+            if (! $user) {
+                throw new \RuntimeException("User autentikasi untuk operator {$profil->nama} tidak ditemukan.");
+            }
+
+            $user->password = Hash::make($passwordBaru);
+            $user->save();
+
+            AuditLog::create([
+                'aktor' => $aktor?->id ?? auth()->user()?->profil?->id,
+                'aksi' => "Mengubah kata sandi operator: {$profil->nama} ({$profil->email})",
+                'tabel_target' => 'users',
+                'baris_id' => (string) $user->id,
+                'rincian' => [
+                    'profil_id' => $profil->id,
+                    'nama' => $profil->nama,
+                    'email' => $profil->email,
+                ],
+            ]);
+
+            return true;
+        });
+    }
 }

@@ -150,6 +150,18 @@
                             <!-- Aksi -->
                             <td class="py-4 px-4 sm:px-6 text-right">
                                 <div class="inline-flex items-center gap-1.5 justify-end">
+                                    <!-- Ubah Sandi -->
+                                    <button wire:click="bukaModalUbahPassword('{{ $op->id }}')" 
+                                            type="button"
+                                            wire:loading.attr="disabled"
+                                            class="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-garis hover:border-amber-500 hover:text-amber-700 text-tinta/80 bg-white hover:bg-amber-50/50 transition cursor-pointer inline-flex items-center gap-1"
+                                            title="Ubah kata sandi operator ini">
+                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                        </svg>
+                                        <span>Ubah Sandi</span>
+                                    </button>
+
                                     <!-- Toggle Peran -->
                                     <button wire:click="gantiPeran('{{ $op->id }}')" 
                                             data-confirm="Yakin ingin mengubah peran '{{ $op->nama }}' menjadi {{ $op->peran === \App\Enums\PeranPengguna::ADMIN ? 'Operator' : 'Administrator' }}?"
@@ -290,6 +302,121 @@
                                 wire:loading.attr="disabled"
                                 class="px-5 py-2.5 rounded-xl bg-daun hover:bg-daun-tua text-white text-sm font-semibold shadow-sm shadow-daun/20 focus:outline-none focus:ring-2 focus:ring-daun focus:ring-offset-2 transition cursor-pointer disabled:opacity-50">
                             <span wire:loading.remove>Simpan Operator</span>
+                            <span wire:loading>Menyimpan...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal Ubah Kata Sandi Operator -->
+    @if ($bukaModalPassword)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-tinta/50 backdrop-blur-xs"
+             x-data="{ showPassBaru: false, showPassKonfirm: false }">
+            <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-garis overflow-hidden">
+                <!-- Header Modal -->
+                <div class="bg-amber-600 px-6 py-4 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="p-2 bg-white/20 rounded-xl">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">Ubah Kata Sandi</h3>
+                            <p class="text-xs text-amber-100/90 mt-0.5">Atur ulang kata sandi akun operator</p>
+                        </div>
+                    </div>
+                    <button wire:click="tutupModalPassword" type="button" class="text-white/70 hover:text-white cursor-pointer text-lg font-bold p-1">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Form Modal -->
+                <form wire:submit="simpanPasswordBaru" class="p-6 space-y-4">
+                    <!-- Info Akun Operator Target -->
+                    <div class="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/70 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-amber-600/15 text-amber-800 flex items-center justify-center font-bold text-xs uppercase border border-amber-300/60 shrink-0">
+                            {{ mb_substr($targetNama ?? 'OP', 0, 2) }}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs text-amber-900/70 font-medium">Akun Operator:</p>
+                            <p class="text-sm font-bold text-tinta truncate">{{ $targetNama }}</p>
+                            <p class="text-xs text-tinta/60 font-mono truncate">{{ $targetEmail }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Kata Sandi Baru -->
+                    <div>
+                        <label for="passwordBaru" class="block text-xs font-semibold text-tinta mb-1.5">
+                            Kata Sandi Baru <span class="text-rose-600">*</span>
+                        </label>
+                        <div class="relative">
+                            <input wire:model="passwordBaru" 
+                                   :type="showPassBaru ? 'text' : 'password'" 
+                                   id="passwordBaru" 
+                                   required 
+                                   placeholder="Minimal 12 karakter (huruf & angka)" 
+                                   class="w-full pl-3.5 pr-10 py-2.5 bg-kertas/50 border @error('passwordBaru') border-rose-300 focus:border-rose-500 @else border-garis focus:border-amber-600 @enderror rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
+                            <button type="button" 
+                                    @click="showPassBaru = !showPassBaru" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-tinta/40 hover:text-tinta/70 cursor-pointer">
+                                <svg x-show="!showPassBaru" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <svg x-show="showPassBaru" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                                </svg>
+                            </button>
+                        </div>
+                        @error('passwordBaru')
+                            <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-[11px] text-tinta/50">Harus minimal 12 karakter dan merupakan kombinasi huruf dan angka.</p>
+                    </div>
+
+                    <!-- Konfirmasi Kata Sandi Baru -->
+                    <div>
+                        <label for="konfirmasiPasswordBaru" class="block text-xs font-semibold text-tinta mb-1.5">
+                            Konfirmasi Kata Sandi Baru <span class="text-rose-600">*</span>
+                        </label>
+                        <div class="relative">
+                            <input wire:model="konfirmasiPasswordBaru" 
+                                   :type="showPassKonfirm ? 'text' : 'password'" 
+                                   id="konfirmasiPasswordBaru" 
+                                   required 
+                                   placeholder="Ulangi kata sandi baru" 
+                                   class="w-full pl-3.5 pr-10 py-2.5 bg-kertas/50 border @error('konfirmasiPasswordBaru') border-rose-300 focus:border-rose-500 @else border-garis focus:border-amber-600 @enderror rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
+                            <button type="button" 
+                                    @click="showPassKonfirm = !showPassKonfirm" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-tinta/40 hover:text-tinta/70 cursor-pointer">
+                                <svg x-show="!showPassKonfirm" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <svg x-show="showPassKonfirm" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                                </svg>
+                            </button>
+                        </div>
+                        @error('konfirmasiPasswordBaru')
+                            <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Tombol Aksi Modal -->
+                    <div class="pt-4 flex items-center justify-end gap-3 border-t border-garis">
+                        <button wire:click="tutupModalPassword" 
+                                type="button" 
+                                class="px-4 py-2.5 rounded-xl border border-garis text-sm font-medium text-tinta/80 hover:bg-kertas/60 transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                wire:loading.attr="disabled"
+                                class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold shadow-sm shadow-amber-600/20 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 transition cursor-pointer disabled:opacity-50">
+                            <span wire:loading.remove>Simpan Kata Sandi</span>
                             <span wire:loading>Menyimpan...</span>
                         </button>
                     </div>
