@@ -46,6 +46,20 @@ class ModalPilihRiwayatUndangan extends Component
         $this->reset(['cari', 'terpilih', 'pesanInfo', 'rapatId', 'rapat']);
     }
 
+    public function togglePilih(string $kunci): void
+    {
+        if (in_array($kunci, $this->terpilih, true)) {
+            $this->terpilih = array_values(array_diff($this->terpilih, [$kunci]));
+        } else {
+            $this->terpilih[] = $kunci;
+        }
+    }
+
+    public function hapusTerpilih(string $kunci): void
+    {
+        $this->terpilih = array_values(array_diff($this->terpilih, [$kunci]));
+    }
+
     public function toggleSemua(UndanganRepository $repo): void
     {
         $daftar = $repo->riwayatUnik($this->cari, $this->rapatId);
@@ -128,8 +142,18 @@ class ModalPilihRiwayatUndangan extends Component
     {
         $riwayat = $this->tampil ? $repo->riwayatUnik($this->cari, $this->rapatId) : collect();
 
+        // Ambil objek tokoh/undangan yang sedang dicentang untuk ditampilkan di panel ringkasan
+        $daftarTerpilih = collect();
+        if ($this->tampil && ! empty($this->terpilih)) {
+            $semua = $repo->riwayatUnik(null, $this->rapatId)->keyBy('kunci_unik');
+            $daftarTerpilih = collect($this->terpilih)
+                ->map(fn ($k) => $semua->get($k))
+                ->filter();
+        }
+
         return view('livewire.undangan.modal-pilih-riwayat-undangan', [
             'riwayat' => $riwayat,
+            'daftarTerpilih' => $daftarTerpilih,
         ]);
     }
 }

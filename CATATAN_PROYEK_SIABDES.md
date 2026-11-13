@@ -206,10 +206,13 @@ npm run build
 ## 12. Pembaruan Sesi 13 November 2026 — Perbaikan Modal Bank Riwayat Undangan (Anti-Duplikat & Perbaikan Centang Pencarian)
 
 - **Masalah:**
-  1. Centang berpindah ke orang lain saat mengetik pencarian nama karena binding checkbox memakai nomor urut tampilan array (`$idx`: 0, 1, 2...) alih-alih identitas unik.
+  1. Centang berpindah ke orang lain saat mengetik pencarian nama karena MorphDOM Livewire me-recycle node DOM checkbox berdasarkan indeks posisi elemen tanpa `wire:key`.
   2. Nama yang sudah terdaftar di rapat masih muncul di modal riwayat sehingga rawan terduplikasi.
+  3. Pengguna tidak bisa melihat siapa saja yang sudah dicentang saat melakukan pencarian nama baru.
 - **Solusi yang Diterapkan:**
-  - **Identitas Unik Kunci Hash (`kunci_unik`):** Di `UndanganRepository.php`, setiap data riwayat unik dilengkapi `kunci_unik = md5(nama|jabatan|instansi|hp)`. Model checkbox di `modal-pilih-riwayat-undangan.blade.php` sekarang mengikat ke `item->kunci_unik`. Centang tidak akan pernah lompat atau hilang meskipun mencari nama berkali-kali.
+  - **Identitas Unik Kunci Hash (`kunci_unik`):** Di `UndanganRepository.php`, setiap data riwayat unik dilengkapi `kunci_unik = md5(nama|jabatan|instansi|hp)`.
+  - **DOM Isolation dengan `wire:key` & Controlled Toggle:** Menambahkan `wire:key="row-riwayat-{{ $item->kunci_unik }}"` pada baris dan `wire:key="chk-riwayat-{{ $item->kunci_unik }}"` pada checkbox. Pemilihan dikelola melalui aksi Livewire `togglePilih(kunci)` dan state `@checked($isDipilih)`, sehingga MorphDOM tidak lagi menukar status centang antar baris saat kata kunci pencarian berubah.
+  - **Panel Ringkasan Nama Terpilih (Chips):** Menambahkan daftar badge/chips nama terpilih di bawah kotak pencarian lengkap dengan tombol hapus cepat (`✕`). Pengguna dapat selalu memantau siapa saja nama yang sudah dipilih meskipun sedang mencari nama lain.
   - **Penyalinan Lintas Pencarian yang Utuh:** Di `ModalPilihRiwayatUndangan.php`, proses penyalinan `salinTerpilih` mengambil seluruh data tanpa terpotong oleh filter pencarian aktif, sehingga seluruh nama yang dicentang di berbagai kata kunci pencarian akan tersalin sempurna.
   - **Filter Otomatis Anti-Duplikat:** `UndanganRepository::riwayatUnik` kini menerima parameter `$kecualiRapatId` dan memfilter `whereNotIn('nama', [daftar nama yang sudah ada di rapat ini])`. Tokoh/undangan yang sudah ada di rapat otomatis disembunyikan dari modal.
 - **Perubahan Basis Data:** Tidak ada.
@@ -217,7 +220,8 @@ npm run build
   - `app/Repositories/UndanganRepository.php`
   - `app/Http/Livewire/Undangan/ModalPilihRiwayatUndangan.php`
   - `resources/views/livewire/undangan/modal-pilih-riwayat-undangan.blade.php`
-- **Paket Update cPanel:** `update-bank-riwayat-undangan.zip`
+- **Paket Update cPanel:** `update-bank-riwayat-undangan.zip` (berisi 3 file di atas)
+
 
 
 

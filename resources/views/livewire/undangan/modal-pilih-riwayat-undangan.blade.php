@@ -55,19 +55,54 @@
                         </div>
                     @endif
 
+                    <!-- Ringkasan Tokoh Terpilih (Chips) -->
+                    @if (isset($daftarTerpilih) && $daftarTerpilih->isNotEmpty())
+                        <div class="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl space-y-2">
+                            <div class="flex items-center justify-between text-xs text-emerald-900 font-semibold">
+                                <span>{{ $daftarTerpilih->count() }} Nama Terpilih Siap Disalin:</span>
+                                <span class="text-[11px] font-normal text-emerald-700">Tetap tersimpan meski Anda mencari nama lain</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                                @foreach ($daftarTerpilih as $tp)
+                                    <span wire:key="chip-{{ $tp->kunci_unik }}" 
+                                          class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-emerald-300 rounded-lg text-xs font-medium text-emerald-950 shadow-2xs">
+                                        <span>{{ $tp->nama }}</span>
+                                        @if ($tp->jabatan)
+                                            <span class="text-[10px] text-emerald-700/80 font-normal">({{ $tp->jabatan }})</span>
+                                        @endif
+                                        <button type="button" 
+                                                wire:click.stop="hapusTerpilih('{{ $tp->kunci_unik }}')" 
+                                                title="Hapus {{ $tp->nama }} dari pilihan"
+                                                class="hover:text-merah cursor-pointer text-emerald-600 hover:text-rose-600 font-bold ml-0.5 transition">
+                                            ✕
+                                        </button>
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Daftar Riwayat -->
                     <div class="border border-garis rounded-2xl overflow-hidden max-h-80 overflow-y-auto divide-y divide-garis/60">
                         @forelse ($riwayat as $item)
                             @php
                                 $isDipilih = in_array($item->kunci_unik, $terpilih, true);
                             @endphp
-                            <label class="flex items-center gap-3 p-3 hover:bg-kertas/50 transition cursor-pointer select-none {{ $isDipilih ? 'bg-emerald-50/50' : '' }}">
-                                <input type="checkbox" 
-                                       wire:model.live="terpilih" 
-                                       value="{{ $item->kunci_unik }}" 
-                                       class="w-4 h-4 rounded text-daun focus:ring-daun border-garis cursor-pointer" />
+                            <label wire:key="row-riwayat-{{ $item->kunci_unik }}"
+                                   wire:click.prevent="togglePilih('{{ $item->kunci_unik }}')"
+                                   class="flex items-center gap-3 p-3 hover:bg-kertas/50 transition cursor-pointer select-none {{ $isDipilih ? 'bg-emerald-50/60' : '' }}">
+                                <input wire:key="chk-riwayat-{{ $item->kunci_unik }}"
+                                       type="checkbox" 
+                                       @checked($isDipilih)
+                                       tabindex="-1"
+                                       class="w-4 h-4 rounded text-daun focus:ring-daun border-garis cursor-pointer pointer-events-none" />
                                 <div class="flex-1 min-w-0">
-                                    <div class="font-semibold text-xs text-tinta truncate">{{ $item->nama }}</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-xs text-tinta truncate">{{ $item->nama }}</span>
+                                        @if ($isDipilih)
+                                            <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-800 rounded-md">✓ Terpilih</span>
+                                        @endif
+                                    </div>
                                     <div class="text-[11px] text-tinta/60 truncate">
                                         {{ $item->jabatan ?: '-' }} · {{ $item->instansi ?: '-' }} @if($item->hp) · <span class="font-mono text-tinta/50">{{ $item->hp }}</span> @endif
                                     </div>
