@@ -128,8 +128,38 @@ Jika ingin memperbarui server hosting cPanel dengan fitur baru ini:
    - `resources/views/kehadiran/kartu-bukti.blade.php`
    - `resources/views/verifikasi/dokumen.blade.php`
 
+---
 
-Bila besok ada perubahan fitur atau perbaikan bug, ikuti panduan praktis berikut:
+## 8. Catatan Pembaruan 13 November 2026 (Sinkronisasi Waktu WITA & Bank Riwayat Undangan)
+
+### A. Sinkronisasi Timezone WITA (Asia/Makassar +08:00)
+- Mengonfigurasi `config/app.php` ke `'timezone' => 'Asia/Makassar'`.
+- Mengonfigurasi `config/database.php` ke `'timezone' => env('DB_TIMEZONE', '+08:00')`.
+- Memperjelas label di Kartu Bukti Hadir Digital:
+  - **Jadwal Rapat (Undangan):** Jam rentang rapat, contoh `18:00 - 20:00 WITA`.
+  - **Waktu Tepat Absensi (\*WITA\*):** Jam riil saat peserta melakukan tanda tangan kehadiran (cth: `12 November 2026 — 09:43:58 WITA`).
+
+### B. Bank Riwayat Undangan (Anti-Duplikat & Perbaikan Centang Pencarian)
+- **Anti-Duplikat:** Tokoh/warga yang sudah terdaftar di rapat otomatis disembunyikan dari modal riwayat via `UndanganRepository::riwayatUnik`.
+- **Kunci Unik Hash (`kunci_unik`):** Setiap nama riwayat memiliki id unik stabil berbasis hash.
+- **Isolasi DOM `wire:key` & Controlled Toggle:** Menghilangkan bug centang checkbox yang melompat ke baris lain saat berpindah kata kunci pencarian.
+- **Panel Ringkasan Terpilih (Chips Preview):** Menampilkan daftar nama yang sedang dicentang di bawah kotak pencarian lengkap dengan tombol batal cepat (`✕`). Pilihan tetap tersimpan utuh lintas pencarian.
+
+### C. Berkas Paket Update cPanel Siap Pakai:
+- 📁 **`C:\laragon\www\update-kumulatif-13-nov-2026.zip`** *(Paket lengkap gabungan seluruh revisi hari ini)*
+- Berisi berkas:
+  - `config/app.php`
+  - `config/database.php`
+  - `app/Services/CheckinService.php`
+  - `app/Http/Controllers/BuktiKehadiranController.php`
+  - `resources/views/kehadiran/kartu-bukti.blade.php`
+  - `app/Repositories/UndanganRepository.php`
+  - `app/Http/Livewire/Undangan/ModalPilihRiwayatUndangan.php`
+  - `resources/views/livewire/undangan/modal-pilih-riwayat-undangan.blade.php`
+
+---
+
+## 9. Panduan Pemeliharaan & Perubahan Berkala Tanpa SSH
 
 ### Skenario A: Perubahan File Kode PHP / Blade / Controller / Route
 > **Contoh:** Mengubah logika di controller, teks blade, atau query database.
