@@ -173,6 +173,11 @@
                     </div>
 
                     <div class="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-0.5">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Jadwal Rapat (Undangan)</span>
+                        <div class="font-semibold text-slate-800">{{ $waktuRapatFormatted }}</div>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-0.5 sm:col-span-2">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tempat Kegiatan</span>
                         <div class="font-semibold text-slate-800">{{ $rapat->tempat }}</div>
                     </div>

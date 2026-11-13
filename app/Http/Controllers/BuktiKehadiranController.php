@@ -43,8 +43,10 @@ class BuktiKehadiranController extends Controller
             7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
-        // Format waktu kehadiran
-        $waktuKehadiran = $kehadiran->waktu_perangkat ?? $kehadiran->dibuat_pada ?? now();
+        // Format waktu kehadiran (dipastikan tepat dalam zona waktu WITA / Asia/Makassar)
+        $waktuKehadiran = ($kehadiran->waktu_perangkat ?? $kehadiran->dibuat_pada ?? now())
+            ->copy()
+            ->setTimezone('Asia/Makassar');
         $hariHadir = $mapHari[$waktuKehadiran->format('l')] ?? $waktuKehadiran->format('l');
         $bulanHadir = $mapBulan[(int) $waktuKehadiran->format('n')] ?? $waktuKehadiran->format('F');
         $waktuHadirFormatted = "{$hariHadir}, {$waktuKehadiran->format('j')} {$bulanHadir} {$waktuKehadiran->format('Y')} — {$waktuKehadiran->format('H:i:s')} WITA";
@@ -53,6 +55,11 @@ class BuktiKehadiranController extends Controller
         $hariRapat = $rapat->tanggal ? ($mapHari[$rapat->tanggal->format('l')] ?? $rapat->tanggal->format('l')) : '-';
         $bulanRapat = $rapat->tanggal ? ($mapBulan[(int) $rapat->tanggal->format('n')] ?? $rapat->tanggal->format('F')) : '-';
         $tanggalRapatFormatted = $rapat->tanggal ? "{$hariRapat}, {$rapat->tanggal->format('j')} {$bulanRapat} {$rapat->tanggal->format('Y')}" : '-';
+
+        // Format jadwal waktu rapat sesuai undangan
+        $jamMulai = $rapat->jam_mulai ? date('H:i', strtotime($rapat->jam_mulai)) : null;
+        $jamSelesai = $rapat->jam_selesai ? date('H:i', strtotime($rapat->jam_selesai)) : null;
+        $waktuRapatFormatted = $jamMulai && $jamSelesai ? "{$jamMulai} - {$jamSelesai} WITA" : ($jamMulai ? "{$jamMulai} WITA s/d Selesai" : '-');
 
         // URL verifikasi keabsahan dokumen
         $urlVerifikasi = route('dokumen.verifikasi', $rapat->kode);
@@ -91,6 +98,7 @@ class BuktiKehadiranController extends Controller
             'pengaturan' => $pengaturan,
             'waktuHadirFormatted' => $waktuHadirFormatted,
             'tanggalRapatFormatted' => $tanggalRapatFormatted,
+            'waktuRapatFormatted' => $waktuRapatFormatted,
             'urlVerifikasi' => $urlVerifikasi,
             'qrVerifikasiSvg' => $qrVerifikasiSvg,
             'urlBuktiPribadi' => $urlBuktiPribadi,

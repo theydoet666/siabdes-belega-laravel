@@ -181,6 +181,26 @@ npm run build
   - `resources/views/cetak/lembar-a4.blade.php`
 - **Paket Update cPanel:** `update-toggle-waktu-cetak.zip`
 
+---
+
+## 11. Pembaruan Sesi 13 November 2026 — Sinkronisasi Timezone WITA (Asia/Makassar) & Jadwal Rapat
+
+- **Masalah:** Waktu absensi pada Kartu Bukti Hadir Digital (`/bukti/{id}`) mengalami selisih jam dari waktu nyata di Bali (WITA) karena konfigurasi default `config('app.timezone')` masih `UTC`, serta waktu server hosting cPanel (WIB/UTC) menyebabkan waktu terpotong/bergeser. Selain itu, jadwal waktu rapat dari undangan belum tertera pada kartu bukti hadir.
+- **Solusi yang Diterapkan:**
+  - **Standarisasi Timezone Global:** Mengubah `'timezone' => 'Asia/Makassar'` pada `config/app.php` sehingga seluruh ekosistem Laravel (Carbon, `now()`, database timestamps) beroperasi konsisten di zona waktu WITA (Bali / UTC+8).
+  - **Konversi Eksplisit di Backend:**
+    - Di `CheckinService.php`, `waktu_perangkat` dikonversi ke `Asia/Makassar` saat absensi diproses.
+    - Di `BuktiKehadiranController.php`, waktu absensi diformat dengan `->setTimezone('Asia/Makassar')`.
+  - **Tampilan Jadwal Rapat Undangan:** Menambahkan kolom **Jadwal Rapat (Undangan)** (misal `09:00 WITA - Selesai`) pada kartu bukti hadir berdampingan dengan Hari & Tanggal Rapat, Tempat, dan Waktu Tepat Absensi Peserta.
+- **Perubahan Basis Data:** Tidak ada.
+- **Berkas yang Diperbarui:**
+  - `config/app.php`
+  - `app/Services/CheckinService.php`
+  - `app/Http/Controllers/BuktiKehadiranController.php`
+  - `resources/views/kehadiran/kartu-bukti.blade.php`
+- **Paket Update cPanel:** `update-perbaikan-waktu-wita.zip`
+
+
 
 
 

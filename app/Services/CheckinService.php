@@ -108,8 +108,8 @@ class CheckinService
             };
 
             $waktuPerangkat = ! empty($data['waktu_perangkat'])
-                ? Carbon::parse($data['waktu_perangkat'])
-                : now();
+                ? Carbon::parse($data['waktu_perangkat'])->setTimezone('Asia/Makassar')
+                : now('Asia/Makassar');
 
             $kehadiran = Kehadiran::create([
                 'id' => $checkinId,
