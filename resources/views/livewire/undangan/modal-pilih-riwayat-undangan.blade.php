@@ -37,10 +37,14 @@
                         </div>
 
                         @if ($riwayat->isNotEmpty())
+                            @php
+                                $kunciRiwayat = $riwayat->pluck('kunci_unik')->toArray();
+                                $semuaTampilTerpilih = ! empty($kunciRiwayat) && count(array_intersect($kunciRiwayat, $terpilih)) === count($kunciRiwayat);
+                            @endphp
                             <button wire:click="toggleSemua" 
                                     type="button" 
                                     class="px-3 py-2 rounded-xl border border-garis hover:border-daun text-xs font-semibold text-tinta/80 hover:text-daun transition cursor-pointer whitespace-nowrap">
-                                {{ count($terpilih) === count($riwayat) ? 'Batalkan Semua' : 'Pilih Semua (' . count($riwayat) . ')' }}
+                                {{ $semuaTampilTerpilih ? 'Batalkan Pilihan (' . count($riwayat) . ')' : 'Pilih Semua (' . count($riwayat) . ')' }}
                             </button>
                         @endif
                     </div>
@@ -53,14 +57,14 @@
 
                     <!-- Daftar Riwayat -->
                     <div class="border border-garis rounded-2xl overflow-hidden max-h-80 overflow-y-auto divide-y divide-garis/60">
-                        @forelse ($riwayat as $idx => $item)
+                        @forelse ($riwayat as $item)
                             @php
-                                $isDipilih = in_array($idx, $terpilih, true);
+                                $isDipilih = in_array($item->kunci_unik, $terpilih, true);
                             @endphp
                             <label class="flex items-center gap-3 p-3 hover:bg-kertas/50 transition cursor-pointer select-none {{ $isDipilih ? 'bg-emerald-50/50' : '' }}">
                                 <input type="checkbox" 
                                        wire:model.live="terpilih" 
-                                       value="{{ $idx }}" 
+                                       value="{{ $item->kunci_unik }}" 
                                        class="w-4 h-4 rounded text-daun focus:ring-daun border-garis cursor-pointer" />
                                 <div class="flex-1 min-w-0">
                                     <div class="font-semibold text-xs text-tinta truncate">{{ $item->nama }}</div>

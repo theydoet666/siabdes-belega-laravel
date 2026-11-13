@@ -26,7 +26,7 @@ class ModalPilihRiwayatUndangan extends Component
 
     public string $cari = '';
 
-    public array $terpilih = []; // array of indices
+    public array $terpilih = []; // array of kunci_unik (strings)
 
     public ?string $pesanInfo = null;
 
@@ -48,11 +48,16 @@ class ModalPilihRiwayatUndangan extends Component
 
     public function toggleSemua(UndanganRepository $repo): void
     {
-        $daftar = $repo->riwayatUnik($this->cari);
-        if (count($this->terpilih) === count($daftar)) {
-            $this->terpilih = [];
+        $daftar = $repo->riwayatUnik($this->cari, $this->rapatId);
+        $kunciDaftar = $daftar->pluck('kunci_unik')->toArray();
+
+        // Cek apakah seluruh item di tampilan pencarian saat ini sudah terpilih
+        $semuaSudahTerpilih = ! empty($kunciDaftar) && count(array_intersect($kunciDaftar, $this->terpilih)) === count($kunciDaftar);
+
+        if ($semuaSudahTerpilih) {
+            $this->terpilih = array_values(array_diff($this->terpilih, $kunciDaftar));
         } else {
-            $this->terpilih = range(0, count($daftar) - 1);
+            $this->terpilih = array_values(array_unique(array_merge($this->terpilih, $kunciDaftar)));
         }
     }
 
@@ -61,25 +66,25 @@ class ModalPilihRiwayatUndangan extends Component
         $this->authorize('update', $this->rapat);
 
         if (empty($this->terpilih)) {
-
             $this->pesanInfo = 'Pilih minimal satu nama undangan untuk disalin.';
 
             return;
         }
 
-        $daftar = $repo->riwayatUnik($this->cari);
+        // Ambil SEMUA riwayat tanpa filter cari agar nama yang dipilih lintas pencarian tetap tersalin
+        $semuaRiwayat = $repo->riwayatUnik(null, $this->rapatId)->keyBy('kunci_unik');
         $aktor = Auth::user()?->profil;
 
-        $disalin = DB::transaction(function () use ($daftar) {
+        $disalin = DB::transaction(function () use ($semuaRiwayat) {
             $maxUrutan = (int) Undangan::where('rapat_id', $this->rapatId)->max('urutan');
             $count = 0;
 
-            foreach ($this->terpilih as $idx) {
-                if (! isset($daftar[$idx])) {
+            foreach ($this->terpilih as $kunci) {
+                if (! isset($semuaRiwayat[$kunci])) {
                     continue;
                 }
 
-                $item = $daftar[$idx];
+                $item = $semuaRiwayat[$kunci];
                 $maxUrutan++;
 
                 Undangan::create([
@@ -121,7 +126,7 @@ class ModalPilihRiwayatUndangan extends Component
 
     public function render(UndanganRepository $repo)
     {
-        $riwayat = $this->tampil ? $repo->riwayatUnik($this->cari) : collect();
+        $riwayat = $this->tampil ? $repo->riwayatUnik($this->cari, $this->rapatId) : collect();
 
         return view('livewire.undangan.modal-pilih-riwayat-undangan', [
             'riwayat' => $riwayat,
