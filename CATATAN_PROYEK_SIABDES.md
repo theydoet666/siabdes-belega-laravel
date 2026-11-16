@@ -308,6 +308,9 @@ npm run build
   ADD COLUMN penandatangan_ttd VARCHAR(500) NULL AFTER penandatangan_lokasi;
   ```
 - **Paket Update cPanel:** `update-ttd-pejabat-pengesah.zip`
+- **Catatan Pembaruan Reaktif Modal TTD (16 November 2026):**
+  - Mengintegrasikan Alpine state dengan Livewire entangle (`pejabatAktif: $wire.entangle('pejabatTtdAktif')`) pada modal tanda tangan pejabat untuk menjamin target kolom penyimpanan (`verifikator_ttd`, `pelaksana_ttd`, `penandatangan_ttd`) selalu sinkron saat berpindah tab pejabat tanpa risiko tertukar.
+
 
 
 

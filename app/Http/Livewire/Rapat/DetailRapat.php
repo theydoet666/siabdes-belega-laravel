@@ -384,9 +384,11 @@ class DetailRapat extends Component
         }
     }
 
-    public function hapusTtdPejabat(string $tipe): void
+    public function hapusTtdPejabat(?string $tipe = null): void
     {
         $this->authorize('update', $this->rapat);
+
+        $tipe = $tipe ?: $this->pejabatTtdAktif;
 
         if (!in_array($tipe, ['verifikator', 'pelaksana', 'penandatangan'], true)) {
             return;

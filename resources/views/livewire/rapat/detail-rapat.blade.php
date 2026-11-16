@@ -710,11 +710,16 @@
             <div class="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-garis overflow-hidden flex flex-col max-h-[90vh]"
                  x-data="{
                     mode: 'kanvas',
+                    pejabatAktif: $wire.entangle('pejabatTtdAktif'),
                     isDrawing: false,
                     adaCoretan: false,
                     fileBase64: null,
                     init() {
                         this.$nextTick(() => { this.aturKanvas(); });
+                        this.$watch('pejabatAktif', () => {
+                            this.bersihkan();
+                            this.$nextTick(() => { this.aturKanvas(); });
+                        });
                     },
                     aturKanvas() {
                         const canvas = this.$refs.kanvasPejabat;
@@ -794,7 +799,8 @@
                             }
                             hasilBase64 = this.fileBase64;
                         }
-                        $wire.simpanTtdPejabat('{{ $pejabatTtdAktif }}', hasilBase64);
+                        const targetPejabat = this.pejabatAktif || $wire.pejabatTtdAktif || 'penandatangan';
+                        $wire.simpanTtdPejabat(targetPejabat, hasilBase64);
                     }
                  }">
                 <!-- Header Modal -->
@@ -820,21 +826,21 @@
                     <div class="flex items-center gap-1.5 w-full">
                         <button type="button" 
                                 wire:click="bukaModalTtd('verifikator')" 
-                                @click="bersihkan(); $nextTick(() => aturKanvas())"
+                                @click="pejabatAktif = 'verifikator'; bersihkan(); $nextTick(() => aturKanvas())"
                                 class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-center {{ $pejabatTtdAktif === 'verifikator' ? 'bg-daun text-white shadow-xs' : 'bg-white text-tinta/70 hover:text-tinta border border-garis' }}">
                             1. Verifikator
                             @if ($rapat->verifikator_ttd) <span class="text-[10px]">✓</span> @endif
                         </button>
                         <button type="button" 
                                 wire:click="bukaModalTtd('pelaksana')" 
-                                @click="bersihkan(); $nextTick(() => aturKanvas())"
+                                @click="pejabatAktif = 'pelaksana'; bersihkan(); $nextTick(() => aturKanvas())"
                                 class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-center {{ $pejabatTtdAktif === 'pelaksana' ? 'bg-daun text-white shadow-xs' : 'bg-white text-tinta/70 hover:text-tinta border border-garis' }}">
                             2. Pelaksana
                             @if ($rapat->pelaksana_ttd) <span class="text-[10px]">✓</span> @endif
                         </button>
                         <button type="button" 
                                 wire:click="bukaModalTtd('penandatangan')" 
-                                @click="bersihkan(); $nextTick(() => aturKanvas())"
+                                @click="pejabatAktif = 'penandatangan'; bersihkan(); $nextTick(() => aturKanvas())"
                                 class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-center {{ $pejabatTtdAktif === 'penandatangan' ? 'bg-daun text-white shadow-xs' : 'bg-white text-tinta/70 hover:text-tinta border border-garis' }}">
                             3. Perbekel
                             @if ($rapat->penandatangan_ttd) <span class="text-[10px]">✓</span> @endif
