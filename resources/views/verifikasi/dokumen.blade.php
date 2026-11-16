@@ -164,21 +164,36 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <!-- Verifikator -->
                         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                            <div class="text-[10px] font-semibold text-slate-500 uppercase">{{ $rapat->verifikator_label ?: 'Verifikator' }}</div>
+                            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 uppercase">
+                                <span>{{ $rapat->verifikator_label ?: 'Verifikator' }}</span>
+                                @if ($rapat->verifikator_ttd)
+                                    <span class="text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded text-[9px] font-bold">✓ TTD Sah</span>
+                                @endif
+                            </div>
                             <div class="font-bold text-slate-900 mt-1">{{ $rapat->verifikator_nama ?: 'Gusti Ketut Amertayasa, S.M' }}</div>
                             <div class="text-slate-600 text-[11px]">{{ $rapat->verifikator_jabatan ?: 'Sekretaris Desa' }}</div>
                         </div>
 
                         <!-- Pelaksana -->
                         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                            <div class="text-[10px] font-semibold text-slate-500 uppercase">Pelaksana Kegiatan</div>
+                            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 uppercase">
+                                <span>Pelaksana Kegiatan</span>
+                                @if ($rapat->pelaksana_ttd)
+                                    <span class="text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded text-[9px] font-bold">✓ TTD Sah</span>
+                                @endif
+                            </div>
                             <div class="font-bold text-slate-900 mt-1">{{ $rapat->pelaksana_nama ?: 'Ni Made Arini' }}</div>
                             <div class="text-slate-600 text-[11px]">{{ $rapat->pelaksana_jabatan ?: 'Kasi Pelayanan' }}</div>
                         </div>
 
                         <!-- Mengetahui -->
                         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                            <div class="text-[10px] font-semibold text-slate-500 uppercase">Mengetahui / Mengesahkan</div>
+                            <div class="flex items-center justify-between text-[10px] font-semibold text-slate-500 uppercase">
+                                <span>Mengetahui / Mengesahkan</span>
+                                @if ($rapat->penandatangan_ttd)
+                                    <span class="text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded text-[9px] font-bold">✓ TTD Sah</span>
+                                @endif
+                            </div>
                             <div class="font-bold text-slate-900 mt-1">{{ ($rapat->penandatangan_nama && !str_contains($rapat->penandatangan_nama, 'SUDARSANA')) ? $rapat->penandatangan_nama : 'I Ketut Trisna Jaya, SS' }}</div>
                             <div class="text-slate-600 text-[11px]">{{ ($rapat->penandatangan_jabatan && !str_contains($rapat->penandatangan_jabatan, 'Plt.')) ? $rapat->penandatangan_jabatan : 'Perbekel Desa Belega' }}</div>
                         </div>

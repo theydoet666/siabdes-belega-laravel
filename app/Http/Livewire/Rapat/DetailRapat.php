@@ -9,6 +9,7 @@ use App\Services\RapatService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -85,6 +86,12 @@ class DetailRapat extends Component
 
     // Modal konfirmasi hapus
     public bool $bukaModalHapus = false;
+
+    // Modal Tanda Tangan Pejabat Pengesah
+    public bool $bukaModalTtd = false;
+    public string $pejabatTtdAktif = 'penandatangan'; // 'verifikator', 'pelaksana', 'penandatangan'
+    public string $pejabatTtdNama = '';
+    public string $pejabatTtdJabatan = '';
 
     protected $queryString = [
         'tabAktif' => ['except' => 'undangan', 'as' => 'tab'],
@@ -284,6 +291,128 @@ class DetailRapat extends Component
             'title' => 'Konfigurasi Tersimpan',
             'text' => 'Seluruh perubahan informasi dan pejabat pengesah rapat telah berhasil disimpan.',
             'icon' => 'success',
+        ]);
+    }
+
+    public function bukaModalTtd(string $tipe = 'penandatangan'): void
+    {
+        $this->pejabatTtdAktif = $tipe;
+        
+        if ($tipe === 'verifikator') {
+            $this->pejabatTtdNama = $this->rapat->verifikator_nama ?: 'Gusti Ketut Amertayasa, S.M';
+            $this->pejabatTtdJabatan = $this->rapat->verifikator_jabatan ?: 'Sekretaris Desa';
+        } elseif ($tipe === 'pelaksana') {
+            $this->pejabatTtdNama = $this->rapat->pelaksana_nama ?: 'Ni Made Arini';
+            $this->pejabatTtdJabatan = $this->rapat->pelaksana_jabatan ?: 'Kasi Pelayanan';
+        } else {
+            $namaTersimpan = $this->rapat->penandatangan_nama;
+            $this->pejabatTtdNama = ($namaTersimpan && !str_contains($namaTersimpan, 'SUDARSANA')) ? $namaTersimpan : 'I Ketut Trisna Jaya, SS';
+            $jabatanTersimpan = $this->rapat->penandatangan_jabatan;
+            $this->pejabatTtdJabatan = ($jabatanTersimpan && !str_contains($jabatanTersimpan, 'Plt.')) ? $jabatanTersimpan : 'Perbekel Desa Belega';
+        }
+
+        $this->bukaModalTtd = true;
+        $this->dispatch('siapkan-kanvas-ttd-pejabat');
+    }
+
+    public function tutupModalTtd(): void
+    {
+        $this->bukaModalTtd = false;
+    }
+
+    public function simpanTtdPejabat(string $tipe, string $dataBase64): void
+    {
+        $this->authorize('update', $this->rapat);
+
+        if (!in_array($tipe, ['verifikator', 'pelaksana', 'penandatangan'], true)) {
+            return;
+        }
+
+        if (empty($dataBase64) || !str_starts_with($dataBase64, 'data:image/')) {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal Menyimpan',
+                'text' => 'Goresan tanda tangan tidak valid atau kosong.',
+            ]);
+            return;
+        }
+
+        try {
+            $dataParts = explode(',', $dataBase64);
+            $binary = base64_decode(end($dataParts));
+
+            if (!$binary) {
+                throw new \Exception('Data gambar tanda tangan tidak dapat diproses.');
+            }
+
+            $namaBerkas = 'tanda-tangan-pejabat/' . $this->rapat->id . '_' . $tipe . '_' . time() . '.png';
+
+            $kolom = $tipe . '_ttd';
+            if (!empty($this->rapat->$kolom) && Storage::disk('public')->exists($this->rapat->$kolom)) {
+                Storage::disk('public')->delete($this->rapat->$kolom);
+            }
+
+            Storage::disk('public')->put($namaBerkas, $binary);
+
+            $this->rapat->$kolom = $namaBerkas;
+            $this->rapat->save();
+
+            AuditLog::create([
+                'aktor' => Auth::user()?->profil?->id,
+                'aksi' => "Membubuhkan tanda tangan digital pejabat ({$tipe}) pada rapat '{$this->rapat->judul}' (Kode: {$this->rapat->kode})",
+                'tabel_target' => 'rapat',
+                'baris_id' => $this->rapat->id,
+                'rincian' => [
+                    'tipe' => $tipe,
+                    'file' => $namaBerkas,
+                ],
+            ]);
+
+            $this->dispatch('swal:alert', [
+                'icon' => 'success',
+                'title' => 'Tanda Tangan Disimpan',
+                'text' => 'Tanda tangan digital pejabat berhasil disimpan dan akan otomatis muncul saat cetak absensi.',
+            ]);
+
+            $this->tutupModalTtd();
+        } catch (\Throwable $e) {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Terjadi Kendala',
+                'text' => 'Gagal menyimpan tanda tangan: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function hapusTtdPejabat(string $tipe): void
+    {
+        $this->authorize('update', $this->rapat);
+
+        if (!in_array($tipe, ['verifikator', 'pelaksana', 'penandatangan'], true)) {
+            return;
+        }
+
+        $kolom = $tipe . '_ttd';
+
+        if (!empty($this->rapat->$kolom) && Storage::disk('public')->exists($this->rapat->$kolom)) {
+            Storage::disk('public')->delete($this->rapat->$kolom);
+        }
+
+        $this->rapat->$kolom = null;
+        $this->rapat->save();
+
+        AuditLog::create([
+            'aktor' => Auth::user()?->profil?->id,
+            'aksi' => "Menghapus tanda tangan digital pejabat ({$tipe}) pada rapat '{$this->rapat->judul}'",
+            'tabel_target' => 'rapat',
+            'baris_id' => $this->rapat->id,
+            'rincian' => ['tipe' => $tipe],
+        ]);
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'info',
+            'title' => 'Tanda Tangan Dihapus',
+            'text' => 'Tanda tangan digital pejabat telah berhasil dikosongkan.',
         ]);
     }
 

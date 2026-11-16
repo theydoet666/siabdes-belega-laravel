@@ -119,6 +119,19 @@
                 <span>Tampilkan QR Mandiri</span>
             </button>
 
+            <!-- Tanda Tangan Pejabat Pengesah -->
+            <button wire:click="bukaModalTtd('penandatangan')" 
+                    type="button" 
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-daun hover:bg-daun-tua text-white text-xs sm:text-sm font-semibold shadow-sm shadow-daun/20 transition cursor-pointer">
+                <svg class="w-4 h-4 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span>TTD Pejabat Pengesah</span>
+                @if ($rapat->verifikator_ttd || $rapat->pelaksana_ttd || $rapat->penandatangan_ttd)
+                    <span class="w-2 h-2 rounded-full bg-emerald-300 ring-2 ring-white/50" title="Sudah memiliki tanda tangan pejabat"></span>
+                @endif
+            </button>
+
             <!-- Cetak Lembar A4 -->
             <a href="{{ route('rapat.cetak', $rapat->id) }}" 
                target="_blank" 
@@ -388,6 +401,40 @@
                                        placeholder="Kosongkan jika tidak ada" 
                                        class="w-full px-3.5 py-2.5 bg-white border border-garis focus:border-daun rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
                             </div>
+
+                            <!-- Tanda Tangan Verifikator -->
+                            <div class="sm:col-span-2 pt-3 border-t border-garis/50 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-16 h-10 bg-white border border-garis rounded-lg flex items-center justify-center overflow-hidden p-0.5">
+                                        @if ($rapat->verifikator_ttd)
+                                            <img src="{{ asset('storage/' . $rapat->verifikator_ttd) }}" class="max-h-full max-w-full object-contain" />
+                                        @else
+                                            <span class="text-[9px] text-tinta/40 italic">Kosong</span>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-tinta">Tanda Tangan Verifikator</div>
+                                        <div class="text-[11px] {{ $rapat->verifikator_ttd ? 'text-emerald-700 font-medium' : 'text-tinta/50' }}">
+                                            {{ $rapat->verifikator_ttd ? '✓ Tertanda Tangan Digital' : 'Belum ditandatangani' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            wire:click="bukaModalTtd('verifikator')" 
+                                            class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition cursor-pointer">
+                                        ✍️ {{ $rapat->verifikator_ttd ? 'Ganti TTD' : 'Bubuhkan TTD' }}
+                                    </button>
+                                    @if ($rapat->verifikator_ttd)
+                                        <button type="button" 
+                                                wire:click="hapusTtdPejabat('verifikator')" 
+                                                data-confirm="Hapus tanda tangan digital Verifikator untuk rapat ini?"
+                                                class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer">
+                                            🗑️ Hapus
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -456,6 +503,40 @@
                                        placeholder="Kantor Perbekel Desa Belega" 
                                        class="w-full px-3.5 py-2.5 bg-white border @error('penandatangan_lokasi') border-rose-300 focus:border-rose-500 @else border-garis focus:border-daun @enderror rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
                             </div>
+
+                            <!-- Tanda Tangan Pelaksana Kegiatan -->
+                            <div class="sm:col-span-2 pt-3 border-t border-garis/50 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-16 h-10 bg-white border border-garis rounded-lg flex items-center justify-center overflow-hidden p-0.5">
+                                        @if ($rapat->pelaksana_ttd)
+                                            <img src="{{ asset('storage/' . $rapat->pelaksana_ttd) }}" class="max-h-full max-w-full object-contain" />
+                                        @else
+                                            <span class="text-[9px] text-tinta/40 italic">Kosong</span>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-tinta">Tanda Tangan Pelaksana Kegiatan</div>
+                                        <div class="text-[11px] {{ $rapat->pelaksana_ttd ? 'text-emerald-700 font-medium' : 'text-tinta/50' }}">
+                                            {{ $rapat->pelaksana_ttd ? '✓ Tertanda Tangan Digital' : 'Belum ditandatangani' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            wire:click="bukaModalTtd('pelaksana')" 
+                                            class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition cursor-pointer">
+                                        ✍️ {{ $rapat->pelaksana_ttd ? 'Ganti TTD' : 'Bubuhkan TTD' }}
+                                    </button>
+                                    @if ($rapat->pelaksana_ttd)
+                                        <button type="button" 
+                                                wire:click="hapusTtdPejabat('pelaksana')" 
+                                                data-confirm="Hapus tanda tangan digital Pelaksana Kegiatan untuk rapat ini?"
+                                                class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer">
+                                            🗑️ Hapus
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -523,6 +604,40 @@
                                        placeholder="Kosongkan jika tidak ada" 
                                        class="w-full px-3.5 py-2.5 bg-white border border-garis focus:border-daun rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
                             </div>
+
+                            <!-- Tanda Tangan Kepala Desa / Perbekel -->
+                            <div class="sm:col-span-2 pt-3 border-t border-garis/50 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-16 h-10 bg-white border border-garis rounded-lg flex items-center justify-center overflow-hidden p-0.5">
+                                        @if ($rapat->penandatangan_ttd)
+                                            <img src="{{ asset('storage/' . $rapat->penandatangan_ttd) }}" class="max-h-full max-w-full object-contain" />
+                                        @else
+                                            <span class="text-[9px] text-tinta/40 italic">Kosong</span>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-tinta">Tanda Tangan Perbekel Desa Belega</div>
+                                        <div class="text-[11px] {{ $rapat->penandatangan_ttd ? 'text-emerald-700 font-medium' : 'text-tinta/50' }}">
+                                            {{ $rapat->penandatangan_ttd ? '✓ Tertanda Tangan Digital' : 'Belum ditandatangani' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            wire:click="bukaModalTtd('penandatangan')" 
+                                            class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition cursor-pointer">
+                                        ✍️ {{ $rapat->penandatangan_ttd ? 'Ganti TTD' : 'Bubuhkan TTD' }}
+                                    </button>
+                                    @if ($rapat->penandatangan_ttd)
+                                        <button type="button" 
+                                                wire:click="hapusTtdPejabat('penandatangan')" 
+                                                data-confirm="Hapus tanda tangan digital Perbekel untuk rapat ini?"
+                                                class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer">
+                                            🗑️ Hapus
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -583,6 +698,289 @@
                     <button wire:click="hapusRapat" wire:loading.attr="disabled" type="button" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-xs transition cursor-pointer disabled:opacity-50">
                         <span wire:loading.remove>Ya, Hapus Permanen</span>
                         <span wire:loading>Menghapus...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal Tanda Tangan Pejabat Pengesah -->
+    @if ($bukaModalTtd)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-tinta/60 backdrop-blur-xs">
+            <div class="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-garis overflow-hidden flex flex-col max-h-[90vh]"
+                 x-data="{
+                    mode: 'kanvas',
+                    isDrawing: false,
+                    adaCoretan: false,
+                    fileBase64: null,
+                    init() {
+                        this.$nextTick(() => { this.aturKanvas(); });
+                    },
+                    aturKanvas() {
+                        const canvas = this.$refs.kanvasPejabat;
+                        if (!canvas) return;
+                        const rect = canvas.getBoundingClientRect();
+                        const dpr = window.devicePixelRatio || 1;
+                        canvas.width = Math.floor(rect.width * dpr);
+                        canvas.height = Math.floor(rect.height * dpr);
+                        const ctx = canvas.getContext('2d');
+                        ctx.scale(dpr, dpr);
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+                        ctx.strokeStyle = '#1c3a7a'; // Token warna pena dinas Belega
+                        ctx.lineWidth = 3.2;
+                        this.bersihkan();
+                    },
+                    bersihkan() {
+                        const canvas = this.$refs.kanvasPejabat;
+                        if (!canvas) return;
+                        const ctx = canvas.getContext('2d');
+                        ctx.save();
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        this.adaCoretan = false;
+                        this.fileBase64 = null;
+                        if (this.$refs.inputBerkasTtd) {
+                            this.$refs.inputBerkasTtd.value = '';
+                        }
+                    },
+                    mulai(e) {
+                        if (e.pointerType === 'mouse' && e.button !== 0) return;
+                        const canvas = this.$refs.kanvasPejabat;
+                        const ctx = canvas.getContext('2d');
+                        const rect = canvas.getBoundingClientRect();
+                        this.isDrawing = true;
+                        canvas.setPointerCapture(e.pointerId);
+                        ctx.beginPath();
+                        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+                        this.adaCoretan = true;
+                    },
+                    gambar(e) {
+                        if (!this.isDrawing) return;
+                        const canvas = this.$refs.kanvasPejabat;
+                        const ctx = canvas.getContext('2d');
+                        const rect = canvas.getBoundingClientRect();
+                        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                        ctx.stroke();
+                    },
+                    selesai(e) {
+                        if (!this.isDrawing) return;
+                        this.isDrawing = false;
+                        try { this.$refs.kanvasPejabat.releasePointerCapture(e.pointerId); } catch (_) {}
+                    },
+                    pilihBerkas(e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            this.fileBase64 = ev.target.result;
+                            this.mode = 'unggah';
+                        };
+                        reader.readAsDataURL(file);
+                    },
+                    simpan() {
+                        let hasilBase64 = null;
+                        if (this.mode === 'kanvas') {
+                            if (!this.adaCoretan) {
+                                alert('Silakan goreskan tanda tangan terlebih dahulu pada kanvas.');
+                                return;
+                            }
+                            hasilBase64 = this.$refs.kanvasPejabat.toDataURL('image/png');
+                        } else {
+                            if (!this.fileBase64) {
+                                alert('Silakan pilih berkas gambar tanda tangan terlebih dahulu.');
+                                return;
+                            }
+                            hasilBase64 = this.fileBase64;
+                        }
+                        $wire.simpanTtdPejabat('{{ $pejabatTtdAktif }}', hasilBase64);
+                    }
+                 }">
+                <!-- Header Modal -->
+                <div class="bg-daun-tua px-6 py-5 text-white flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                            <svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold leading-tight">Tanda Tangan Pejabat Pengesah</h3>
+                            <p class="text-xs text-emerald-200/80 mt-0.5">Tanda tangan resmi otomatis tercetak di Lembar Absensi Rapat A4</p>
+                        </div>
+                    </div>
+                    <button wire:click="tutupModalTtd" type="button" class="text-white/70 hover:text-white cursor-pointer text-xl font-bold p-1">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Pilihan Pihak Pejabat (Tabs) -->
+                <div class="bg-kertas/60 px-6 py-3 border-b border-garis flex items-center justify-between gap-2 overflow-x-auto shrink-0">
+                    <div class="flex items-center gap-1.5 w-full">
+                        <button type="button" 
+                                wire:click="bukaModalTtd('verifikator')" 
+                                @click="bersihkan(); $nextTick(() => aturKanvas())"
+                                class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-center {{ $pejabatTtdAktif === 'verifikator' ? 'bg-daun text-white shadow-xs' : 'bg-white text-tinta/70 hover:text-tinta border border-garis' }}">
+                            1. Verifikator
+                            @if ($rapat->verifikator_ttd) <span class="text-[10px]">✓</span> @endif
+                        </button>
+                        <button type="button" 
+                                wire:click="bukaModalTtd('pelaksana')" 
+                                @click="bersihkan(); $nextTick(() => aturKanvas())"
+                                class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-center {{ $pejabatTtdAktif === 'pelaksana' ? 'bg-daun text-white shadow-xs' : 'bg-white text-tinta/70 hover:text-tinta border border-garis' }}">
+                            2. Pelaksana
+                            @if ($rapat->pelaksana_ttd) <span class="text-[10px]">✓</span> @endif
+                        </button>
+                        <button type="button" 
+                                wire:click="bukaModalTtd('penandatangan')" 
+                                @click="bersihkan(); $nextTick(() => aturKanvas())"
+                                class="flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition cursor-pointer text-center {{ $pejabatTtdAktif === 'penandatangan' ? 'bg-daun text-white shadow-xs' : 'bg-white text-tinta/70 hover:text-tinta border border-garis' }}">
+                            3. Perbekel
+                            @if ($rapat->penandatangan_ttd) <span class="text-[10px]">✓</span> @endif
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Konten Modal -->
+                <div class="p-6 overflow-y-auto space-y-4 flex-1">
+                    <!-- Info Pejabat Aktif -->
+                    <div class="flex items-center justify-between p-3.5 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl">
+                        <div>
+                            <div class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">Pejabat yang Bertanda Tangan:</div>
+                            <div class="font-extrabold text-sm text-emerald-950 mt-0.5">{{ $pejabatTtdNama }}</div>
+                            <div class="text-xs text-emerald-800/80 font-medium">{{ $pejabatTtdJabatan }}</div>
+                        </div>
+
+                        <!-- Status TTD Saat Ini -->
+                        @php
+                            $kolomAktif = $pejabatTtdAktif . '_ttd';
+                            $sudahTtd = !empty($rapat->$kolomAktif);
+                        @endphp
+                        <div class="text-right">
+                            @if ($sudahTtd)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold">
+                                    ✓ Sudah Ditandatangani
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold">
+                                    Belum Ada TTD
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Pilihan Mode: Kanvas Goresan Langsung atau Unggah Berkas -->
+                    <div class="flex items-center justify-between border-b border-garis pb-2 text-xs">
+                        <div class="flex items-center gap-3">
+                            <button type="button" 
+                                    @click="mode = 'kanvas'; $nextTick(() => aturKanvas())" 
+                                    :class="mode === 'kanvas' ? 'text-daun font-bold border-b-2 border-daun pb-1' : 'text-tinta/60 hover:text-tinta'"
+                                    class="cursor-pointer transition">
+                                ✍️ Goreskan di Layar
+                            </button>
+                            <button type="button" 
+                                    @click="mode = 'unggah'" 
+                                    :class="mode === 'unggah' ? 'text-daun font-bold border-b-2 border-daun pb-1' : 'text-tinta/60 hover:text-tinta'"
+                                    class="cursor-pointer transition">
+                                📁 Unggah Gambar TTD (PNG)
+                            </button>
+                        </div>
+
+                        <button type="button" 
+                                @click="bersihkan()" 
+                                class="text-[11px] text-rose-600 hover:text-rose-700 font-semibold cursor-pointer">
+                            Bersihkan
+                        </button>
+                    </div>
+
+                    <!-- Area Kanvas TTD Langsung -->
+                    <div x-show="mode === 'kanvas'" class="space-y-2">
+                        <div class="relative w-full h-44 bg-slate-50/80 border-2 border-dashed border-garis rounded-2xl overflow-hidden cursor-crosshair touch-none select-none">
+                            <canvas x-ref="kanvasPejabat" 
+                                    @pointerdown="mulai($event)" 
+                                    @pointermove="gambar($event)" 
+                                    @pointerup="selesai($event)" 
+                                    @pointercancel="selesai($event)" 
+                                    class="w-full h-full block">
+                            </canvas>
+
+                            <!-- Hint saat kanvas kosong -->
+                            <div x-show="!adaCoretan" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-tinta/35 text-xs">
+                                <svg class="w-8 h-8 mb-1.5 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                <span>Goreskan tanda tangan di sini (Sentuh / Mouse / Stylus)</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-tinta/50 text-center">Gunakan jari atau pena digital untuk menggoreskan tanda tangan pejabat</p>
+                    </div>
+
+                    <!-- Area Unggah Gambar TTD -->
+                    <div x-show="mode === 'unggah'" class="space-y-3">
+                        <div class="p-6 border-2 border-dashed border-garis rounded-2xl bg-kertas/40 text-center space-y-2">
+                            <input type="file" 
+                                   x-ref="inputBerkasTtd" 
+                                   @change="pilihBerkas($event)" 
+                                   accept="image/png,image/jpeg" 
+                                   class="hidden" 
+                                   id="file-ttd-input">
+                            <label for="file-ttd-input" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-garis text-xs font-semibold text-tinta hover:bg-kertas transition cursor-pointer shadow-2xs">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Pilih Berkas TTD (PNG Transparan)</span>
+                            </label>
+                            <p class="text-[11px] text-tinta/50">Disarankan menggunakan berkas PNG berlatar transparan untuk hasil cetak terbaik</p>
+                        </div>
+
+                        <!-- Pratinjau Berkas -->
+                        <template x-if="fileBase64">
+                            <div class="p-3 bg-white border border-garis rounded-xl flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-16 h-12 bg-slate-100 rounded-lg border border-garis flex items-center justify-center p-1 overflow-hidden">
+                                        <img :src="fileBase64" class="max-h-full max-w-full object-contain" />
+                                    </div>
+                                    <div class="text-xs font-medium text-tinta">Berkas tanda tangan siap disimpan</div>
+                                </div>
+                                <button type="button" @click="fileBase64 = null; $refs.inputBerkasTtd.value = ''" class="text-xs text-rose-600 hover:text-rose-700 font-semibold cursor-pointer">
+                                    Ganti
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- TTD Eksisting jika sudah pernah ada -->
+                    @if ($sudahTtd)
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3 text-xs">
+                            <div class="flex items-center gap-3">
+                                <div class="w-20 h-12 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-1 overflow-hidden">
+                                    <img src="{{ asset('storage/' . $rapat->$kolomAktif) }}" class="max-h-full max-w-full object-contain" />
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">Tanda Tangan Aktif Saat Ini</div>
+                                    <div class="text-[11px] text-slate-500">Akan tertampil di lembar cetak A4</div>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    wire:click="hapusTtdPejabat('{{ $pejabatTtdAktif }}')" 
+                                    data-confirm="Hapus tanda tangan pejabat ini dari rapat?"
+                                    class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition cursor-pointer">
+                                🗑️ Hapus TTD
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Footer Modal -->
+                <div class="px-6 py-4 bg-kertas/40 border-t border-garis flex items-center justify-between gap-3 shrink-0">
+                    <button wire:click="tutupModalTtd" type="button" class="px-4 py-2.5 rounded-xl border border-garis text-xs font-medium text-tinta/80 hover:bg-white transition cursor-pointer">
+                        Tutup
+                    </button>
+                    <button type="button" 
+                            @click="simpan()" 
+                            class="px-6 py-2.5 rounded-xl bg-daun hover:bg-daun-tua text-white text-xs font-semibold shadow-sm shadow-daun/20 focus:outline-none focus:ring-2 focus:ring-daun transition cursor-pointer">
+                        Simpan Tanda Tangan
                     </button>
                 </div>
             </div>

@@ -274,6 +274,42 @@ npm run build
   - `resources/views/cetak/lembar-a4.blade.php`
 - **Paket Update cPanel:** `update-pejabat-pengesah-default.zip`
 
+---
+
+## 15. Pembaruan Sesi 16 November 2026 — Fitur Tanda Tangan Digital Pejabat Pengesah Rapat
+
+- **Kebutuhan:**
+  - Menambahkan fitur tanda tangan digital khusus untuk Pejabat Pengesah (1. Verifikator / Sekdes, 2. Pelaksana Kegiatan / Kasi Kaur, 3. Mengetahui / Perbekel) pada setiap rapat.
+  - Saat mencetak Lembar Absensi Rapat A4, tanda tangan pejabat otomatis tertampil di atas nama masing-masing pejabat.
+- **Solusi yang Diterapkan:**
+  1. **Migrasi Database (`2026_11_16_000011_add_tanda_tangan_pejabat_to_rapat_table.php`):**
+     - Menambahkan 3 kolom: `verifikator_ttd`, `pelaksana_ttd`, dan `penandatangan_ttd` pada tabel `rapat`.
+  2. **Model Rapat (`app/Models/Rapat.php`):**
+     - Mendaftarkan ketiga atribut baru ke dalam `$fillable`.
+  3. **Backend Livewire (`app/Http/Livewire/Rapat/DetailRapat.php`):**
+     - Menambahkan method `bukaModalTtd()`, `tutupModalTtd()`, `simpanTtdPejabat()`, dan `hapusTtdPejabat()`.
+     - File gambar disimpan rapi di `storage/app/public/tanda-tangan-pejabat/`.
+  4. **Antarmuka Detail Rapat (`resources/views/livewire/rapat/detail-rapat.blade.php`):**
+     - Tombol cepat aksi: **"TTD Pejabat Pengesah"** dengan indikator status dot hijau.
+     - Pratinjau status TTD di dalam tab Pengaturan untuk masing-masing pihak pejabat.
+     - Modal interaktif tanda tangan digital 3 pejabat dengan 2 mode fleksibel:
+       - **Goresan Sentuh / Layar:** Kanvas digital responsif (stylus, jari, atau mouse).
+       - **Unggah Berkas:** Upload file gambar PNG transparan.
+  5. **Lembar Cetak A4 (`resources/views/cetak/lembar-a4.blade.php` & `CetakController.php`):**
+     - Mengonversi file tanda tangan ke Base64 URI agar gambar tahan offline dan tidak terpengaruh symlink saat dicetak.
+     - Menambahkan tombol sakelar di bilah atas: **`[TTD Pejabat: Tampil / Sembunyi]`** untuk fleksibilitas jika sewaktu-waktu ingin mencetak dokumen kosong untuk tanda tangan basah.
+  6. **Halaman Publik Verifikasi (`resources/views/verifikasi/dokumen.blade.php`):**
+     - Menampilkan lencana hijau `✓ TTD Sah` di kartu pejabat yang telah bertanda tangan digital.
+- **Query SQL cPanel (phpMyAdmin):**
+  ```sql
+  ALTER TABLE rapat 
+  ADD COLUMN verifikator_ttd VARCHAR(500) NULL AFTER verifikator_nip,
+  ADD COLUMN pelaksana_ttd VARCHAR(500) NULL AFTER pelaksana_nip,
+  ADD COLUMN penandatangan_ttd VARCHAR(500) NULL AFTER penandatangan_lokasi;
+  ```
+- **Paket Update cPanel:** `update-ttd-pejabat-pengesah.zip`
+
+
 
 
 

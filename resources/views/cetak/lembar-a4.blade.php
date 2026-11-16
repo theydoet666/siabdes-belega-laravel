@@ -58,7 +58,8 @@
 </head>
 <body x-data="{ 
     tampilQrVerifikasi: (localStorage.getItem('siabdes_cetak_qr') !== 'false'), 
-    tampilWaktuCetak: (localStorage.getItem('siabdes_cetak_waktu') !== 'false') 
+    tampilWaktuCetak: (localStorage.getItem('siabdes_cetak_waktu') !== 'false'),
+    tampilTtdPejabat: (localStorage.getItem('siabdes_cetak_ttd_pejabat') !== 'false')
 }" class="preview-cetak-body bg-slate-700 font-serif">
 
     <!-- Floating Top Bar untuk Kontrol Preview Cetak (no-print) -->
@@ -77,6 +78,19 @@
             </div>
 
             <div class="flex items-center gap-2.5">
+                <!-- Tombol Toggle Tanda Tangan Pejabat Pengesah -->
+                <button @click="tampilTtdPejabat = !tampilTtdPejabat; localStorage.setItem('siabdes_cetak_ttd_pejabat', tampilTtdPejabat)" 
+                        type="button" 
+                        :class="tampilTtdPejabat ? 'bg-emerald-800 text-white border-emerald-600 shadow-emerald-900/30' : 'bg-slate-800 text-slate-300 border-slate-700'"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-sans font-semibold transition cursor-pointer shadow-sm"
+                        title="Tampilkan atau sembunyikan tanda tangan digital pejabat pengesah">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    <span>TTD Pejabat:</span>
+                    <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded" :class="tampilTtdPejabat ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300'" x-text="tampilTtdPejabat ? 'Tampil' : 'Sembunyi'"></span>
+                </button>
+
                 <!-- Tombol Toggle Waktu Dicetak -->
                 <button @click="tampilWaktuCetak = !tampilWaktuCetak; localStorage.setItem('siabdes_cetak_waktu', tampilWaktuCetak)" 
                         type="button" 
@@ -364,7 +378,14 @@
                         @if ($adaVerifikator)
                             <div>{{ $rapat->verifikator_label ?: 'Telah dilakukan verifikasi' }}</div>
                             <div class="font-semibold">{{ $rapat->verifikator_jabatan ?: 'Sekretaris Desa' }}</div>
-                            <div class="h-20"></div>
+                            <div class="h-20 flex items-center justify-center overflow-hidden">
+                                @if (!empty($verifikatorTtdBase64 ?? ($rapat->verifikator_ttd ? asset('storage/' . $rapat->verifikator_ttd) : null)))
+                                    <img x-show="tampilTtdPejabat" 
+                                         src="{{ $verifikatorTtdBase64 ?? asset('storage/' . $rapat->verifikator_ttd) }}" 
+                                         alt="Tanda Tangan Verifikator" 
+                                         class="max-h-18 max-w-[170px] object-contain my-auto" />
+                                @endif
+                            </div>
                             <div class="font-bold underline uppercase">
                                 ({{ $rapat->verifikator_nama ?: 'Gusti Ketut Amertayasa, S.M' }})
                             </div>
@@ -379,7 +400,14 @@
                         @if ($adaPelaksana)
                             <div>{{ $rapat->penandatangan_lokasi ?: 'Kantor Perbekel Desa Belega' }}, {{ $tglAngka }} {{ $namaBulanId }} {{ $thnAngka }}</div>
                             <div class="font-semibold">{{ $rapat->pelaksana_jabatan ?: 'Kasi Pelayanan' }}</div>
-                            <div class="h-20"></div>
+                            <div class="h-20 flex items-center justify-center overflow-hidden">
+                                @if (!empty($pelaksanaTtdBase64 ?? ($rapat->pelaksana_ttd ? asset('storage/' . $rapat->pelaksana_ttd) : null)))
+                                    <img x-show="tampilTtdPejabat" 
+                                         src="{{ $pelaksanaTtdBase64 ?? asset('storage/' . $rapat->pelaksana_ttd) }}" 
+                                         alt="Tanda Tangan Pelaksana" 
+                                         class="max-h-18 max-w-[170px] object-contain my-auto" />
+                                @endif
+                            </div>
                             <div class="font-bold underline uppercase">
                                 ({{ $rapat->pelaksana_nama ?: 'Ni Made Arini' }})
                             </div>
@@ -397,7 +425,14 @@
                     <div class="w-5/12 text-center">
                         <div>{{ $rapat->mengetahui_label ?: 'Mengetahui :' }}</div>
                         <div class="font-semibold">{{ ($rapat->penandatangan_jabatan && !str_contains($rapat->penandatangan_jabatan, 'Plt.')) ? $rapat->penandatangan_jabatan : 'Perbekel Desa Belega' }}</div>
-                        <div class="h-20"></div>
+                        <div class="h-20 flex items-center justify-center overflow-hidden">
+                            @if (!empty($penandatanganTtdBase64 ?? ($rapat->penandatangan_ttd ? asset('storage/' . $rapat->penandatangan_ttd) : null)))
+                                <img x-show="tampilTtdPejabat" 
+                                     src="{{ $penandatanganTtdBase64 ?? asset('storage/' . $rapat->penandatangan_ttd) }}" 
+                                     alt="Tanda Tangan Mengetahui" 
+                                     class="max-h-18 max-w-[170px] object-contain my-auto" />
+                            @endif
+                        </div>
                         <div class="font-bold underline uppercase">
                             ({{ ($rapat->penandatangan_nama && !str_contains($rapat->penandatangan_nama, 'SUDARSANA')) ? $rapat->penandatangan_nama : 'I Ketut Trisna Jaya, SS' }})
                         </div>

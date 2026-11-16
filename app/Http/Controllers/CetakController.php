@@ -8,6 +8,7 @@ use App\Models\Rapat;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -74,6 +75,28 @@ class CetakController extends Controller
             Log::warning('Gagal generate QR Verifikasi Cetak: '.$e->getMessage());
         }
 
+        // Tanda Tangan Digital Pejabat Pengesah (Base64 agar tahan offline & print layout)
+        $verifikatorTtdBase64 = null;
+        if (!empty($rapat->verifikator_ttd) && Storage::disk('public')->exists($rapat->verifikator_ttd)) {
+            try {
+                $verifikatorTtdBase64 = 'data:image/png;base64,' . base64_encode(Storage::disk('public')->get($rapat->verifikator_ttd));
+            } catch (\Throwable $e) {}
+        }
+
+        $pelaksanaTtdBase64 = null;
+        if (!empty($rapat->pelaksana_ttd) && Storage::disk('public')->exists($rapat->pelaksana_ttd)) {
+            try {
+                $pelaksanaTtdBase64 = 'data:image/png;base64,' . base64_encode(Storage::disk('public')->get($rapat->pelaksana_ttd));
+            } catch (\Throwable $e) {}
+        }
+
+        $penandatanganTtdBase64 = null;
+        if (!empty($rapat->penandatangan_ttd) && Storage::disk('public')->exists($rapat->penandatangan_ttd)) {
+            try {
+                $penandatanganTtdBase64 = 'data:image/png;base64,' . base64_encode(Storage::disk('public')->get($rapat->penandatangan_ttd));
+            } catch (\Throwable $e) {}
+        }
+
         return view('cetak.lembar-a4', [
             'rapat' => $rapat,
             'pengaturan' => $pengaturan,
@@ -84,6 +107,9 @@ class CetakController extends Controller
             'waktuCetakSingkat' => $waktuCetakSingkat,
             'urlVerifikasi' => $urlVerifikasi,
             'qrVerifikasiSvg' => $qrVerifikasiSvg,
+            'verifikatorTtdBase64' => $verifikatorTtdBase64,
+            'pelaksanaTtdBase64' => $pelaksanaTtdBase64,
+            'penandatanganTtdBase64' => $penandatanganTtdBase64,
         ]);
     }
 
