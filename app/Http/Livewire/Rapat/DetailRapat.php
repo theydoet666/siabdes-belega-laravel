@@ -65,9 +65,9 @@ class DetailRapat extends Component
 
     public string $mengetahui_label = 'Mengetahui :';
 
-    public string $penandatangan_nama = '';
+    public string $penandatangan_nama = 'I Ketut Trisna Jaya, SS';
 
-    public string $penandatangan_jabatan = '';
+    public string $penandatangan_jabatan = 'Perbekel Desa Belega';
 
     public ?string $penandatangan_nip = '';
 
@@ -135,8 +135,10 @@ class DetailRapat extends Component
 
         $this->mengetahui_tampil = (bool) ($this->rapat->mengetahui_tampil ?? true);
         $this->mengetahui_label = $this->rapat->mengetahui_label ?? 'Mengetahui :';
-        $this->penandatangan_nama = $this->rapat->penandatangan_nama ?? '';
-        $this->penandatangan_jabatan = $this->rapat->penandatangan_jabatan ?? '';
+        $namaTersimpan = $this->rapat->penandatangan_nama;
+        $this->penandatangan_nama = ($namaTersimpan && !str_contains($namaTersimpan, 'SUDARSANA')) ? $namaTersimpan : 'I Ketut Trisna Jaya, SS';
+        $jabatanTersimpan = $this->rapat->penandatangan_jabatan;
+        $this->penandatangan_jabatan = ($jabatanTersimpan && !str_contains($jabatanTersimpan, 'Plt.')) ? $jabatanTersimpan : 'Perbekel Desa Belega';
         $this->penandatangan_nip = $this->rapat->penandatangan_nip ?? '';
         $this->penandatangan_lokasi = $this->rapat->penandatangan_lokasi ?? 'Kantor Perbekel Desa Belega';
 
@@ -256,8 +258,8 @@ class DetailRapat extends Component
 
         $this->rapat->mengetahui_tampil = $this->mengetahui_tampil;
         $this->rapat->mengetahui_label = $this->mengetahui_label;
-        $this->rapat->penandatangan_nama = $this->penandatangan_nama ?: 'I WAYAN SUDARSANA, S.Sos.';
-        $this->rapat->penandatangan_jabatan = $this->penandatangan_jabatan ?: 'Perbekel Belega';
+        $this->rapat->penandatangan_nama = $this->penandatangan_nama ?: 'I Ketut Trisna Jaya, SS';
+        $this->rapat->penandatangan_jabatan = $this->penandatangan_jabatan ?: 'Perbekel Desa Belega';
         $this->rapat->penandatangan_nip = $this->penandatangan_nip ?: '';
         $this->rapat->penandatangan_lokasi = $this->penandatangan_lokasi;
 

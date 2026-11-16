@@ -498,7 +498,7 @@
                                 <input wire:model="penandatangan_jabatan" 
                                        type="text" 
                                        id="penandatangan_jabatan" 
-                                       placeholder="Plt. Perbekel Desa Belega" 
+                                       placeholder="Perbekel Desa Belega" 
                                        class="w-full px-3.5 py-2.5 bg-white border border-garis focus:border-daun rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
                             </div>
 
@@ -509,7 +509,7 @@
                                 <input wire:model="penandatangan_nama" 
                                        type="text" 
                                        id="penandatangan_nama" 
-                                       placeholder="Gusti Ketut Amertayasa, S.M" 
+                                       placeholder="I Ketut Trisna Jaya, SS" 
                                        class="w-full px-3.5 py-2.5 bg-white border border-garis focus:border-daun rounded-xl text-sm text-tinta focus:outline-none focus:ring-1 transition" />
                             </div>
 

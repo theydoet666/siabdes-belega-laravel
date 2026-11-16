@@ -53,9 +53,9 @@ class FormRapat extends Component
 
     public string $mengetahui_label = 'Mengetahui :';
 
-    public string $penandatangan_nama = 'I WAYAN SUDARSANA, S.Sos.';
+    public string $penandatangan_nama = 'I Ketut Trisna Jaya, SS';
 
-    public string $penandatangan_jabatan = 'Plt. Perbekel Desa Belega';
+    public string $penandatangan_jabatan = 'Perbekel Desa Belega';
 
     public string $penandatangan_nip = '';
 
@@ -144,8 +144,8 @@ class FormRapat extends Component
             'pelaksana_nip' => $this->pelaksana_nip ?: '',
             'mengetahui_tampil' => $this->mengetahui_tampil,
             'mengetahui_label' => $this->mengetahui_label,
-            'penandatangan_nama' => $this->penandatangan_nama ?: 'I WAYAN SUDARSANA, S.Sos.',
-            'penandatangan_jabatan' => $this->penandatangan_jabatan ?: 'Perbekel Belega',
+            'penandatangan_nama' => $this->penandatangan_nama ?: 'I Ketut Trisna Jaya, SS',
+            'penandatangan_jabatan' => $this->penandatangan_jabatan ?: 'Perbekel Desa Belega',
             'penandatangan_nip' => $this->penandatangan_nip ?: '',
             'penandatangan_lokasi' => $this->penandatangan_lokasi,
         ], $aktor);

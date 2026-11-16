@@ -179,8 +179,8 @@
                         <!-- Mengetahui -->
                         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                             <div class="text-[10px] font-semibold text-slate-500 uppercase">Mengetahui / Mengesahkan</div>
-                            <div class="font-bold text-slate-900 mt-1">{{ $rapat->penandatangan_nama ?: 'I WAYAN SUDARSANA, S.Sos.' }}</div>
-                            <div class="text-slate-600 text-[11px]">{{ $rapat->penandatangan_jabatan ?: 'Perbekel Belega' }}</div>
+                            <div class="font-bold text-slate-900 mt-1">{{ ($rapat->penandatangan_nama && !str_contains($rapat->penandatangan_nama, 'SUDARSANA')) ? $rapat->penandatangan_nama : 'I Ketut Trisna Jaya, SS' }}</div>
+                            <div class="text-slate-600 text-[11px]">{{ ($rapat->penandatangan_jabatan && !str_contains($rapat->penandatangan_jabatan, 'Plt.')) ? $rapat->penandatangan_jabatan : 'Perbekel Desa Belega' }}</div>
                         </div>
                     </div>
                 </div>

@@ -396,10 +396,10 @@
                 <div class="flex justify-center text-center">
                     <div class="w-5/12 text-center">
                         <div>{{ $rapat->mengetahui_label ?: 'Mengetahui :' }}</div>
-                        <div class="font-semibold">{{ $rapat->penandatangan_jabatan ?: 'Perbekel Belega' }}</div>
+                        <div class="font-semibold">{{ ($rapat->penandatangan_jabatan && !str_contains($rapat->penandatangan_jabatan, 'Plt.')) ? $rapat->penandatangan_jabatan : 'Perbekel Desa Belega' }}</div>
                         <div class="h-20"></div>
                         <div class="font-bold underline uppercase">
-                            ({{ $rapat->penandatangan_nama ?: 'I WAYAN SUDARSANA, S.Sos.' }})
+                            ({{ ($rapat->penandatangan_nama && !str_contains($rapat->penandatangan_nama, 'SUDARSANA')) ? $rapat->penandatangan_nama : 'I Ketut Trisna Jaya, SS' }})
                         </div>
                         @if (!empty($rapat->penandatangan_nip))
                             <div class="text-[8.5pt]">NIP. {{ $rapat->penandatangan_nip }}</div>

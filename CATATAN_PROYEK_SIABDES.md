@@ -243,6 +243,38 @@ npm run build
   - `public/build/` (aset produksi hasil kompilasi baru)
 - **Paket Update cPanel:** `update-kartu-bukti-canvas.zip`
 
+---
+
+## 14. Pembaruan Sesi 16 November 2026 — Penyesuaian Pejabat Pengesah Default (Perbekel Desa Belega)
+
+- **Masalah & Kebutuhan:**
+  - Nilai default untuk Pihak 3 (Mengetahui / Mengesahkan) pada pembuatan rapat, pengaturan rapat, dan halaman verifikasi dokumen publik (`/v/{kode}`) sebelumnya masih menggunakan nama dan status Plt. lama (`I WAYAN SUDARSANA, S.Sos.` / `Plt. Perbekel Desa Belega`).
+  - Pengguna meminta agar nama dan jabatan default selalu menggunakan Perbekel definitif: **`I Ketut Trisna Jaya, SS`** dengan jabatan **`Perbekel Desa Belega`**, tanpa mengubah atau merusak fitur dan data absensi yang sudah berjalan.
+- **Solusi yang Diterapkan:**
+  1. **Form Rapat Baru (`FormRapat.php` & `form-rapat.blade.php`):**
+     - Mengubah nilai default dan placeholder `$penandatangan_nama` menjadi `'I Ketut Trisna Jaya, SS'`.
+     - Mengubah nilai default dan placeholder `$penandatangan_jabatan` menjadi `'Perbekel Desa Belega'`.
+  2. **Pengaturan & Pejabat Pengesah Rapat (`DetailRapat.php` & `detail-rapat.blade.php`):**
+     - Mengubah inisialisasi form agar nama pejabat lama otomatis dialihkan ke `'I Ketut Trisna Jaya, SS'` dan `'Perbekel Desa Belega'`.
+     - Memperbarui teks placeholder pada antarmuka tab Pengaturan.
+  3. **RapatService (`RapatService.php`):**
+     - Menyesuaikan nilai fallback pembuatan dan duplikasi agenda rapat baru.
+  4. **Halaman Publik Verifikasi Dokumen (`resources/views/verifikasi/dokumen.blade.php`):**
+     - Blok *Mengetahui / Mengesahkan* kini menampilkan `I Ketut Trisna Jaya, SS` dengan jabatan `Perbekel Desa Belega`.
+  5. **Lembar Cetak A4 (`resources/views/cetak/lembar-a4.blade.php`):**
+     - Blok penandatangan tengah bawah diselaraskan ke `Perbekel Desa Belega` dan `I Ketut Trisna Jaya, SS`.
+- **Perubahan Basis Data:** Tidak ada perubahan struktur/skema.
+- **Berkas yang Diperbarui:**
+  - `app/Http/Livewire/Rapat/FormRapat.php`
+  - `resources/views/livewire/rapat/form-rapat.blade.php`
+  - `app/Http/Livewire/Rapat/DetailRapat.php`
+  - `resources/views/livewire/rapat/detail-rapat.blade.php`
+  - `app/Services/RapatService.php`
+  - `resources/views/verifikasi/dokumen.blade.php`
+  - `resources/views/cetak/lembar-a4.blade.php`
+- **Paket Update cPanel:** `update-pejabat-pengesah-default.zip`
+
+
 
 
 
