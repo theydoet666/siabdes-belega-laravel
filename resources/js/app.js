@@ -2,7 +2,7 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 
 import tandaTanganPad from './alpine/tandaTanganPad';
 import kameraWajah from './alpine/kameraWajah';
@@ -11,6 +11,7 @@ import db from './offline/db';
 import antrean from './offline/antrean';
 
 window.html2canvas = html2canvas;
+window.html2canvasPro = html2canvas;
 
 // Konfigurasi SweetAlert2 bertema SIABDES Belega
 const SiabdesAlert = Swal.mixin({

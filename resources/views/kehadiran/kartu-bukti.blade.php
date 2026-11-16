@@ -15,6 +15,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800|plus-jakarta-sans:400,500,600,700,800" rel="stylesheet" />
 
+    <!-- html2canvas-pro: Mendukung penuh CSS Modern / Tailwind v4 (OKLCH color space) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas-pro@latest/dist/html2canvas-pro.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -254,7 +257,7 @@
             const btn = document.getElementById('btn-unduh-gambar');
             const target = document.getElementById('kartu-kehadiran-cetak');
             
-            const h2c = window.html2canvas || (typeof html2canvas !== 'undefined' ? html2canvas : null);
+            const h2c = window.html2canvasPro || window.html2canvas || (typeof html2canvasPro !== 'undefined' ? html2canvasPro : (typeof html2canvas !== 'undefined' ? html2canvas : null));
             if (!target || !h2c) {
                 if (window.SiabdesAlert) {
                     window.SiabdesAlert.fire({

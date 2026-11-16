@@ -222,6 +222,28 @@ npm run build
   - `resources/views/livewire/undangan/modal-pilih-riwayat-undangan.blade.php`
 - **Paket Update cPanel:** `update-bank-riwayat-undangan.zip` (berisi 3 file di atas)
 
+---
+
+## 13. Pembaruan Sesi 16 November 2026 — Perbaikan Unduh Kartu Bukti Hadir Digital (Error OKLCH Color Space)
+
+- **Masalah:**
+  - Saat menekan tombol **"Simpan / Unduh Kartu ke Galeri (PNG)"** di kartu bukti kehadiran (`/bukti/{id}`), muncul alert peringatan dan console browser mencatat error:  
+    `Error saat membuat gambar: Error: Attempting to parse an unsupported color function "oklch" at Object.parse (app-DXMyTv61.js)`.
+  - *Penyebab:* Framework CSS Tailwind v4 secara default mengompilasi palet warnanya (`slate`, `emerald`, `amber`, `teal`, `shadow`, gradasi) ke fungsi ruang warna CSS modern `oklch(...)`. Pustaka lawas `html2canvas v1.4.1` tidak memiliki parser untuk format `oklch()`, sehingga mengalami crash saat membaca computed style kartu bukti hadir.
+- **Solusi yang Diterapkan:**
+  1. **Migrasi ke `html2canvas-pro` (v2.6.4):** Mengganti pustaka bawaan dengan `html2canvas-pro` yang merupakan penerus resmi yang mendukung penuh format ruang warna modern (`oklch()`, `oklab()`, `lab()`, `color()`), gradasi, dan drop-shadow Tailwind v4.
+  2. **Konfigurasi Vite Alias & Bundling:** Menambahkan alias `html2canvas: 'html2canvas-pro'` di `vite.config.js` dan mendaftarkan `window.html2canvas` serta `window.html2canvasPro` di `resources/js/app.js`.
+  3. **Dual-Layer Fallback di `kartu-bukti.blade.php`:** Menyertakan script CDN `html2canvas-pro` langsung di tag `<head>` halaman kartu bukti hadir sebagai *hotfix* instan, sehingga kartu dapat langsung disimpan ke format gambar PNG secara andal baik secara offline maupun online.
+- **Perubahan Basis Data:** Tidak ada.
+- **Berkas yang Diperbarui:**
+  - `package.json` & `package-lock.json`
+  - `vite.config.js`
+  - `resources/js/app.js`
+  - `resources/views/kehadiran/kartu-bukti.blade.php`
+  - `public/build/` (aset produksi hasil kompilasi baru)
+- **Paket Update cPanel:** `update-kartu-bukti-canvas.zip`
+
+
 
 
 
