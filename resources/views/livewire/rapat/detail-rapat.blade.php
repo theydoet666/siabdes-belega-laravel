@@ -705,7 +705,7 @@
     @endif
 
     <!-- Modal Tanda Tangan Pejabat Pengesah -->
-    @if ($bukaModalTtd)
+    @if ($tampilModalTtd)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-tinta/60 backdrop-blur-xs">
             <div class="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-garis overflow-hidden flex flex-col max-h-[90vh]"
                  x-data="{

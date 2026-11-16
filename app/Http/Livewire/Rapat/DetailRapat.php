@@ -88,7 +88,7 @@ class DetailRapat extends Component
     public bool $bukaModalHapus = false;
 
     // Modal Tanda Tangan Pejabat Pengesah
-    public bool $bukaModalTtd = false;
+    public bool $tampilModalTtd = false;
     public string $pejabatTtdAktif = 'penandatangan'; // 'verifikator', 'pelaksana', 'penandatangan'
     public string $pejabatTtdNama = '';
     public string $pejabatTtdJabatan = '';
@@ -311,13 +311,13 @@ class DetailRapat extends Component
             $this->pejabatTtdJabatan = ($jabatanTersimpan && !str_contains($jabatanTersimpan, 'Plt.')) ? $jabatanTersimpan : 'Perbekel Desa Belega';
         }
 
-        $this->bukaModalTtd = true;
+        $this->tampilModalTtd = true;
         $this->dispatch('siapkan-kanvas-ttd-pejabat');
     }
 
     public function tutupModalTtd(): void
     {
-        $this->bukaModalTtd = false;
+        $this->tampilModalTtd = false;
     }
 
     public function simpanTtdPejabat(string $tipe, string $dataBase64): void
