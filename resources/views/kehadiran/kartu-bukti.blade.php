@@ -78,6 +78,7 @@
                 <button @click="bukaModalQr = true" 
                         type="button" 
                         title="Pindai QR Code untuk langsung unduh di ponsel"
+                        style="background-color: #0891b2; color: #ffffff;"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-sm transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -278,76 +279,98 @@
             <!-- Background Backdrop Click to Dismiss -->
             <div class="fixed inset-0" @click="bukaModalQr = false"></div>
 
-            <!-- Modal Content Card -->
-            <div class="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800 z-10"
+            <!-- Modal Content Card (Elegan, Proporsional & Anti-Overflow) -->
+            <div class="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800 z-10 max-h-[92vh] overflow-y-auto"
+                 style="background-color: #ffffff; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);"
                  @click.stop>
                 
-                <!-- Header Modal -->
-                <div class="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 px-5 py-4 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-cyan-300">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Header Modal (Warna Hijau Tua Resmi SIABDES, 100% Kebal Cache Hosting) -->
+                <div style="background-color: #0f3d28 !important; color: #ffffff !important; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; color: #6ee7b7; flex-shrink: 0;">
+                            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold leading-tight">Pindai untuk Unduh di Ponsel</h3>
-                            <p class="text-[10px] text-emerald-200/80">Scan langsung dengan kamera HP Anda</p>
+                            <h3 style="font-size: 15px; font-weight: 800; line-height: 1.2; margin: 0; color: #ffffff !important;">Pindai untuk Unduh di Ponsel</h3>
+                            <p style="font-size: 11px; margin-top: 3px; margin-bottom: 0; color: #a7f3d0 !important;">Scan langsung dengan kamera HP Anda</p>
                         </div>
                     </div>
                     <button type="button" 
                             @click="bukaModalQr = false" 
-                            class="text-white/60 hover:text-white text-lg font-bold p-1 transition cursor-pointer">
+                            style="background: transparent; border: none; color: #ffffff !important; font-size: 22px; font-weight: bold; cursor: pointer; padding: 4px 8px; line-height: 1; opacity: 0.8;"
+                            onmouseover="this.style.opacity='1'" 
+                            onmouseout="this.style.opacity='0.8'">
                         ✕
                     </button>
                 </div>
 
                 <!-- Body Modal -->
-                <div class="p-5 sm:p-6 text-center space-y-4">
-                    <!-- Kartu QR Utama -->
-                    <div class="p-4 bg-slate-50 border-2 border-dashed border-emerald-500/30 rounded-2xl flex flex-col items-center justify-center">
-                        <div class="w-48 h-48 sm:w-56 sm:h-56 bg-white p-2 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full">
+                <div style="padding: 20px 22px; text-align: center; background: #ffffff;">
+                    <!-- Kartu QR Utama (Proporsional & Elegan) -->
+                    <div style="background: #f8fafc; border: 2px dashed #10b981; border-radius: 20px; padding: 18px 14px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 220px; height: 220px; max-width: 100%; background: #ffffff; border-radius: 16px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center;">
                             @if (!empty($qrUnduhSvg))
-                                {!! $qrUnduhSvg !!}
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;" class="[&>svg]:w-full [&>svg]:h-full">
+                                    {!! $qrUnduhSvg !!}
+                                </div>
                             @else
-                                <div class="text-xs font-mono text-slate-400">QR Code Siap Digenerate</div>
+                                <div style="font-size: 12px; font-family: monospace; color: #94a3b8;">QR Code Siap Digenerate</div>
                             @endif
                         </div>
 
-                        <div class="mt-3 text-center">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                        <div style="margin-top: 14px; text-align: center;">
+                            <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
                                 ✓ KARTU HADIR SAH DESA BELEGA
                             </span>
-                            <div class="text-xs font-extrabold text-slate-900 mt-1 uppercase">{{ $undangan->nama }}</div>
-                            <div class="text-[10px] text-slate-500 truncate max-w-[260px]">{{ $rapat->judul }}</div>
+                            <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 6px; text-transform: uppercase;">
+                                {{ $undangan->nama }}
+                            </div>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 2px; max-width: 280px; margin-left: auto; margin-right: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ $rapat->judul }}
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Petunjuk Singkat -->
-                    <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 text-left space-y-1">
-                        <div class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
+                    <!-- Petunjuk Singkat (Anti-Overflow, 100% Rapi Bebas Keluar Frame) -->
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 16px; padding: 14px 16px; text-align: left; margin-bottom: 18px;">
+                        <div style="font-size: 11px; font-weight: 800; color: #78350f; display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
                             <span>💡 Cara Mengunduh ke Ponsel:</span>
                         </div>
-                        <ol class="text-[10.5px] text-amber-800 list-decimal list-inside space-y-0.5 leading-snug">
-                            <li>Buka aplikasi <strong>Kamera</strong> atau <strong>Google Lens</strong> di ponsel Anda.</li>
-                            <li>Arahkan kamera ke kode QR di atas.</li>
-                            <li>Klik tautan yang muncul; kartu akan otomatis terbuka dan tersimpan ke galeri ponsel Anda.</li>
-                        </ol>
+                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #92400e; line-height: 1.45;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <span style="width: 20px; height: 20px; border-radius: 9999px; background: #fde68a; color: #78350f; font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;">1</span>
+                                <span>Buka aplikasi <strong>Kamera</strong> atau <strong>Google Lens</strong> di ponsel Anda.</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <span style="width: 20px; height: 20px; border-radius: 9999px; background: #fde68a; color: #78350f; font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;">2</span>
+                                <span>Arahkan kamera ke kode QR di atas.</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <span style="width: 20px; height: 20px; border-radius: 9999px; background: #fde68a; color: #78350f; font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;">3</span>
+                                <span>Klik tautan yang muncul; kartu akan otomatis terbuka dan tersimpan ke galeri ponsel Anda.</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aksi Salin Tautan & Tutup -->
-                    <div class="flex items-center justify-between gap-2 pt-1">
+                    <div style="display: flex; align-items: center; gap: 10px;">
                         <button type="button" 
-                                @click="navigator.clipboard.writeText('{{ $urlUnduhQr ?? $urlBuktiPribadi }}'); disalin = true; setTimeout(() => disalin = false, 2000)"
-                                class="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 flex items-center justify-center gap-1.5 transition cursor-pointer">
-                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                @click="navigator.clipboard.writeText('{{ $urlUnduhQr ?? $urlBuktiPribadi }}'); disalin = true; setTimeout(() => disalin = false, 2500)"
+                                style="flex: 1; padding: 10px 14px; border-radius: 12px; background: #f1f5f9; color: #334155; font-size: 12px; font-weight: 700; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;"
+                                onmouseover="this.style.background='#e2e8f0'" 
+                                onmouseout="this.style.background='#f1f5f9'">
+                            <svg style="width: 14px; height: 14px; color: #64748b;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                             <span x-text="disalin ? '✓ Tautan Disalin!' : 'Salin Tautan'">Salin Tautan</span>
                         </button>
                         <button type="button" 
                                 @click="bukaModalQr = false" 
-                                class="py-2 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer shadow-sm">
+                                style="padding: 10px 22px; border-radius: 12px; background: #0f3d28; color: #ffffff; font-size: 12px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 6px rgba(15, 61, 40, 0.2);"
+                                onmouseover="this.style.background='#092619'" 
+                                onmouseout="this.style.background='#0f3d28'">
                             Selesai / Tutup
                         </button>
                     </div>

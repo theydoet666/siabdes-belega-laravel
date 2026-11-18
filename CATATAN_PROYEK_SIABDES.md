@@ -327,6 +327,11 @@ npm run build
      - Modal pop-up responsif (Alpine.js) dengan tampilan QR Code beresolusi tinggi, lencana keabsahan kartu, ringkasan nama peserta & agenda, petunjuk langkah scan, dan tombol Salin Tautan.
      - Script otomatisasi unduh: jika halaman dibuka di ponsel peserta melalui hasil scan QR (terdeteksi parameter `?unduh=1`), sistem otomatis memicu pembuatan dan pengunduhan berkas gambar PNG ke galeri ponsel menggunakan `html2canvas-pro`.
 - **Paket Update cPanel:** `update-scan-qr-bukti-kehadiran.zip`
+- **Penyempurnaan Tampilan Modal Scan QR (Kebal Cache Hosting & Anti-Overflow):**
+  - Menerapkan styling mandiri (*self-contained style*) dengan warna hijau tua resmi SIABDES (`#0f3d28`) dan teks putih tebal, menjamin tampilan di server hosting 100% konsisten dan tidak memutih akibat keterlambatan cache CSS.
+  - Memperbaiki kotak petunjuk unduh menggunakan badge angka flexbox `(1)`, `(2)`, `(3)`, mencegah angka keluar garis tepi (*anti-overflow*).
+  - Menyertakan bundel aset terkompilasi `public/build/` ke dalam paket update zip.
+
 
 
 
