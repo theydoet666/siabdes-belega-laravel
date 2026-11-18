@@ -73,6 +73,18 @@ class BuktiKehadiranController extends Controller
         // URL bukti kehadiran bertanda tangan sementara (24 jam)
         $urlBuktiPribadi = URL::temporarySignedRoute('kehadiran.bukti', now()->addHours(24), ['id' => $kehadiran->id]);
 
+        // URL & QR Code khusus untuk pemindaian / unduh langsung di ponsel (24 jam)
+        $urlUnduhQr = URL::temporarySignedRoute('kehadiran.bukti', now()->addHours(24), [
+            'id' => $kehadiran->id,
+            'unduh' => 1,
+        ]);
+        $qrUnduhSvg = null;
+        try {
+            $qrUnduhSvg = QrCode::size(240)->margin(1)->generate($urlUnduhQr);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal generate QR Unduh Bukti Hadir: '.$e->getMessage());
+        }
+
         // URL berkas foto wajah dan tanda tangan privat bertanda tangan sementara (24 jam)
         $fotoUrl = $kehadiran->foto_path
             ? URL::temporarySignedRoute('berkas.tampil', now()->addHours(24), ['jenis' => 'foto', 'id' => $kehadiran->id])
@@ -102,6 +114,8 @@ class BuktiKehadiranController extends Controller
             'urlVerifikasi' => $urlVerifikasi,
             'qrVerifikasiSvg' => $qrVerifikasiSvg,
             'urlBuktiPribadi' => $urlBuktiPribadi,
+            'urlUnduhQr' => $urlUnduhQr,
+            'qrUnduhSvg' => $qrUnduhSvg,
             'fotoUrl' => $fotoUrl,
             'ttdUrl' => $ttdUrl,
             'fotoBase64' => $fotoBase64,

@@ -21,6 +21,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        [x-cloak] { display: none !important; }
         @media print {
             body {
                 background: #fff !important;
@@ -38,7 +39,8 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100 min-h-screen font-sans antialiased py-6 sm:py-10 px-4 sm:px-6">
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100 min-h-screen font-sans antialiased py-6 sm:py-10 px-4 sm:px-6"
+      x-data="{ bukaModalQr: false, disalin: false }">
 
     <div class="max-w-xl mx-auto space-y-5">
 
@@ -70,6 +72,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
                     <span>Cetak</span>
+                </button>
+
+                <!-- Tombol Scan QR Unduh di HP -->
+                <button @click="bukaModalQr = true" 
+                        type="button" 
+                        title="Pindai QR Code untuk langsung unduh di ponsel"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-sm transition cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    <span>Scan QR</span>
                 </button>
             </div>
         </div>
@@ -250,6 +263,99 @@
             </p>
         </div>
 
+        <!-- ================= MODAL SCAN QR UNDUH DI HP (NO PRINT) ================= -->
+        <div x-show="bukaModalQr" 
+             x-cloak
+             @keydown.escape.window="bukaModalQr = false"
+             class="no-print fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+             
+            <!-- Background Backdrop Click to Dismiss -->
+            <div class="fixed inset-0" @click="bukaModalQr = false"></div>
+
+            <!-- Modal Content Card -->
+            <div class="relative w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-800 z-10"
+                 @click.stop>
+                
+                <!-- Header Modal -->
+                <div class="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 px-5 py-4 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-cyan-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold leading-tight">Pindai untuk Unduh di Ponsel</h3>
+                            <p class="text-[10px] text-emerald-200/80">Scan langsung dengan kamera HP Anda</p>
+                        </div>
+                    </div>
+                    <button type="button" 
+                            @click="bukaModalQr = false" 
+                            class="text-white/60 hover:text-white text-lg font-bold p-1 transition cursor-pointer">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Body Modal -->
+                <div class="p-5 sm:p-6 text-center space-y-4">
+                    <!-- Kartu QR Utama -->
+                    <div class="p-4 bg-slate-50 border-2 border-dashed border-emerald-500/30 rounded-2xl flex flex-col items-center justify-center">
+                        <div class="w-48 h-48 sm:w-56 sm:h-56 bg-white p-2 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full">
+                            @if (!empty($qrUnduhSvg))
+                                {!! $qrUnduhSvg !!}
+                            @else
+                                <div class="text-xs font-mono text-slate-400">QR Code Siap Digenerate</div>
+                            @endif
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                ✓ KARTU HADIR SAH DESA BELEGA
+                            </span>
+                            <div class="text-xs font-extrabold text-slate-900 mt-1 uppercase">{{ $undangan->nama }}</div>
+                            <div class="text-[10px] text-slate-500 truncate max-w-[260px]">{{ $rapat->judul }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Petunjuk Singkat -->
+                    <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 text-left space-y-1">
+                        <div class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
+                            <span>💡 Cara Mengunduh ke Ponsel:</span>
+                        </div>
+                        <ol class="text-[10.5px] text-amber-800 list-decimal list-inside space-y-0.5 leading-snug">
+                            <li>Buka aplikasi <strong>Kamera</strong> atau <strong>Google Lens</strong> di ponsel Anda.</li>
+                            <li>Arahkan kamera ke kode QR di atas.</li>
+                            <li>Klik tautan yang muncul; kartu akan otomatis terbuka dan tersimpan ke galeri ponsel Anda.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Aksi Salin Tautan & Tutup -->
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <button type="button" 
+                                @click="navigator.clipboard.writeText('{{ $urlUnduhQr ?? $urlBuktiPribadi }}'); disalin = true; setTimeout(() => disalin = false, 2000)"
+                                class="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span x-text="disalin ? '✓ Tautan Disalin!' : 'Salin Tautan'">Salin Tautan</span>
+                        </button>
+                        <button type="button" 
+                                @click="bukaModalQr = false" 
+                                class="py-2 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer shadow-sm">
+                            Selesai / Tutup
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -343,6 +449,25 @@
                 btn.disabled = false;
             }
         }
+
+        // Otomatisasi pengunduhan gambar ketika dibuka melalui Scan QR di Ponsel (?unduh=1)
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('unduh') === '1') {
+                setTimeout(() => {
+                    if (window.SiabdesAlert) {
+                        window.SiabdesAlert.fire({
+                            icon: 'info',
+                            title: 'Pindai QR Berhasil',
+                            text: 'Menyiapkan unduhan otomatis kartu bukti hadir ke galeri ponsel Anda...',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                    unduhKartuSebagaiGambar();
+                }, 1200);
+            }
+        });
     </script>
 
 </body>

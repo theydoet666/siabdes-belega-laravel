@@ -1,6 +1,6 @@
 # Rangkuman & Catatan Pengembangan SIABDES Belega (Laravel 12)
 
-**Tanggal Pembaruan Terakhir:** 16 November 2026  
+**Tanggal Pembaruan Terakhir:** 18 November 2026  
 **Status Proyek:** Seluruh fitur telah selesai dan **BERHASIL DI-HOSTING / DEPLOY KE PRODUCTION** di subdomain resmi `https://siabsendesa.belega.id/` (cPanel Rumahweb, PHP 8.4.27, MySQL 8). Dokumentasi SOP pemeliharaan dan revisi berkala tersimpan di `DOKUMENTASI_HOSTING_PRODUCTION.md`.
 
 ---
@@ -310,6 +310,24 @@ npm run build
 - **Paket Update cPanel:** `update-ttd-pejabat-pengesah.zip`
 - **Catatan Pembaruan Reaktif Modal TTD (16 November 2026):**
   - Mengintegrasikan Alpine state dengan Livewire entangle (`pejabatAktif: $wire.entangle('pejabatTtdAktif')`) pada modal tanda tangan pejabat untuk menjamin target kolom penyimpanan (`verifikator_ttd`, `pelaksana_ttd`, `penandatangan_ttd`) selalu sinkron saat berpindah tab pejabat tanpa risiko tertukar.
+
+---
+
+## 16. Pembaruan Fitur Scan QR Unduh Kartu Bukti Hadir di Ponsel (18 November 2026)
+
+- **Kebutuhan:**
+  - Menambahkan fitur QR Code pada halaman Kartu Bukti Kehadiran Digital (`/bukti/{id}`) agar peserta dapat langsung memindai layar operator dengan ponsel dan mengunduh kartu bukti kehadiran ke galeri tanpa perlu meminta operator mengirim link manual via WhatsApp.
+  - Tombol diletakkan di bilah atas (Top Bar) bersandingan dengan tombol WhatsApp dan Cetak.
+- **Solusi yang Diterapkan:**
+  1. **Backend Controller (`app/Http/Controllers/BuktiKehadiranController.php`):**
+     - Menghasilkan temporary signed route resmi dengan masa berlaku 24 jam yang menyertakan parameter khusus `unduh=1`.
+     - Men-generate QR Code vektor SVG berkualitas tinggi menggunakan `SimpleSoftwareIO\QrCode\Facades\QrCode`.
+  2. **Tampilan Frontend (`resources/views/kehadiran/kartu-bukti.blade.php`):**
+     - Tombol **"Scan QR"** berwarna cyan cerah di bilah navigasi atas di samping tombol WhatsApp & Cetak.
+     - Modal pop-up responsif (Alpine.js) dengan tampilan QR Code beresolusi tinggi, lencana keabsahan kartu, ringkasan nama peserta & agenda, petunjuk langkah scan, dan tombol Salin Tautan.
+     - Script otomatisasi unduh: jika halaman dibuka di ponsel peserta melalui hasil scan QR (terdeteksi parameter `?unduh=1`), sistem otomatis memicu pembuatan dan pengunduhan berkas gambar PNG ke galeri ponsel menggunakan `html2canvas-pro`.
+- **Paket Update cPanel:** `update-scan-qr-bukti-kehadiran.zip`
+
 
 
 
