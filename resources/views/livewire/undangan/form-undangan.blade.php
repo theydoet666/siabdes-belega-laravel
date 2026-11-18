@@ -89,6 +89,24 @@
                         </div>
                     </div>
 
+                    @if ($isEdit)
+                        <!-- Nomor Urut Khusus Edit -->
+                        <div class="p-3.5 bg-kertas/60 border border-garis rounded-2xl flex items-center justify-between gap-4">
+                            <div>
+                                <label for="urutanUndangan" class="block text-xs font-bold text-tinta leading-tight">
+                                    Nomor Urut Posisi
+                                </label>
+                                <p class="text-[11px] text-tinta/50 mt-0.5">Urutan tampilan peserta di tabel dan lembar cetak absensi A4</p>
+                            </div>
+                            <input wire:model="urutan" 
+                                   type="number" 
+                                   id="urutanUndangan" 
+                                   min="1" 
+                                   placeholder="Otomatis" 
+                                   class="w-20 px-3 py-2 bg-white border border-garis focus:border-daun rounded-xl text-sm text-center font-bold font-mono text-tinta focus:outline-none focus:ring-1 transition" />
+                        </div>
+                    @endif
+
                     <!-- Tombol Aksi Modal -->
                     <div class="pt-3 flex items-center justify-end gap-3 border-t border-garis">
                         <button wire:click="tutup" 

@@ -22,6 +22,17 @@
 
             <!-- Tombol Aksi Undangan -->
             <div class="flex flex-wrap items-center gap-2">
+                <!-- Atur Urutan -->
+                <button wire:click="bukaModalUrutan" 
+                        type="button" 
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold shadow-sm transition cursor-pointer"
+                        title="Atur Posisi & Urutan Nomor Undangan">
+                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                    <span>Atur Urutan</span>
+                </button>
+
                 <!-- Tambah Manual -->
                 <button wire:click="$dispatch('buka-modal-tambah-undangan', { rapatId: '{{ $rapatId }}' })" 
                         type="button" 
@@ -121,8 +132,28 @@
                         @endphp
                         <tr class="hover:bg-kertas/30 transition">
                             <!-- Nomor Urut -->
-                            <td class="py-3.5 px-4 sm:px-6 text-center text-tinta/50 font-mono text-xs">
-                                {{ $daftarUndangan->firstItem() + $index }}
+                            <td class="py-3.5 px-3 sm:px-4 text-center text-tinta/60 font-mono text-xs">
+                                <div class="inline-flex items-center justify-center gap-1">
+                                    <span class="font-bold text-tinta font-mono w-5 text-center">
+                                        {{ $item->urutan ?: ($daftarUndangan->firstItem() + $index) }}
+                                    </span>
+                                    @if (empty($cari) && empty($filterSumber) && empty($filterKehadiran))
+                                        <div class="inline-flex flex-col -space-y-1">
+                                            <button wire:click="naikkanUrutan('{{ $item->id }}')" 
+                                                    type="button" 
+                                                    title="Geser Naik (1 ke atas)" 
+                                                    class="p-0.5 rounded text-slate-400 hover:text-daun hover:bg-slate-100 transition cursor-pointer">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                                            </button>
+                                            <button wire:click="turunkanUrutan('{{ $item->id }}')" 
+                                                    type="button" 
+                                                    title="Geser Turun (1 ke bawah)" 
+                                                    class="p-0.5 rounded text-slate-400 hover:text-daun hover:bg-slate-100 transition cursor-pointer">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
                             </td>
 
                             <!-- Nama -->
@@ -244,6 +275,125 @@
             </div>
         @endif
     </div>
+
+    <!-- Modal Atur Urutan Undangan -->
+    @if ($tampilModalUrutan)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-tinta/60 backdrop-blur-xs">
+            <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-garis overflow-hidden flex flex-col max-h-[90vh]">
+                
+                <!-- Header Modal -->
+                <div class="bg-daun-tua px-6 py-5 text-white flex items-center justify-between shrink-0"
+                     style="background-color: #0f3d28; color: #ffffff;">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20 text-emerald-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold leading-tight">Atur Posisi & Urutan Undangan</h3>
+                            <p class="text-xs text-emerald-200/80 mt-0.5">Tentukan urutan nomor peserta rapat untuk lembar absensi cetak dan daftar hadir</p>
+                        </div>
+                    </div>
+                    <button wire:click="tutupModalUrutan" type="button" class="text-white/70 hover:text-white cursor-pointer text-xl font-bold p-1">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Toolbar Pencarian & Rapikan -->
+                <div class="px-6 py-3 bg-kertas/50 border-b border-garis flex items-center justify-between gap-3 shrink-0">
+                    <div class="relative flex-1">
+                        <input wire:model.live.debounce.250ms="cariDiModal" 
+                               type="text" 
+                               placeholder="Cari nama dalam daftar..." 
+                               class="w-full pl-8 pr-3 py-1.5 bg-white border border-garis rounded-xl text-xs text-tinta placeholder-tinta/40 focus:outline-none focus:border-daun" />
+                        <svg class="w-3.5 h-3.5 text-tinta/40 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <button wire:click="rapikanUrutan" 
+                            type="button" 
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-garis text-xs font-semibold text-tinta transition cursor-pointer"
+                            title="Urutkan rapi 1, 2, 3...">
+                        <span>✨ Rapikan (1, 2, 3...)</span>
+                    </button>
+                </div>
+
+                <!-- Konten Daftar Undangan -->
+                <div class="p-6 overflow-y-auto space-y-2 flex-1">
+                    @forelse ($daftarUrutan as $row)
+                        <div class="flex items-center justify-between p-3 bg-slate-50 hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-200 rounded-2xl gap-3 transition">
+                            
+                            <!-- Nomor Urut / Input -->
+                            <div class="flex items-center gap-2 shrink-0">
+                                <label class="text-[10px] uppercase font-bold text-slate-400">No.</label>
+                                <input type="number" 
+                                       min="1" 
+                                       max="{{ count($daftarUrutan) }}" 
+                                       value="{{ $row['urutan'] }}" 
+                                       wire:change="ubahUrutan('{{ $row['id'] }}', $event.target.value)" 
+                                       class="w-14 text-center font-bold font-mono py-1.5 px-1 bg-white rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-daun" 
+                                       title="Ketik angka urutan lalu tekan Enter / klik di luar" />
+                            </div>
+
+                            <!-- Nama & Jabatan -->
+                            <div class="flex-1 min-w-0 px-2">
+                                <div class="font-bold text-xs sm:text-sm text-slate-900 truncate">{{ $row['nama'] }}</div>
+                                <div class="text-[11px] text-slate-500 truncate">
+                                    {{ $row['jabatan'] ?: '-' }}
+                                    @if ($row['instansi']) · {{ $row['instansi'] }} @endif
+                                </div>
+                            </div>
+
+                            <!-- Tombol Aksi Geser -->
+                            <div class="flex items-center gap-1 shrink-0">
+                                <!-- Tombol Jadikan No 1 -->
+                                <button wire:click="jadikanPalingAtas('{{ $row['id'] }}')" 
+                                        type="button" 
+                                        class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold transition cursor-pointer"
+                                        title="Jadikan urutan nomor 1 paling atas">
+                                    🔝 No. 1
+                                </button>
+
+                                <!-- Tombol Naik -->
+                                <button wire:click="naikkanUrutan('{{ $row['id'] }}')" 
+                                        type="button" 
+                                        class="p-1.5 rounded-lg bg-white hover:bg-slate-200 text-slate-700 border border-slate-200 transition cursor-pointer"
+                                        title="Naikkan 1 posisi">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                                </button>
+
+                                <!-- Tombol Turun -->
+                                <button wire:click="turunkanUrutan('{{ $row['id'] }}')" 
+                                        type="button" 
+                                        class="p-1.5 rounded-lg bg-white hover:bg-slate-200 text-slate-700 border border-slate-200 transition cursor-pointer"
+                                        title="Turunkan 1 posisi">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="py-8 text-center text-slate-400 text-xs">
+                            Tidak ada peserta undangan ditemukan.
+                        </div>
+                    @endforelse
+                </div>
+
+                <!-- Footer Modal -->
+                <div class="px-6 py-4 bg-kertas/50 border-t border-garis flex items-center justify-between gap-3 shrink-0">
+                    <div class="text-[11px] text-tinta/60">
+                        Total: <strong>{{ count($daftarUrutan) }}</strong> peserta undangan
+                    </div>
+                    <button wire:click="tutupModalUrutan" 
+                            type="button" 
+                            class="px-5 py-2.5 rounded-xl bg-daun hover:bg-daun-tua text-white text-xs font-semibold shadow-sm transition cursor-pointer">
+                        Selesai / Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Modals Terintegrasi -->
     <livewire:undangan.impor-csv />

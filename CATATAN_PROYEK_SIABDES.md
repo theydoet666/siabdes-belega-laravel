@@ -332,6 +332,29 @@ npm run build
   - Memperbaiki kotak petunjuk unduh menggunakan badge angka flexbox `(1)`, `(2)`, `(3)`, mencegah angka keluar garis tepi (*anti-overflow*).
   - Menyertakan bundel aset terkompilasi `public/build/` ke dalam paket update zip.
 
+---
+
+## 17. Pembaruan Fitur Pengaturan Posisi & Urutan Undangan Rapat (18 November 2026)
+
+- **Kebutuhan:**
+  - Memungkinkan operator mengatur posisi dan nomor urut setiap nama undangan rapat secara dinamis (siapa yang nomor 1, nomor 2, dan seterusnya), agar susunan absensi cetak A4 dan daftar hadir di sistem dapat disesuaikan dengan protokol/jabatan resmi (misal: Perbekel di nomor 1, Sekretaris Desa di nomor 2).
+- **Solusi yang Diterapkan:**
+  1. **Tombol Geser Cepat di Tabel (`resources/views/livewire/undangan/tabel-undangan.blade.php`):**
+     - Pada kolom `#`, ditampilkan nomor urut nyata beserta tombol panah mikro ⬆️ (naik 1 posisi) dan ⬇️ (turun 1 posisi) untuk menukar urutan secara instan via Livewire.
+  2. **Modal Khusus "Atur Urutan Undangan" (`TabelUndangan.php`):**
+     - Tombol **`[ ↕️ Atur Urutan ]`** di bilah atas samping *Tambah Manual*.
+     - Modal pop-up dengan daftar lengkap seluruh undangan rapat:
+       - Input angka nomor urut langsung (ketik angka target lalu Enter/blur, peserta lain otomatis bergeser rapi).
+       - Tombol pintas **"🔝 No. 1"** untuk langsung mengangkat nama ke urutan teratas.
+       - Tombol **"✨ Rapikan (1, 2, 3...)"** untuk menormalkan kembali urutan tanpa bolong/duplikat.
+       - Kolom pencarian cepat di dalam modal.
+  3. **Pengaturan Nomor Urut pada Modal Edit Undangan (`FormUndangan.php` & `form-undangan.blade.php`):**
+     - Menambahkan input nomor urut posisi saat mengedit data peserta undangan.
+  4. **Dampak Otomatis:**
+     - Seluruh query laporan cetak A4 (`CetakController`), Ekspor Excel (`RekapKehadiranExport`), dan tampilan tabel otomatis sinkron dengan nomor urut baru.
+- **Paket Update cPanel:** `update-atur-urutan-undangan.zip`
+
+
 
 
 

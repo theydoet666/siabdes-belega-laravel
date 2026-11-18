@@ -34,6 +34,8 @@ class FormUndangan extends Component
 
     public string $hp = '';
 
+    public ?int $urutan = null;
+
     public string $sumber = 'tambahan';
 
     #[On('buka-modal-tambah-undangan')]
@@ -44,7 +46,7 @@ class FormUndangan extends Component
         $this->rapatId = $rapatId;
         $this->rapat = Rapat::findOrFail($rapatId);
         $this->authorize('update', $this->rapat);
-        $this->reset(['nama', 'jabatan', 'instansi', 'hp']);
+        $this->reset(['nama', 'jabatan', 'instansi', 'hp', 'urutan']);
         $this->sumber = 'tambahan';
         $this->resetValidation();
         $this->tampil = true;
@@ -63,6 +65,7 @@ class FormUndangan extends Component
         $this->jabatan = $undangan->jabatan ?? '';
         $this->instansi = $undangan->instansi ?? '';
         $this->hp = $undangan->hp ?? '';
+        $this->urutan = $undangan->urutan ? (int) $undangan->urutan : null;
         $this->sumber = $undangan->sumber->value;
         $this->isEdit = true;
         $this->resetValidation();
@@ -72,7 +75,7 @@ class FormUndangan extends Component
     public function tutup(): void
     {
         $this->tampil = false;
-        $this->reset(['nama', 'jabatan', 'instansi', 'hp', 'rapatId', 'rapat', 'undanganId', 'isEdit']);
+        $this->reset(['nama', 'jabatan', 'instansi', 'hp', 'rapatId', 'rapat', 'undanganId', 'isEdit', 'urutan']);
         $this->resetValidation();
     }
 
@@ -115,6 +118,10 @@ class FormUndangan extends Component
                 'hp' => trim($this->hp),
                 'sumber' => $sumberEnum,
             ]);
+
+            if (!empty($this->urutan) && (int) $this->urutan !== (int) $undangan->urutan) {
+                $this->aturUrutanUndangan($undangan, (int) $this->urutan);
+            }
 
             AuditLog::create([
                 'aktor' => $aktor?->id,
@@ -171,6 +178,45 @@ class FormUndangan extends Component
         }
 
         $this->tutup();
+    }
+
+    protected function aturUrutanUndangan(Undangan $undangan, int $urutanBaru): void
+    {
+        $total = Undangan::where('rapat_id', $this->rapatId)->count();
+        $urutanBaru = max(1, min($urutanBaru, $total));
+        $urutanLama = (int) $undangan->urutan;
+
+        if ($urutanBaru === $urutanLama) {
+            return;
+        }
+
+        if ($urutanBaru < $urutanLama) {
+            Undangan::where('rapat_id', $this->rapatId)
+                ->where('id', '!=', $undangan->id)
+                ->whereBetween('urutan', [$urutanBaru, $urutanLama - 1])
+                ->increment('urutan');
+        } else {
+            Undangan::where('rapat_id', $this->rapatId)
+                ->where('id', '!=', $undangan->id)
+                ->whereBetween('urutan', [$urutanLama + 1, $urutanBaru])
+                ->decrement('urutan');
+        }
+
+        $undangan->update(['urutan' => $urutanBaru]);
+
+        // Rapikan jika ada nomor yang bentrok
+        $daftar = Undangan::where('rapat_id', $this->rapatId)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('dibuat_pada', 'asc')
+            ->get();
+
+        $i = 1;
+        foreach ($daftar as $item) {
+            if ($item->urutan !== $i) {
+                $item->update(['urutan' => $i]);
+            }
+            $i++;
+        }
     }
 
     public function render()
