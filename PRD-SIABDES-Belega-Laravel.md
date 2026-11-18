@@ -3,8 +3,8 @@
 
 | | |
 |---|---|
-| **Versi dokumen** | 2.3 (Pembaruan Produksi & Fitur Lembaga Desa) |
-| **Tanggal** | 5 November 2026 |
+| **Versi dokumen** | 2.4 (Pembaruan TTD Pejabat Pengesah, Scan QR Unduh di HP, & Pengaturan Urutan Undangan) |
+| **Tanggal** | 18 November 2026 |
 | **Status** | **Selesai Diimplementasikan & Berjalan di Produksi (https://siabsendesa.belega.id/)** |
 | **Pemilik produk** | Pemerintah Desa Belega, Kec. Blahbatuh, Kab. Gianyar |
 | **Stack Lama** | React + Vite + Tailwind CSS · Supabase (Postgres, Auth, Storage, Edge Functions) · PWA Dexie.js |
@@ -160,6 +160,26 @@ Pada versi migrasi ini, aplikasi dibangun ulang di atas **Laravel** sebagai back
 
 ### 5.10 Form Login Dinamis Terintegrasi Identitas Desa
 - Komponen form login (`HalamanLogin.php`) kini membaca langsung atribut `logo_url`, `nama_sistem`, dan `subjudul_sistem` dari tabel basis data `pengaturan_sistem`, menjaga konsistensi identitas instansi sejak pintu masuk aplikasi.
+
+### 5.11 Tanda Tangan Digital Pejabat Pengesah Rapat (Pembaruan Sesi 16 Nov 2026)
+- **Tiga Pihak Penandatangan Resmi**: 1. Verifikator (Sekretaris Desa), 2. Pelaksana Kegiatan (Kasi Pelayanan / Kaur), 3. Mengetahui / Mengesahkan (Perbekel Desa Belega - I Ketut Trisna Jaya, SS).
+- **Modal Interaktif 2 Mode**: Kanvas goresan langsung (touch/stylus/mouse) dan unggah berkas gambar PNG transparan pada masing-masing rapat.
+- **Penyimpanan Aman & Base64 Data URI**: Berkas tersimpan di `storage/app/public/tanda-tangan-pejabat/` dan dikonversi otomatis menjadi Base64 Data URI di `CetakController` untuk ketahanan cetak offline dan independensi dari symlink server.
+- **Integrasi Lembar A4 & Verifikasi Dokumen**: Otomatis ter-embed pada lembar absensi cetak A4 dengan tombol sakelar toggle *[TTD Pejabat: Tampil / Sembunyi]*, serta lencana `✓ TTD Sah` pada halaman verifikasi `/v/{kode}`.
+
+### 5.12 Scan QR Unduh Kartu Bukti Hadir Digital di Ponsel (Pembaruan Sesi 18 Nov 2026)
+- **Tombol Aksi Cepat Bar Atas**: Menempatkan tombol *Scan QR* berdampingan dengan WhatsApp dan Cetak pada halaman Kartu Bukti Hadir Digital (`/bukti/{id}`).
+- **Modal QR Pop-up Elegan & Self-Contained**: Menampilkan QR Code vektor SVG tajam beresolusi tinggi dengan styling mandiri warna hijau tua dinas (`#0f3d28`) yang kebal terhadap keterlambatan kompilasi/cache CSS hosting.
+- **Otomatisasi Unduh di Ponsel (*Instant Auto-Download*)**: QR Code memuat tautan aman bertanda tangan kriptografis (*Signed URL*) 24 jam dengan parameter `?unduh=1`. Saat peserta memindai QR melalui kamera HP/Google Lens, sistem otomatis memicu pembuatan dan pengunduhan berkas gambar PNG beresolusi tinggi (2x scale) ke galeri perangkat peserta.
+
+### 5.13 Pengaturan Posisi & Urutan Nomor Undangan Rapat (Pembaruan Sesi 18 Nov 2026)
+- **Tombol Panah Mikro Cepat di Tabel**: Tombol panah ⬆️ dan ⬇️ di kolom `#` untuk menukar posisi peserta secara instan satu tingkat ke atas atau ke bawah secara reaktif melalui Livewire.
+- **Modal Dialog "Atur Posisi & Urutan Undangan"**: Tombol `[ ↕️ Atur Urutan ]` di bilah atas membuka modal seluruh peserta rapat:
+  - Input nomor urut bebas: mengetik angka urutan baru langsung memicu pergeseran nomor urut peserta lain secara cerdas tanpa ada nomor bentrok.
+  - Tombol pintas `🔝 No. 1`: langsung mengangkat nama pejabat/tokoh ke urutan pertama paling atas.
+  - Tombol `✨ Rapikan (1, 2, 3...)`: menata ulang urutan agar berurutan bersih mulai dari 1 sampai akhir tanpa ada nomor loncat.
+- **Input Nomor Urut pada Modal Edit**: Bidang nomor urut posisi di dalam formulir edit undangan manual.
+- **Sinkronisasi Multi-Kanal Otomatis**: Urutan baru otomatis memengaruhi susunan di Tabel Undangan, Lembar Cetak Absensi A4 (`/rapat/{id}/cetak`), Ekspor Excel (`RekapKehadiranExport`), dan Mode Kiosk meja registrasi.
 
 ---
 
@@ -548,6 +568,9 @@ Perbedaan fundamental yang harus ditangani secara sadar saat migrasi: React SPA 
 | Modul Privasi & Audit Log | **Selesai** | Teruji via `KepatuhanPrivasiDanAuditLogTest` (6 tests PASS), retensi otomatis UU No. 27/2022 PDP |
 | Keseragaman UI & Paginasi | **Selesai** | Teruji via `KeseragamanDesainDanLayoutTest` (3 tests PASS), desain konsisten token tema SIABDES |
 | Modul Verifikasi Dokumen & Bukti Hadir | **Selesai** | Halaman publik `/v/{kode}` dan kartu bukti hadir digital `/bukti/{id}` terverifikasi |
+| Tanda Tangan Digital Pejabat Pengesah *(baru)* | **Selesai** | Penandatanganan digital 3 pejabat (Verifikator, Pelaksana, Perbekel) via kanvas/PNG, embed otomatis di Lembar Cetak A4 & lencana sah di verifikasi |
+| Scan QR Unduh Kartu Bukti Hadir di Ponsel *(baru)* | **Selesai** | QR Code SVG instan di kartu bukti hadir, signed URL 24 jam `?unduh=1`, auto-download galeri di HP, styling mandiri kebal cache hosting |
+| Pengaturan Urutan Posisi Undangan Rapat *(baru)* | **Selesai** | Tombol panah mikro ⬆️/⬇️ di tabel, modal atur urutan interaktif, input nomor urut edit, sinkronisasi otomatis ke lembar A4 & Excel |
 | Jembatan Berkas Storage Shared Hosting *(baru)* | **Selesai** | `public/storage.php` bypass symlink Apache cPanel, melayani seluruh foto/logo/ttd instan |
 | Deployment Produksi Live | **Selesai & Aktif** | **Aktif di https://siabsendesa.belega.id/ (cPanel Rumahweb, PHP 8.4, MySQL 8)** |
 | Uji Otomatis & Paritas Fungsi | **Selesai** | **46 Feature/Unit Tests (390 assertions, 100% PASS)** |
